@@ -28,7 +28,7 @@ const io = require('socket.io')(https, {
     maxHttpBufferSize: 1e9
   });
 
-https.listen(giraffe.design.com);               //set the port listening
+https.listen(giraffe-k1yap05p1-raph19s-projects.vercel.app);               //set the port listening
 //app.set("port", process.env.PORT || 3000);
 mongoose.set("strictQuery", false);
 
