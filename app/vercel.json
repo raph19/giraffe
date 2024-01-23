@@ -4,7 +4,10 @@
       { "src": "./app/views/**/*.ejs", "use": "@vercel/node" }
     ],
     "routes": [
-      { "src": "/app/(.+\\.ejs)", "dest": "./app/views/$1" },
+      { "src": "/public/(.*)", "dest": "./app/public/$1" },
+      { "src": "/public/css/(.*)", "dest": "./app/public/css/$1" },
+      { "src": "/public/js/(.*)", "dest": "./app/public/js/$1" },
+      { "src": "/(.+\\.ejs)", "dest": "./app/views/$1" },
       { "src": "/(.*)", "dest": "./app/views/index.ejs" }
     ]
   }
