@@ -27,11 +27,7 @@ const https = require('https').createServer( {
 const io = require('socket.io')(https, {
     maxHttpBufferSize: 1e9
   });
-  const PORT=3000;
-  const HOSTNAME=giraffe-puce.vercel.app;
-  https.listen(PORT, HOSTNAME, () => {
-      console.log(`Server running on https://${HOSTNAME}:${PORT}`);
-    });               //set the port listening
+  https.listen(3000);              //set the port listening
 //app.set("port", process.env.PORT || 3000);
 mongoose.set("strictQuery", false);
 
