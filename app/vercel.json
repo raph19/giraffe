@@ -4,7 +4,7 @@
       { "src": "./app/views/index.ejs", "use": "@vercel/node" }
     ],
     "routes": [
-      { "src": "/(.+\\.ejs)", "dest": "./app/views/index.ejs", "contentType": "text/html" },
+      { "src": "/(.+\\.ejs)", "dest": "./app/views/index.ejs"},
       { "src": "/(.*)", "dest": "./app/views/index.ejs" }
     ]
   }
