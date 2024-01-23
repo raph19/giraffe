@@ -28,7 +28,7 @@ const io = require('socket.io')(https, {
     maxHttpBufferSize: 1e9
   });
   const PORT=3000;
-  const HOSTNAME=giraffe-k1yap05p1-raph19s-projects.vercel.app;
+  const HOSTNAME=giraffe-odt5.vercel.app;
   https.listen(PORT, HOSTNAME, () => {
       console.log(`Server running on https://${HOSTNAME}:${PORT}`);
     });               //set the port listening
