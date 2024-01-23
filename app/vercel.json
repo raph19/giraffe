@@ -1,7 +1,7 @@
 {
     "version": 2,
     "builds": [
-      { "src": "./app/views/index.ejs", "use": "@vercel/node" }
+      { "src": "./app/views/**/*.ejs", "use": "@vercel/node" }
     ],
     "routes": [
       { "src": "/app/(.+\\.ejs)", "dest": "./app/views/$1" },
