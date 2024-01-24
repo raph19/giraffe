@@ -5,8 +5,8 @@
     "main": "application.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
-      "start": "node app/application.js",
-      "dev": "nodemon application",
+      "start": "node application.js",
+      "dev": "nodemon application.js",
       "build": "echo 'No build steps required'"
     },
     "author": "raph",
