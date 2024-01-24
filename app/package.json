@@ -2,11 +2,11 @@
     "name": "app",
     "version": "0.0.1",
     "description": "This is an app to edit space",
-    "main": "application.js",
+    "main": "app/application.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
-      "start": "node application.js",
-      "dev": "nodemon application.js",
+      "start": "node app/application.js",
+      "dev": "nodemon app/application.js",
       "build": "echo 'No build steps required'"
     },
     "author": "raph",
