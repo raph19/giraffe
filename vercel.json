@@ -7,6 +7,7 @@
       { "src": "/views/home/(.+\\.ejs)", "dest": "app/views/home/$1" },
       { "src": "/views/partials/(.+\\.ejs)", "dest": "app/views/partials/$1" },
       { "src": "/public/(.*)", "dest": "app/public/$1" },
+      { "src": "/(.+\\.ejs)", "dest": "app/views/$1" },
       { "src": "/(.*)", "dest": "app/routes/web/home.js" }
     ]
   }
