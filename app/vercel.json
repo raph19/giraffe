@@ -4,6 +4,6 @@
     { "src": "./application.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(https:\\/\\/localhost:3000)\\/(.+)", "dest": "./app/routes/web/home.js" }
+    { "src": "/(.+)", "dest": "./app/routes/web/home.js" }
   ]
 }
