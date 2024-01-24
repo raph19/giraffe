@@ -4,7 +4,8 @@
     { "src": "./application.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.+\\.ejs)", "dest": "./views/$1" },
+    { "src": "/(.+\\.ejs)", "dest": "./views/home/$1" },
+    { "src": "/partials/(.+.ejs)", "dest": "./views/partials/$1" },
     { "src": "/(.*)", "dest": "./routes/web/index.js" }
   ]
 }
