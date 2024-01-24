@@ -1,10 +1,10 @@
 {
   "version": 2,
   "builds": [
-      { "src": "./app", "use": "@vercel/node" }
-    ],
-    "routes": [
-      { "src": "/(.+\\.ejs)", "dest": "./app/views/index.ejs" },
-      { "src": "/(.*)", "dest": "./app/views/index.ejs" }
-    ]
+    { "src": "./app/**/*", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/(.+\\.ejs)", "dest": "./app/views/$1" },
+    { "src": "/(.*)", "dest": "./app/routes/web/home.js" }
+  ]
 }
