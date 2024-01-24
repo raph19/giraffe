@@ -2,6 +2,6 @@
     "version": 2,
     "routes": [
       { "src": "/(.+\\.ejs)", "dest": "./views/$1" },
-      { "src": "/(.*)", "dest": "./routes/web/home.js" }
+      { "src": "/(.*)", "dest": "./application.js" }
     ]
   }
