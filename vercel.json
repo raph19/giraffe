@@ -1,0 +1,18 @@
+{
+    "version": 2,
+    "static": {
+      "public": "views"
+    },
+    "builds": [
+      {
+        "src": "app/**/*",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "app/application.js"
+      }
+    ]
+  }
