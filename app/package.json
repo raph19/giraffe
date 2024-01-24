@@ -6,7 +6,8 @@
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
       "start": "node application",
-      "dev": "nodemon application"
+      "dev": "nodemon application",
+      "build": "echo 'No build steps required'"
     },
     "author": "raph",
     "license": "ISC",
