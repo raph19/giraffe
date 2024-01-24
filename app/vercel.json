@@ -4,8 +4,15 @@
     { "src": "./application.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.+\\.ejs)", "dest": "./views/home/$1" },
-    { "src": "/partials/(.+.ejs)", "dest": "./views/partials/$1" },
+    { "src": "/views/home/index.ejs", "dest": "./views/home/index.ejs" },
+    { "src": "/views/home/about.ejs", "dest": "./views/home/about.ejs" },
+    { "src": "/views/home/home.ejs", "dest": "./views/home/home.ejs" },
+    { "src": "/views/home/login.ejs", "dest": "./views/home/login.ejs" },
+    { "src": "/views/home/room.ejs", "dest": "./views/home/room.ejs" },
+    { "src": "/views/home/signup.ejs", "dest": "./views/home/signup.ejs" },
+    { "src": "/views/home/Welcome.ejs", "dest": "./views/home/Welcome.ejs" },
+    { "src": "/partials/_header.ejs", "dest": "./views/partials/_header.ejs" },
+    { "src": "/partials/_footer.ejs", "dest": "./views/partials/_header.ejs" },
     { "src": "/(.*)", "dest": "./routes/web/index.js" }
   ]
 }
