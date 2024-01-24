@@ -2,7 +2,7 @@
     "name": "app",
     "version": "0.0.1",
     "description": "This is an app to edit space",
-    "main": "index.js",
+    "main": "application.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
       "start": "node app/application.js",
