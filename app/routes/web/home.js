@@ -11,7 +11,7 @@ const archiver = require('archiver');
 
                                           //we declare our routes
 router.get("/", function (req,res){
-    res.render("home/login");
+    res.render("home/");
 });                                // i render a view 
 
 router.get("/home", function(req,res){
