@@ -27,7 +27,7 @@ const https = require('https').createServer( {
 const io = require('socket.io')(https, {
     maxHttpBufferSize: 1e9
   });
-  const port =3000;
+  const port =process.env.PORT || 3000;
 
   https.listen(port, () => {
       console.log("HTTPS server started on port " + port);
