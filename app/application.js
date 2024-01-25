@@ -39,7 +39,7 @@ mongoose.connect(params.DATABASECONNECTION, function (err, database) {
     {
      db = database;
      console.log('Connected to MongoDB');       
-     app.listen(app.get("port"),function(){
+     app.listen(port,function(){
         console.log("Server started on port " + app.get("port"));    //when it starts listen 
     })       
     }
