@@ -17,14 +17,16 @@ const Grid=require('gridfs-stream');
 var setUpPassport = require ("./setuppassport");          //register login signup strategy 
 const os = require("os");
 const crypto = require("crypto");
-
+const http = require('http');
 var app = express();                                      //adding to app variable the express application
+const server = http.createServer(app); // Create an HTTP server using the express app
+
 /*const https = require('https').createServer( {
  key: fs.readFileSync(path.join(__dirname,'certificates','key.pem')),
  cert:fs.readFileSync(path.join(__dirname,'certificates','certificate.pem'))
 }
     ,app );*/
-const io = require('socket.io')(app, {
+const io = require('socket.io')(server, {
     maxHttpBufferSize: 1e9
   });
   //https.listen(3000);              //set the port listening
@@ -38,7 +40,7 @@ mongoose.connect(params.DATABASECONNECTION, function (err, database) {
     {
      db = database;
      console.log('Connected to MongoDB');       
-     app.listen(3000,function(){
+     server.listen(3000,function(){
         console.log("Server started on port " + app.get("port"));    //when it starts listen 
     })       
     }
