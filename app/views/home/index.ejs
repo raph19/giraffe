@@ -110,7 +110,7 @@
     <% for(var i=0; i < currentUser.teams.length; i++) { %>
         <%  var val = currentUser.teams[i].team_name;%>
 
-         <button id="room_buttons"><a href="https://localhost:3000/room/<%= val %>" id="room_links"><%=val%></a></button>
+         <button id="room_buttons"><a href="https://giraffe-design-tt8d.onrender.com/room/<%= val %>" id="room_links"><%=val%></a></button>
          <% } %>
     
     <%}%>
@@ -157,5 +157,5 @@
 <img id="imgid">
 </div>
 </div>
-    <script src="https://localhost:3000/js/main.js" type="module"></script>
+    <script src="https://giraffe-design-tt8d.onrender.com/js/main.js" type="module"></script>
 <%- include('../partials/_footer'); -%>

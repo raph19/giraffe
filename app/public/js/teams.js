@@ -8,7 +8,7 @@ import { GLTFLoader } from "./GLTFLoader.js";
 import { uploaded,uploaded_obj,uploadedmtl,mtlLoader,loader2,gltf_model_counter_signal,obj_model_counter_signal} from "./imp-exp.js";
 
 
-let socket = io.connect('https://localhost:3000');
+let socket = io.connect('https://giraffe-design-tt8d.onrender.com');
 let startButton = document.getElementById("startButton");
 var check=false;
 let count;
