@@ -473,7 +473,7 @@ function isIterable(obj) {  //function to check if object is iterable
 
 /////////////////////////////////////////////////////////////////////////////////
 document.getElementById("myBtn").onclick = function() {myFunction()};
-document.getElementById("myBtn1").onclick = function() {myFunction1();document.getElementById("model-input").style.display="none";document.getElementById("image-input").style.display="none"};
+document.getElementById("myBtn1").onclick = function() {myFunction1();/*document.getElementById("model-input").style.display="none";document.getElementById("image-input").style.display="none"*/};
 document.getElementById("myBtn2").onclick = function() {myFunction2()};
 document.getElementById("myBtn3").onclick = function() {myFunction8()};
 

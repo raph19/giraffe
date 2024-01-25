@@ -396,7 +396,12 @@ span#uuid1 {
 box-shadow: 5px 4px 10px 0px rgb(27 113 149/ 27%);
 border-color: #39621f!important;
 }
-
+.night_mode>.container>.menu>input#image-input{
+  color:#f4f6f7;
+}
+.night_mode>.container>.menu>input[type=file]{
+  color:#f4f6f7;
+}
 input#image-input {
   color: #333333;
 }
@@ -741,7 +746,7 @@ background-color: #00000000;
     width: 10.75%;
     position: absolute;
     left: 0;
-    top: 40.2%;
+    top: 42.3%;
     height: 27%;
     backdrop-filter: blur(10px);
   }
@@ -891,8 +896,8 @@ columns: white!important;
   button#share {
     border: none;
     position: fixed;
-    top: 64.5%!important;
-    left: 3.5%;
+    top: 66.5%!important;
+    left: 2.5%;
     background: #00000000;
     z-index: 100;
 
