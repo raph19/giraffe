@@ -44,7 +44,7 @@ router.get("/logout", function(req, res){
   res.render("home/Welcome");
 });
  router.post("/login",passport.authenticate("login", {
-    successRedirect:"/",
+    successRedirect:"/editor",
     failureRedirect:"/login",
     failureFlash:true
 }));
