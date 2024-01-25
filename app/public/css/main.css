@@ -1289,3 +1289,17 @@ input#colorpicker22 {
   position: relative;
   top: -448px;
 }
+
+@media only screen and (max-width: 1589px) {
+  .tool1{
+    grid-template-columns:0%0%;
+    grid-template-rows:70%30%;
+  }
+  input#colorpicker2 {
+    position: relative;
+    bottom: -20px;
+}
+.tool2 {
+  padding-top: 28%;
+}
+}
