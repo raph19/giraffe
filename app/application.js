@@ -27,7 +27,8 @@ const https = require('https').createServer( {
 const io = require('socket.io')(https, {
     maxHttpBufferSize: 1e9
   });
-  https.listen(3000);              //set the port listening
+  const port = 3000;
+  https.listen(port);              //set the port listening
 //app.set("port", process.env.PORT || 3000);
 mongoose.set("strictQuery", false);
 
