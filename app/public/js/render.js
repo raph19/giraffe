@@ -44,13 +44,13 @@ export function render() {
  fix();
 
 anime();
- /*spotLight.position.set(
+ spotLight.position.set(
 
       camera.position.x +10,
       camera.position.y +10,
       camera.position.z +10,
 
-    )   */
+    )   
     if(water!=null) water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
  }
 anime();

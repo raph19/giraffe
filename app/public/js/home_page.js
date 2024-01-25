@@ -2,7 +2,7 @@
 import { EmojiPicker } from "./Emoji.js";
 var check=false;
 var likers_array=[];
-let socket = io.connect('https://localhost:3000');
+let socket = io.connect('https://giraffe-design-tt8d.onrender.com');
 function getCurrentURL () {
   return window.location.href
 }
