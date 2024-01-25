@@ -19,15 +19,15 @@ const os = require("os");
 const crypto = require("crypto");
 
 var app = express();                                      //adding to app variable the express application
-const https = require('https').createServer( {
+/*const https = require('https').createServer( {
  key: fs.readFileSync(path.join(__dirname,'certificates','key.pem')),
  cert:fs.readFileSync(path.join(__dirname,'certificates','certificate.pem'))
 }
-    ,app );
+    ,app );*/
 const io = require('socket.io')(https, {
     maxHttpBufferSize: 1e9
   });
-  https.listen(3000);              //set the port listening
+  //https.listen(3000);              //set the port listening
 //app.set("port", process.env.PORT || 3000);
 mongoose.set("strictQuery", false);
 
@@ -38,9 +38,9 @@ mongoose.connect(params.DATABASECONNECTION, function (err, database) {
     {
      db = database;
      console.log('Connected to MongoDB');       
-    // app.listen(app.get("port"),function(){
-     //   console.log("Server started on port " + app.get("port"));    //when it starts listen 
-   // })       
+     app.listen(3000,function(){
+        console.log("Server started on port " + app.get("port"));    //when it starts listen 
+    })       
     }
 });                                                       //connect db
 setUpPassport();                                          //execute method
