@@ -44,9 +44,9 @@ mongoose.connect(params.DATABASECONNECTION, function (err, database) {
     {
      db = database;
      console.log('Connected to MongoDB');   
-       app.listen(port, () => {
-      console.log("Express server started on port " + port);
-  });     
+      // app.listen(port, () => {
+     // console.log("Express server started on port " + port);
+  //});     
 
     }
 });                                                       //connect db
