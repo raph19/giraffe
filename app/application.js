@@ -27,13 +27,7 @@ const https = require('https').createServer( {
 const io = require('socket.io')(https, {
     maxHttpBufferSize: 1e9
   });
-  const port =process.env.PORT || 3000;
-
-  https.listen(port, () => {
-      console.log("HTTPS server started on port " + port);
-  });
-  
-             //set the port listening
+  https.listen(3000);              //set the port listening
 //app.set("port", process.env.PORT || 3000);
 mongoose.set("strictQuery", false);
 
@@ -43,11 +37,10 @@ mongoose.connect(params.DATABASECONNECTION, function (err, database) {
     else
     {
      db = database;
-     console.log('Connected to MongoDB');   
-       app.listen(1000, () => {
-      console.log("Express server started on port " + 1000);
-  });     
-
+     console.log('Connected to MongoDB');       
+    // app.listen(app.get("port"),function(){
+     //   console.log("Server started on port " + app.get("port"));    //when it starts listen 
+   // })       
     }
 });                                                       //connect db
 setUpPassport();                                          //execute method
