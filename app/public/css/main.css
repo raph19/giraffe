@@ -597,7 +597,7 @@ input.btn.btn-default.navbar-btn.signinbtn:focus {
     width: 10.75%;
     position: absolute;
     left: 0;
-    top: 13.4%;
+    top: 15.4%;
     height: 27%;
     backdrop-filter: blur(10px);
     padding-left: 5px;
@@ -626,7 +626,7 @@ span#myPopup1 {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   /* backdrop-filter: blur(2.2px); */
   border: 1px solid rgb(0 0 0 / 36%);
-  left: 304px;
+  left: 282px;
 
 }
 
