@@ -24,7 +24,7 @@ var app = express();                                      //adding to app variab
  cert:fs.readFileSync(path.join(__dirname,'certificates','certificate.pem'))
 }
     ,app );*/
-const io = require('socket.io')(https, {
+const io = require('socket.io')(http, {
     maxHttpBufferSize: 1e9
   });
   //https.listen(3000);              //set the port listening
