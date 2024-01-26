@@ -669,8 +669,6 @@ const id=e.target.id;
         );
 
         water.rotation.x = - Math.PI / 2;
-water.userData.editable =true;
-water.name="Water";
 // water.geometry.deleteAtrribute('position');
 water.position.x=pos_home[0]
 water.position.y=pos_home[1]

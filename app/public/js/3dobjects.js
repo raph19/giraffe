@@ -1,359 +1,713 @@
-import {camera} from "./camera.js";
-import{render} from "./render.js";
-import { canvas,renderer } from "./renderer.js";
-import { objects ,counter_cube,counter_sphere,counter_cylinder,counter_tetrahedron,counter_img} from "./3dobjects.js";
 import { scene } from "./scene.js";
-import{UndoManager}from "../js/undo-manager.js";
-import { createImage } from "./3dobjects.js";
-import{Water} from "./Water.js";
-import{Sky} from "./Sky.js";
-import{GUI} from "./gui.js";
-import{check,pos,rot,scl,lnt} from"./imp-exp.js";
-export const raycaster = new THREE.Raycaster();
-export const mouse = new THREE.Vector2(); //x,y pos of mouseclick
-const moveMouse = new THREE.Vector2();
-function getCurrentURL () {
-  return window.location.href
-}
-var load_water;
-// Example
-const roomurl = getCurrentURL()
+import { render} from "./render.js";
+import { uploaded_image,transformControls,obj } from "./controls.js";
+export var objects = [];
+import { renderer } from "./renderer.js";
+import { EmojiPicker } from "./Emoji.js";
+import { VRButton } from './VRbutton.js';
+import { ARButton } from './ARbutton.js';
+import { XRControllerModelFactory } from "https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/webxr/XRControllerModelFactory.min.js";
+import{camera} from'./camera.js';
+import { addocean } from "./controls.js";
+import {lnt} from"./imp-exp.js";
+// Get the button, and when the user clicks on it, execute myFunction
+/*
+export const canvas1 = document.querySelector('#c');
 
-if(roomurl==='https://giraffe-design-tt8d.onrender.com'){
-  load_water='textures/waternormals.jpg';
-}else{
-  var matched = roomurl.match(/([^/]*\/){3}/);
-  console.log(matched[0]);
-  load_water=`${matched[0]}`+'/textures/waternormals.jpg';
-}
-export var obj;
-export var nowObj;
-export var newObj;
+export const renderer2 = new THREE.WebGLRenderer({canvas1, antialias:true,    preserveDrawingBuffer: true
+})
+*/
+/*
+export const canvas2 = document.querySelector('#c');
 
-var objdata;
+export const renderer3 = new THREE.WebGLRenderer({canvas2, antialias:true,    preserveDrawingBuffer: true
+})
+*/
 
-var objectdata=[];
-var objectdata1=[];
-var nowobjectdata=[];
+/*renderer.xr.enabled = true;
+renderer.setAnimationLoop(render);
+const but=ARButton.createButton(renderer);
+document.body.appendChild(but);
+*/
 
+/*const but2=VRButton.createButton(renderer2);
+renderer2.xr.enabled = true;
+renderer2.setAnimationLoop(function(){
+  
+  renderer2.render(scene,camera)
+});
 
-export var view1Elem = document.querySelector('#view1');
-export const view2Elem = document.querySelector('#view2');
+document.body.appendChild(but2);
+*/////////////////////////////////////////////////////////////////////////////////
+/*
+var cameraVector = new THREE.Vector3(); // create once and reuse it!
+const prevGamePads = new Map();
+var speedFactor = [0.1, 0.1, 0.1, 0.1];
+var intersected = [];
+var tempMatrix = new THREE.Matrix4();
+var controllerGrip1, controllerGrip2;
+var group;
+group = new THREE.Group();
+scene.add(group);
+renderer2.shadowMap.enabled = true;
+ //the following increases the resolution on Quest
+ renderer2.xr.setFramebufferScaleFactor(2.0);
+ document.body.appendChild(VRButton.createButton(renderer2));
+ //////////////////////////////////AR////////////////////////////////
+ async function activateXR() {
+  // Add a canvas element and initialize a WebGL context that is compatible with WebXR.
 
-export var controls = new THREE.OrbitControls(camera, view1Elem);
-controls.target.set(0, 5, 0);
-controls.maxDistance = 900;
+  const gl = canvas2.getContext("webgl", {xrCompatible: true});
 
-controls.update();
-export var editorHistory = new UndoManager();
+// Set up the WebGLRenderer, which handles rendering to the session's base layer.
+const renderer3 = new THREE.WebGLRenderer({
+  alpha: true,
+  preserveDrawingBuffer: true,
+  canvas: canvas2,
+  context: gl
+});
+renderer3.autoClear = false;
 
-export var transformControls = new THREE.TransformControls( camera, view1Elem);
+// The API directly updates the camera matrices.
+// Disable matrix auto updates so three.js doesn't attempt
+// to handle the matrices independently.
+const camera = new THREE.PerspectiveCamera();
+camera.matrixAutoUpdate = false;
 
-transformControls.addEventListener( 'dragging-changed', function ( event ) {
+// Initialize a WebXR session using "immersive-ar".
+const session = await navigator.xr.requestSession("immersive-ar");
+session.updateRenderState({
+  baseLayer: new XRWebGLLayer(session, gl)
+});
 
-  controls.enabled = ! event.value;
+// A 'local' reference space has a native origin that is located
+// near the viewer's position at the time the session was created.
+const referenceSpace = await session.requestReferenceSpace('local');
 
-} );
+// Create a render loop that allows us to draw on the AR view.
+const onXRFrame = (time, frame) => {
+  // Queue up the next draw request.
+  session.requestAnimationFrame(onXRFrame);
 
-window.addEventListener('click',  function (event) {
-  const rect = renderer.domElement.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  // Bind the graphics framebuffer to the baseLayer's framebuffer
+  gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer)
 
-  /*if(!togl){  
+  // Retrieve the pose of the device.
+  // XRFrame.getViewerPose can return null while the session attempts to establish tracking.
+  const pose = frame.getViewerPose(referenceSpace);
+  if (pose) {
+    // In mobile AR, we only have one view.
+    const view = pose.views[0];
 
-  mouse.x = (( x / (canvas.clientWidth/2)) *  2 - 1);
-  mouse.y = ( y / canvas.clientHeight) * - 2 + 1;
+    const viewport = session.renderState.baseLayer.getViewport(view);
+    renderer3.setSize(viewport.width, viewport.height)
 
-  raycaster.setFromCamera(mouse, camera);
-  const found = raycaster.intersectObjects(objects);
-  if(found.length>0 && found[0].object.userData.editable){
+    // Use the view's transform matrix and projection matrix to configure the THREE.camera.
+    camera.matrix.fromArray(view.transform.matrix)
+    camera.projectionMatrix.fromArray(view.projectionMatrix);
+    camera.updateMatrixWorld(true);
 
-  console.log(found[0].object.userData.name);
-  found[0].object.material.color.set( 'green' ); 
-  transformControls.attach(found[0].object);
-  transformControls.setMode('translate');
-  scene.add(transformControls);
-}
-}else{*/
-
-
-  mouse.x = ( x / canvas.clientWidth ) *  2 - 1;
-  mouse.y = ( y / canvas.clientHeight) * - 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  const found = raycaster.intersectObjects(objects);
-
-  if(found.length>0 && found[0].object.userData.editable){
-   obj = found[0].object;
-  //obj.material.color.set( 'green' ); 
-  transformControls.attach(obj);
-  transformControls.setMode('translate');
-  scene.add(transformControls);
-
-  document.getElementById("uuid1").innerHTML = obj.uuid;
-  document.getElementById("x").value = obj.position.x;
-  document.getElementById("y").value = obj.position.y;
-  document.getElementById("z").value = obj.position.z;
-  document.getElementById("x_r").value = obj.rotation.x;
-  document.getElementById("y_r").value = obj.rotation.y;
-  document.getElementById("z_r").value = obj.rotation.z;
-  document.getElementById("x_s").value = obj.scale.x;
-  document.getElementById("y_s").value = obj.scale.y;
-  document.getElementById("z_s").value = obj.scale.z;
- /* for(var i=0;i<objectdata.length;i++){
-    console.log(objectdata[i]);
+    // Render the scene with THREE.WebGLRenderer.
+    renderer3.render(scene, camera)
   }
-if(objectdata.length>1 && objectdata[this.length]!=objectdata[this.length+1])
-{
-  console.log(objectdata[this.length+1]);
-  objdata=getObjectData(obj);
-//  }*/
 }
-  } )
+session.requestAnimationFrame(onXRFrame);
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+}
+ renderer3.xr.enabled = true;
 
+ //renderer3.shadowMap.enabled = true;
+ //the following increases the resolution on Quest
+ //renderer3.xr.setFramebufferScaleFactor(2.0);
+ document.body.appendChild(ARButton.createButton(renderer3));
+ document.getElementById("ARButton").onclick= function() {activateXR()};
+////////////////////////////////////////////////////////////////////////
+ // controllers
+ var controller1 = renderer2.xr.getController(0);
+ controller1.name="left";    ////MODIFIED, added .name="left"
+ controller1.addEventListener("selectstart", onSelectStart);
+ controller1.addEventListener("selectend", onSelectEnd);
+ scene.add(controller1);
 
+ var controller2 = renderer2.xr.getController(1);
+ controller2.name="right";  ////MODIFIED added .name="right"
+ controller2.addEventListener("selectstart", onSelectStart);
+ controller2.addEventListener("selectend", onSelectEnd);
+ scene.add(controller2);
 
-////////////////////////////////////////////////control_toolbar//////////////////////////////////////////
-  var inX = document.getElementById('x');
-  inX.addEventListener('input', function() {
-    obj.position.x= inX.value;
-});
-var inY = document.getElementById('y');
-inY.addEventListener('input', function() {
-  obj.position.y= inY.value;
-});
-var inZ = document.getElementById('z');
-inZ.addEventListener('input', function() {
-  obj.position.z= inZ.value;
-});
-var inX1 = document.getElementById('x_r');
-inX1.addEventListener('input', function() {
-  obj.rotation.x= inX1.value;
-});
-var inY1 = document.getElementById('y_r');
-inY1.addEventListener('input', function() {
-  obj.rotation.y= inY1.value;
-});
-var inZ1 = document.getElementById('z_r');
-inZ1.addEventListener('input', function() {
-  obj.rotation.z= inZ1.value;
-});
-var inX2 = document.getElementById('x_s');
-inX2.addEventListener('input', function() {
-  obj.scale.x= inX2.value;
-});
-var inY2 = document.getElementById('y_s');
-inY2.addEventListener('input', function() {
-  obj.scale.y= inY2.value;
-});
-var inZ2 = document.getElementById('z_s');
-inZ2.addEventListener('input', function() {
-  obj.scale.z= inZ2.value;
-});
-/////////////////////////////////////////////////////////////////////////////////////////////
+ var controllerModelFactory = new XRControllerModelFactory();
 
+ controllerGrip1 = renderer2.xr.getControllerGrip(0);
+ controllerGrip1.add(
+     controllerModelFactory.createControllerModel(controllerGrip1)
+ );
+ scene.add(controllerGrip1);
 
-//////////////////////////////////////undo_redo//////////////////////////////////////////////
-var oldObjData = null;
-var newObjData = null;
+ controllerGrip2 = renderer2.xr.getControllerGrip(1);
+ controllerGrip2.add(
+     controllerModelFactory.createControllerModel(controllerGrip2)
+ );
+ scene.add(controllerGrip2);
+   //Raycaster Geometry
+   var geometry2 = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0, 0, -1)
+]);
 
-transformControls.addEventListener( 'mouseDown', function(e) {
-       oldObjData = getObjectData(obj);
-       console.log(oldObjData);
-        objectdata.push(oldObjData);
+ var line = new THREE.Line(geometry2);
+ line.name = "line";
+ line.scale.z = 50;   //MODIFIED FOR LARGER SCENE
 
-       document.getElementById("uuid1").innerHTML = transformControls.children[0].object.uuid;
-       document.getElementById("x").value = transformControls.children[0].object.position.x;
-       document.getElementById("y").value = transformControls.children[0].object.position.y;
-       document.getElementById("z").value = transformControls.children[0].object.position.z;
-       document.getElementById("x_r").value = transformControls.children[0].object.rotation.x;
-       document.getElementById("y_r").value = transformControls.children[0].object.rotation.y;
-       document.getElementById("z_r").value = transformControls.children[0].object.rotation.z;
-       document.getElementById("x_s").value = transformControls.children[0].object.scale.x;
-       document.getElementById("y_s").value = transformControls.children[0].object.scale.y;
-       document.getElementById("z_s").value = transformControls.children[0].object.scale.z;
- } );
- transformControls.addEventListener( 'mouseUp', function(e) {
-        newObjData = getObjectData(obj);
-        console.log(oldObjData)
- objectdata1.push(newObjData);
+ controller1.add(line.clone());
+ controller2.add(line.clone());
 
- } );
+ var raycaster1 = new THREE.Raycaster();
 
- transformControls.addEventListener( 'dragging-changed', function ( e ) {
-        if(e.value === false) { // End dragging
-          addHistory(oldObjData, newObjData); // Store undo/redo  
-          console.log("4")  
-        }
- } );
+ ////////////////////////////////////////
+ //// MODIFICATIONS FROM THREEJS EXAMPLE
+ //// create group named 'dolly' and add camera and controllers to it
+ //// will move dolly to move camera and controllers in webXR
 
+ var dolly = new THREE.Group();
+ dolly.position.set(0, 0, 0);
+ dolly.name = "dolly";
+ scene.add(dolly);
+ dolly.add(camera);
+ dolly.add(controller1);
+ dolly.add(controller2);
+ dolly.add(controllerGrip1);
+ dolly.add(controllerGrip2);
 
-function getObjectData(obj) {
-  var data = {
-        uuid: obj.uuid, // !Important, used in addHistory.
-        position: ({x: obj.position.x, y: obj.position.y, z: obj.position.z}),
-        rotation: ({x: obj.rotation._x, y: obj.rotation._y, z: obj.rotation._z}),
-        scale: ({x: obj.scale.x, y: obj.scale.y, z: obj.scale.z}),
-       // opacity: Number(obj.userData.opacity),
-    };
-    return data;
+ ////
+ ///////////////////////////////////
+ //renderer2.setSize(window.innerWidth, window.innerHeight);
+
+ window.addEventListener("resize", onWindowResize, false);
+ renderer3.setSize(window.innerWidth, window.innerHeight);
+*/
+/*
+
+function onWindowResize() {
+ camera.aspect = window.innerWidth / window.innerHeight;
+ camera.updateProjectionMatrix();
+ renderer2.setSize(window.innerWidth, window.innerHeight);
+}
+*/
+/*
+function onSelectStart(event) {
+ var controller = event.target;
+
+ var intersections = getIntersections(controller);
+
+ if (intersections.length > 0) {
+     var intersection = intersections[0];
+     var object = intersection.object;
+     object.material.emissive.b = 1;
+     controller.attach(object);
+     controller.userData.selected = object;
+ }
 }
 
-export function removeobj()
-{
-  const uuidToRemove = obj.uuid;
+function onSelectEnd(event) {
+ var controller = event.target;
+ if (controller.userData.selected !== undefined) {
+     var object = controller.userData.selected;
+     //object.material.emissive.b = 0;     
 
-// Find the index of the object with the specified uuid
-const indexToRemove = objects.findIndex(item => item.uuid === uuidToRemove);
-
-// If the object is found, remove it
-if (indexToRemove !== -1) {
-  objects.splice(indexToRemove, 1);
+     group.attach(object);
+     controller.userData.selected = undefined;
+ }
 }
- // objects.remove(obj);
-// Detach TransformControls from the object
-transformControls.detach();
 
-// Remove the object from the scene
-if(obj.parent.children.length===1){
-  scene.remove(obj.parent);
-  const dynamicAttribute = 'name';
-  const attributeValue = obj.parent.id; 
-  const changelayers=obj.parent.id-182;
-  // Use querySelector to find the element with the specified dynamic attribute and value
-  const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
-  elementToRemove.remove();
-  // Get all elements with the attribute "example"
-  const elementsWithAttribute = document.querySelectorAll('[name]');
-  
-  // Change the IDs of each element
-  elementsWithAttribute.forEach(element => {if(parseInt(element.id)>changelayers)
-    // Set the new ID, you can customize this logic based on your requirements
-    element.id = element.id-1;
+function getIntersections(controller) {
+ tempMatrix.identity().extractRotation(controller.matrixWorld);
+ raycaster1.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+ raycaster1.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+ return raycaster1.intersectObjects(group.children);
+}
+
+function intersectObjects(controller) {
+ // Do not highlight when already selected
+
+ if (controller.userData.selected !== undefined) return;
+
+ var line = controller.getObjectByName("line");
+ var intersections = getIntersections(controller);
+
+ if (intersections.length > 0) {
+     var intersection = intersections[0];
+
+     ////////////////////////////////////////
+     //// MODIFICATIONS FROM THREEJS EXAMPLE
+     //// check if in webXR session
+     //// if so, provide haptic feedback to the controller that raycasted onto object
+     //// (only if haptic actuator is available)
+     const session = renderer2.xr.getSession();
+     if (session) {  //only if we are in a webXR session
+         for (const sourceXR of session.inputSources) {
+
+             if (!sourceXR.gamepad) continue;
+             if (
+                 sourceXR &&
+                 sourceXR.gamepad &&
+                 sourceXR.gamepad.hapticActuators &&
+                 sourceXR.gamepad.hapticActuators[0] &&
+                 sourceXR.handedness == controller.name              
+             ) {
+                 var didPulse = sourceXR.gamepad.hapticActuators[0].pulse(0.8, 100);
+             }
+         }
+     }
+     ////
+     ////////////////////////////////
+
+     var object = intersection.object;
+     object.material.emissive.r = 1;
+     intersected.push(object);
+
+     line.scale.z = intersection.distance;
+ } else {
+     line.scale.z = 50;   //MODIFIED AS OUR SCENE IS LARGER
+ }
+}
+
+function cleanIntersected() {
+ while (intersected.length) {
+     var object = intersected.pop();
+     object.material.emissive.r = 0;
+ }
+}
+
+  renderer2.setAnimationLoop(function(){
+  cleanIntersected();
+
+ intersectObjects(controller1);
+ intersectObjects(controller2);
+
+ ////////////////////////////////////////
+ //// MODIFICATIONS FROM THREEJS EXAMPLE
+
+ //add gamepad polling for webxr to renderloop
+ dollyMove();
+    renderer2.render(scene,camera)
   });
-}else{
-scene.remove(obj);
-const dynamicAttribute = 'name';
-const attributeValue = obj.id; 
-const changelayers=obj.id-182;
-// Use querySelector to find the element with the specified dynamic attribute and value
-const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
-elementToRemove.remove();
-// Get all elements with the attribute "example"
-const elementsWithAttribute = document.querySelectorAll('[name]');
+ renderer3.setAnimationLoop(function(){
 
-// Change the IDs of each element
-elementsWithAttribute.forEach(element => {if(parseInt(element.id)>changelayers)
-  // Set the new ID, you can customize this logic based on your requirements
-  element.id = element.id-1;
-});
+    renderer3.render(scene,camera)
+  });
+////////////////////////////////////////
+//// MODIFICATIONS FROM THREEJS EXAMPLE
+//// New dollyMove() function
+//// this function polls gamepad and keeps track of its state changes to create 'events'
+
+function dollyMove() {
+ var handedness = "unknown";
+
+ //determine if we are in an xr session
+ const session = renderer2.xr.getSession();
+ let i = 0;
+
+ if (session) {
+     let xrCamera = renderer2.xr.getCamera(camera);
+     xrCamera.getWorldDirection(cameraVector);
+
+     //a check to prevent console errors if only one input source
+     if (isIterable(session.inputSources)) {
+         for (const source of session.inputSources) {
+             if (source && source.handedness) {
+                 handedness = source.handedness; //left or right controllers
+             }
+             if (!source.gamepad) continue;
+             const controller = renderer2.xr.getController(i++);
+             const old = prevGamePads.get(source);
+             const data = {
+                 handedness: handedness,
+                 buttons: source.gamepad.buttons.map((b) => b.value),
+                 axes: source.gamepad.axes.slice(0)
+             };
+             if (old) {
+                 data.buttons.forEach((value, i) => {
+                     //handlers for buttons
+                     if (value !== old.buttons[i] || Math.abs(value) > 0.8) {
+                         //check if it is 'all the way pushed'
+                         if (value === 1) {
+                             //console.log("Button" + i + "Down");
+                             if (data.handedness == "left") {
+                                 //console.log("Left Paddle Down");
+                                 if (i == 1) {
+                                     dolly.rotateY(-THREE.Math.degToRad(1));
+                                 }
+                                 if (i == 3) {
+                                     //reset teleport to home position
+                                     dolly.position.x = 0;
+                                     dolly.position.y = 5;
+                                     dolly.position.z = 0;
+                                 }
+                             } else {
+                                 //console.log("Right Paddle Down");
+                                 if (i == 1) {
+                                     dolly.rotateY(THREE.Math.degToRad(1));
+                                 }
+                             }
+                         } else {
+                             // console.log("Button" + i + "Up");
+
+                             if (i == 1) {
+                                 //use the paddle buttons to rotate
+                                 if (data.handedness == "left") {
+                                     //console.log("Left Paddle Down");
+                                     dolly.rotateY(-THREE.Math.degToRad(Math.abs(value)));
+                                 } else {
+                                     //console.log("Right Paddle Down");
+                                     dolly.rotateY(THREE.Math.degToRad(Math.abs(value)));
+                                 }
+                             }
+                         }
+                     }
+                 });
+                 data.axes.forEach((value, i) => {
+                     //handlers for thumbsticks
+                     //if thumbstick axis has moved beyond the minimum threshold from center, windows mixed reality seems to wander up to about .17 with no input
+                     if (Math.abs(value) > 0.2) {
+                         //set the speedFactor per axis, with acceleration when holding above threshold, up to a max speed
+                         speedFactor[i] > 1 ? (speedFactor[i] = 1) : (speedFactor[i] *= 1.001);
+                         console.log(value, speedFactor[i], i);
+                         if (i == 2) {
+                             //left and right axis on thumbsticks
+                             if (data.handedness == "left") {
+                                 // (data.axes[2] > 0) ? console.log('left on left thumbstick') : console.log('right on left thumbstick')
+
+                                 //move our dolly
+                                 //we reverse the vectors 90degrees so we can do straffing side to side movement
+                                 dolly.position.x -= cameraVector.z * speedFactor[i] * data.axes[2];
+                                 dolly.position.z += cameraVector.x * speedFactor[i] * data.axes[2];
+
+                                 //provide haptic feedback if available in browser
+                                 if (
+                                     source.gamepad.hapticActuators &&
+                                     source.gamepad.hapticActuators[0]
+                                 ) {
+                                     var pulseStrength = Math.abs(data.axes[2]) + Math.abs(data.axes[3]);
+                                     if (pulseStrength > 0.75) {
+                                         pulseStrength = 0.75;
+                                     }
+
+                                     var didPulse = source.gamepad.hapticActuators[0].pulse(
+                                         pulseStrength,
+                                         100
+                                     );
+                                 }
+                             } else {
+                                 // (data.axes[2] > 0) ? console.log('left on right thumbstick') : console.log('right on right thumbstick')
+                                 dolly.rotateY(-THREE.Math.degToRad(data.axes[2]));
+                             }
+                             controls.update();
+                         }
+
+                         if (i == 3) {
+                             //up and down axis on thumbsticks
+                             if (data.handedness == "left") {
+                                 // (data.axes[3] > 0) ? console.log('up on left thumbstick') : console.log('down on left thumbstick')
+                                 dolly.position.y -= speedFactor[i] * data.axes[3];
+                                 //provide haptic feedback if available in browser
+                                 if (
+                                     source.gamepad.hapticActuators &&
+                                     source.gamepad.hapticActuators[0]
+                                 ) {
+                                     var pulseStrength = Math.abs(data.axes[3]);
+                                     if (pulseStrength > 0.75) {
+                                         pulseStrength = 0.75;
+                                     }
+                                     var didPulse = source.gamepad.hapticActuators[0].pulse(
+                                         pulseStrength,
+                                         100
+                                     );
+                                 }
+                             } else {
+                                 // (data.axes[3] > 0) ? console.log('up on right thumbstick') : console.log('down on right thumbstick')
+                                 dolly.position.x -= cameraVector.x * speedFactor[i] * data.axes[3];
+                                 dolly.position.z -= cameraVector.z * speedFactor[i] * data.axes[3];
+
+                                 //provide haptic feedback if available in browser
+                                 if (
+                                     source.gamepad.hapticActuators &&
+                                     source.gamepad.hapticActuators[0]
+                                 ) {
+                                     var pulseStrength = Math.abs(data.axes[2]) + Math.abs(data.axes[3]);
+                                     if (pulseStrength > 0.75) {
+                                         pulseStrength = 0.75;
+                                     }
+                                     var didPulse = source.gamepad.hapticActuators[0].pulse(
+                                         pulseStrength,
+                                         100
+                                     );
+                                 }
+                             }
+                             controls.update();
+                         }
+                     } else {
+                         //axis below threshold - reset the speedFactor if it is greater than zero  or 0.025 but below our threshold
+                         if (Math.abs(value) > 0.025) {
+                             speedFactor[i] = 0.025;
+                         }
+                     }
+                 });
+             }
+             ///store this frames data to compate with in the next frame
+             prevGamePads.set(source, data);
+         }
+     }
+ }
 }
+
+function isIterable(obj) {  //function to check if object is iterable
+ // checks for null and undefined
+ if (obj == null) {
+     return false;
+ }
+ return typeof obj[Symbol.iterator] === "function";
+}
+*/
+////
+/////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////
+document.getElementById("myBtn").onclick = function() {myFunction()};
+document.getElementById("myBtn1").onclick = function() {myFunction1();};//document.getElementById("model-input").style.display="none";document.getElementById("image-input").style.display="none"
+document.getElementById("myBtn2").onclick = function() {myFunction2()};
+document.getElementById("myBtn3").onclick = function() {myFunction8()};
+
+document.getElementById("cube").onclick = function() {createCube()};
+document.getElementById("sphere").onclick = function() {createSphere()};
+document.getElementById("tetrahedron").onclick = function() {createTetrahedron()};
+document.getElementById("cylinder").onclick = function() {createCylinder()};
+document.getElementById("image").onclick = function() {document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){createImage();}else{document.getElementById("image-input").style.display="inline-grid";}};
+document.getElementById("model").onclick = function() {document.getElementById("model-input").style.display="inline-grid";document.getElementById("image-input").style.display="none";scene.remove(transformControls);};
+document.getElementById("texture").onclick = function() {document.getElementById("texture-input").style.display="inline-grid";};
+
+document.getElementById("ocean").onclick = function() {addocean()};
+
+
+document.getElementById("moon").onclick = function() {darkmode()};
+
+document.getElementById("pop").onclick = function() {myFunction3()};
+document.getElementById("pop1").onclick = function() {myFunction4();elm.focus(); transformControls.detach(obj);};
+document.getElementById("pop2").onclick = function() {myFunction5();elm2.focus();transformControls.detach(obj);};
+document.getElementById("pop3").onclick = function() {myFunction6();elm3.focus();transformControls.detach(obj);};
+
+document.getElementById("myPopup").onclick=function(){myFunction3();};
+document.getElementById("myPopup1").onclick=function(){myFunction4();};
+document.getElementById("myPopup2").onclick=function(){myFunction5();};
+document.getElementById("myPopup3").onclick=function(){myFunction6();};
+document.getElementById("share").onclick=function(){transformControls.detach(obj);
+  sharefunc();if (document.getElementById("box").style.visibility="hidden"){document.getElementById("box").style.visibility="visible"}};
+
+  document.getElementById("save_button4").onclick=function(){document.getElementById("box").style.visibility="hidden"};
+
+var jr=document.getElementById("join_room");
+if(jr!=null){
+document.getElementById("join_room").onclick=function(){myFunction7();};
 }
 
+new EmojiPicker({
+  trigger:[{
+    insertInto:['#form4'],
+    selector:['#emoji_btn']
+  }],
+  closeButton:true
+})
 
-function addHistory(oldObjData , newObjData ) {      
-  
-  if(oldObjData && newObjData && oldObjData.uuid == newObjData.uuid) {
-   editorHistory.add({
-            undo: function() {    
-              if(oldObjData.uuid==obj.uuid){
-                resetObject(oldObjData);
-                obj.position.copy( nowObj.position );
-                obj.scale.copy( nowObj.scale );
-               // obj.rotation._x.copy(nowObj.rotation.x);
 
-              }else{                
-                var check=true;         
+const elm = document.getElementById('form');
+const elm2 = document.getElementById('form2');
+const elm3 = document.getElementById('form3');
 
-                while(check){
+// the "initial" listener subscription prevents execution of ...
+elm.addEventListener('focus', evt =>
+  evt.stopImmediatePropagation()
+);
 
-                for(var i=0;i<objectdata.length;i++){
-                  console.log(objectdata[i]);
-                  if(objectdata[i].uuid==obj.uuid && objectdata[i].position!=obj.position)             
-                {
-                  objdata=getObjectData(objectdata[i]);
-                //  }{
-                  resetObject(objdata);
-                  obj.position.copy( nowObj.position );
-                  obj.scale.copy( nowObj.scale );
-                  obj.rotation.copy( nowObj.rotation );
-                  check=false;                
-                }
-                  
-              }
-              }
-            }
-              },
-            redo: function() {
-              if(newObjData.uuid==obj.uuid){
-                resetObject(newObjData);
-                obj.position.copy( nowObj.position );
-                obj.scale.copy( nowObj.scale );
-                obj.rotation.copy( nowObj.rotation );  
-              }else{                
-                var check=true;         
+// ... other handler functionality which got registered later.
+elm.addEventListener('focus', evt =>
+  console.log(
+    `input element focused, event.type: "${ evt.type }"`
+  )
+);
+elm2.addEventListener('focus', evt =>
+  evt.stopImmediatePropagation()
+);
 
-                while(check){
+// ... other handler functionality which got registered later.
+elm2.addEventListener('focus', evt =>
+  console.log(
+    `input element focused, event.type: "${ evt.type }"`
+  )
+);
+document.getElementById("save_button").onclick=function(){myFunction4();};
+document.getElementById("save_button2").onclick=function(){myFunction5();};
+document.getElementById("save_button3").onclick=function(){myFunction6();};
 
-                for(var i=0;i<objectdata1.length;i++){
-                  console.log(objectdata1[i]);
-                  if(objectdata1[i].uuid==obj.uuid)             
-                {
-                  objdata=getObjectData(objectdata1[i]);
-                //  }{
-                  resetObject(objdata);
-                  obj.position.copy( nowObj.position );
-                  obj.scale.copy( nowObj.scale );
-                  obj.rotation.copy( nowObj.rotation );
+document.getElementById("more").onclick=function(){myFunction3();};
 
-                  check=false;
-                  }
-              }
-              }
-            }            }
-        });
+
+//document.getElementById("myPopup1").onclick =function() {if(document.getElementsByClassName("show4").length>0){document.getElementById("myPopup1").style.visibility="visible";}};
+/* myFunction toggles between adding and removing the show class, which is used to hide and show the dropdown content */
+const planeWidth = 10;
+const planeHeight = 10;
+
+export const geometry = new THREE.PlaneBufferGeometry(planeWidth, planeHeight);
+
+const loader = new THREE.TextureLoader();
+
+function darkmode(){
+  document.body.classList.toggle("night_mode");
+  if( document.getElementsByClassName("night_mode").length > 0 ) {
+    document.body.style.transition="1s";
+  }
+}   
+
+function myFunction() {
+  document.getElementById("myDropdown").classList.toggle("show");
+ if( document.getElementsByClassName("show1").length > 0) {
+  document.getElementById("myDropdown1").classList.toggle("show1");
+  }if(document.getElementsByClassName("show2").length > 0){
+    document.getElementById("myDropdown2").classList.toggle("show2");  
+  }if(document.getElementsByClassName("show8").length > 0){
+    document.getElementById("myDropdown3").classList.toggle("show8");   
+  }
+}
+  function myFunction1() {
+    document.getElementById("myDropdown1").classList.toggle("show1");
+    if( document.getElementsByClassName("show").length > 0) {
+      document.getElementById("myDropdown").classList.toggle("show");
+      }if(document.getElementsByClassName("show2").length > 0){
+        document.getElementById("myDropdown2").classList.toggle("show2");  
+      }if(document.getElementsByClassName("show8").length > 0){
+        document.getElementById("myDropdown3").classList.toggle("show8");   
+      }
     }
+
+    function myFunction2() {
+      document.getElementById("myDropdown2").classList.toggle("show2");  
+      if( document.getElementsByClassName("show1").length > 0) {
+        document.getElementById("myDropdown1").classList.toggle("show1");
+        }if(document.getElementsByClassName("show").length > 0){
+          document.getElementById("myDropdown").classList.toggle("show");  
+        }if(document.getElementsByClassName("show8").length > 0){
+          document.getElementById("myDropdown3").classList.toggle("show8");   
+        }
+      }
+
+      function myFunction8() {
+        document.getElementById("myDropdown3").classList.toggle("show8");  
+        if( document.getElementsByClassName("show1").length > 0) {
+          document.getElementById("myDropdown1").classList.toggle("show1");
+          }if(document.getElementsByClassName("show").length > 0){
+            document.getElementById("myDropdown").classList.toggle("show");  
+          }if( document.getElementsByClassName("show1").length > 0) {
+            document.getElementById("myDropdown1").classList.toggle("show2");
+        }
+      }
+      ////////load pop up////////
+      function myFunction3() {
+                document.getElementById("myPopup").classList.toggle("show3");
+                if(document.getElementsByClassName("show4").length>0){
+                  document.getElementById("myPopup1").classList.toggle("show4");
+                }if(document.getElementsByClassName("show5").length>0)
+                {
+                  document.getElementById("myPopup2").classList.toggle("show5");
+                }if(document.getElementsByClassName("show6").length>0){
+                  document.getElementById("myPopup3").classList.toggle("show6");
+                }if(document.getElementsByClassName("show7").length>0){
+                  document.getElementById("teamstocolaborate").classList.toggle("show7");
+                }
+      }
+      ////////////////////////////
+
+      function myFunction4() {
+        document.getElementById("myPopup1").classList.toggle("show4");
+        if(document.getElementsByClassName("show3").length>0){
+          document.getElementById("myPopup").classList.toggle("show3");
+        }if(document.getElementsByClassName("show5").length>0)
+        {
+          document.getElementById("myPopup2").classList.toggle("show5");
+        }if(document.getElementsByClassName("show6").length>0){
+          document.getElementById("myPopup3").classList.toggle("show6");
+        }if(document.getElementsByClassName("show7").length>0){
+          document.getElementById("teamstocolaborate").classList.toggle("show7");
+        }
 }
-function resetObject(data) {
-   nowObj = {
-    
-    uuid:data.uuid,// you can find object by data.uuid.
-    position: ({x: data.position.x, y: data.position.y, z: data.position.z}), 
-    rotation: ({x: data.rotation.x, y: data.rotation.y, z: data.rotation.z}),
-    scale: ({x: data.scale.x, y: data.scale.y, z: data.scale.z}),
-}; 
-return nowObj;
+function myFunction5() {
+  document.getElementById("myPopup2").classList.toggle("show5");
+  if(document.getElementsByClassName("show3").length>0){
+    document.getElementById("myPopup").classList.toggle("show3");
+  }if(document.getElementsByClassName("show4").length>0){
+    document.getElementById("myPopup1").classList.toggle("show4");
+  }if(document.getElementsByClassName("show6").length>0){
+    document.getElementById("myPopup3").classList.toggle("show6");
+  }if(document.getElementsByClassName("show7").length>0){
+    document.getElementById("teamstocolaborate").classList.toggle("show7");
+  }
+
 }
-//////////////////////////////////////////////////////////////////////////////////////
+function myFunction6() {
+  document.getElementById("myPopup3").classList.toggle("show6");
+  if(document.getElementsByClassName("show3").length>0){
+    document.getElementById("myPopup").classList.toggle("show3");
+  }if(document.getElementsByClassName("show4").length>0){
+    document.getElementById("myPopup1").classList.toggle("show4");
+  }if(document.getElementsByClassName("show5").length>0){
+    document.getElementById("myPopup2").classList.toggle("show5");
+  }if(document.getElementsByClassName("show7").length>0){
+    document.getElementById("teamstocolaborate").classList.toggle("show7");
+  }
+
+}
+
+function myFunction7() {
+  document.getElementById("teamstocolaborate").classList.toggle("show7");
+  if(document.getElementsByClassName("show3").length>0){
+    document.getElementById("myPopup").classList.toggle("show3");
+  }if(document.getElementsByClassName("show4").length>0){
+    document.getElementById("myPopup1").classList.toggle("show4");
+  }if(document.getElementsByClassName("show5").length>0){
+    document.getElementById("myPopup2").classList.toggle("show5");
+  }if(document.getElementsByClassName("show6").length>0){
+    document.getElementById("myPopup3").classList.toggle("show6");
+  }
+}
 
 
-///////////////////////////////////copy_paste/////////////////////////////////////////
-var i=0;
-export function cloning(){
-i++;
-scene.remove(transformControls);
+export var editable;
+export var counter_cube=0;
+export var counter_sphere=0;
+export var counter_cylinder=0;
+export var counter_tetrahedron=0;
+export var counter_img=0;
 
-  const objclone = obj.clone();
-  objclone.position.copy(obj.position)
-  objclone.scale.copy( obj.scale );
-  objclone.rotation.copy(obj.rotation );
-  objclone.castShadow=true;
-  objclone.receiveShadow=true;
-  objects.push(objclone);
-  scene.add(objclone);
-  objclone.userData.editable =true;
-  
+ function createCube()
+{counter_cube += 1;
+  const cubeSize = 2;
+  const object = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
+  const cubeMat = new THREE.MeshStandardMaterial({color: '#ffffff',side: THREE.DoubleSide});
+  const cube = new THREE.Mesh(object, cubeMat);
+  cube.position.set(cubeSize + 1, cubeSize / 2, 0);
+  cube.castShadow=true;
+  cube.receiveShadow=true;
+  objects.push(cube);
+  scene.add(cube);
+  cube.userData.editable =true;
+  cube.userData.name = 'cube'+ counter_cube;
+  scene.remove(transformControls);
+  //group.add(cube);
   if(lnt!=null){
     if(scene.children[scene.children.length-1]!=null){
     
-      const layer_kiddo = document.createElement("button");
-      layer_kiddo.setAttribute('id', scene.children.length-1+lnt);
-      layer_kiddo.setAttribute('class', "layer");
-      layer_kiddo.setAttribute("name", scene.children[scene.children.length-1].id);
-      document.body.appendChild(layer_kiddo);
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
       document.getElementById("layers").appendChild(node);
       document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
@@ -362,309 +716,213 @@ scene.remove(transformControls);
 }else{
   if(scene.children[scene.children.length-1]!=null){
     
-    const layer_kiddo = document.createElement("button");
-    layer_kiddo.setAttribute('id', scene.children.length-1);
-    layer_kiddo.setAttribute('class', "layer");
-    layer_kiddo.setAttribute("name", scene.children[scene.children.length-1].id);
-    document.body.appendChild(layer_kiddo);
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
     document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
   
   }
 }
-
 }
-export var uploaded_image;
+ function createTetrahedron()
+{counter_tetrahedron+=1;
+  const radius = 4;
+  const object = new THREE.TetrahedronBufferGeometry(radius);
+  const tetra = new THREE.MeshStandardMaterial({color: '#ffffff',side:THREE.DoubleSide});
+  const mesh = new THREE.Mesh(object, tetra);
+  mesh.position.set(radius + 6, 2, 0);
+  mesh.castShadow=true;
+  mesh.receiveShadow=true;
+  objects.push(mesh)
+  scene.add(mesh);
+  //group.add(mesh);
 
-const image_input = document.querySelector("#image-input");
-image_input.addEventListener("change", function() {
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    uploaded_image = reader.result;
-
-    document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
+  mesh.userData.editable =true;
+  mesh.userData.name = 'Tetrahedron'+counter_tetrahedron;
+  scene.remove(transformControls);
+  if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
     
-  });
-  reader.readAsDataURL(this.files[0]); //read contents of the file
-////for obj textures///////////// edw kalytera na stelnw to up adi to uploaded image
-//var up = URL.createObjectURL(this.files[0]);  
-}); 
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////colour_palette///////////////////////////////////////
-
-export let colorpicker;
-const defaultColor = "#f1f1f1";
-
-window.addEventListener("load", startup, false);
-
-function startup() {
-  colorpicker = document.getElementById("colorpicker");
-  colorpicker.value = defaultColor;
-  colorpicker.addEventListener("input", updateFirst, false);
-  colorpicker.select();
-}
-
-function updateFirst(event) {
-  const sb = scene.background;
-    sb.set(event.target.value);
-}
-
-export let colorpicker2;
-const defaultColor2 = "#025702";
-
-window.addEventListener("load", startup1, false);
-
-function startup1() {
-  colorpicker2 = document.getElementById("colorpicker2");
-  colorpicker2.value = defaultColor2;
-  colorpicker2.addEventListener("input", updateFirst1, false);
-  colorpicker2.select();
-}
-
-function updateFirst1(event) {
-  obj.material.color.set( event.target.value );
-}
-/////////////////////////////////////////////////////////////////////////////////
-//const gui = new GUI();
-
-
-var sun = new THREE.Vector3();
-sun.castShadow=true;
-
-/*
-var ground;
-
-var rgb=new THREE.RGBELoader().load('textures/small_empty_room_1_8k.hdr', texture => {
-  const gen = new THREE.PMREMGenerator(renderer)
-  const envMap = gen.fromEquirectangular(texture).texture
-  scene.environment = envMap
-  scene.background = envMap
-  
-  texture.dispose()
-  gen.dispose()
-})
-*/
-
-export	var	water;
-				// Water
-       export function addocean(){
-if(check===false){
-				const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
-
-			water = new THREE.Water(
-					waterGeometry,
-					{
-						textureWidth: 512,
-						textureHeight: 512,
-						waterNormals: new THREE.TextureLoader().load( load_water, function ( texture ) {
-
-							texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-
-						} ),
-						sunDirection: new THREE.Vector3(),
-						sunColor: 0xffffff,
-						waterColor: 0x001e0f,
-            side:THREE.DoubleSide,
-						distortionScale: 1.1,
-						fog: scene.fog !== undefined
-					}
-				);
-
-				water.rotation.x = - Math.PI / 2;
-objects.push(water);
-water.userData.editable =true;
-water.name="Water";
-
-				scene.add( water );
-
-        const waterUniforms = water.material.uniforms;
-				waterUniforms[ 'size' ].value = 10;
-
-				/*const folderWater = gui.addFolder( 'Water' );
-				folderWater.add( waterUniforms.distortionScale, 'value', 0, 8, 0.1 ).name( 'distortionScale' );
-				folderWater.add( waterUniforms.size, 'value', 0.1, 10, 0.1 ).name( 'size' );
-				folderWater.open();
-        */
-        
-      }else{
-        const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
-
-        water = new THREE.Water(
-            waterGeometry,
-            {
-              textureWidth: 512,
-              textureHeight: 512,
-              waterNormals: new THREE.TextureLoader().load( load_water, function ( texture ) {
-  
-                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  
-              } ),
-              sunDirection: new THREE.Vector3(),
-              sunColor: 0xffffff,
-              waterColor: 0x001e0f,
-              side:THREE.DoubleSide,
-              distortionScale: 1.1,
-              fog: scene.fog !== undefined
-            }
-          );
-  
-          water.rotation.x = - Math.PI / 2;
-  objects.push(water);
-  water.userData.editable =true;
-  water.name="Water";
- // water.geometry.deleteAtrribute('position');
-  water.position.x=pos[0]
-  water.position.y=pos[1]
-  water.position.z=pos[2]
-
-  water.rotation.x=rot[0]
-  water.rotation.y=rot[1]
-  water.rotation.z=rot[2]
-
-  water.scale.x=scl[0]
-  water.scale.y=scl[1]
-  water.scale.z=scl[2]
-
-          scene.add( water );
-  
-          const waterUniforms = water.material.uniforms;
-          waterUniforms[ 'size' ].value = 10;
-//check=false;
-      }
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+lnt);
+      document.getElementById("layers").appendChild(node);
+      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
     }
-				// Skybox
-
-				const sky = new THREE.Sky();
-				sky.scale.setScalar( 10000 );
-        sky.userData.name="Sky";
-				scene.add( sky );
-
-				const skyUniforms = sky.material.uniforms;
-
-				skyUniforms[ 'turbidity' ].value = 7;
-				skyUniforms[ 'rayleigh' ].value = 2;
-				skyUniforms[ 'mieCoefficient' ].value = 0.005;
-				skyUniforms[ 'mieDirectionalG' ].value = 0.8;
-
-				const parameters = {
-					elevation: 2,
-					azimuth: 180
-				};
-
-				const pmremGenerator = new THREE.PMREMGenerator( renderer );
-				const sceneEnv = new THREE.Scene();
-
-				let renderTarget;
-
-				function updateSun() {
-
-					const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
-					const theta = THREE.MathUtils.degToRad( parameters.azimuth );
-
-					sun.setFromSphericalCoords( 1, phi, theta );
-
-					sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
-				if(water!=null)	water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
-
-					if ( renderTarget !== undefined ) renderTarget.dispose();
-
-					sceneEnv.add( sky );
-					renderTarget = pmremGenerator.fromScene( sceneEnv );
-					scene.add( sky );
-
-					scene.environment = renderTarget.texture;
-
-				}
-
-				updateSun();
-
-		//		const geometry = new THREE.BoxGeometry( 30, 30, 30 );
-		//		const material = new THREE.MeshStandardMaterial( { roughness: 0 } );
-
-		//	var	mesh = new THREE.Mesh( geometry, material );
-		//		scene.add( mesh );
-
-				//
-
-				/*controls = new OrbitControls( camera, renderer.domElement );
-				controls.maxPolarAngle = Math.PI * 0.495;
-				controls.target.set( 0, 10, 0 );
-				controls.minDistance = 40.0;
-				controls.maxDistance = 200.0;
-				controls.update();
-*/
-				//
-
-			/*	stats = new Stats();
-				container.appendChild( stats.dom );
-*/
-				// GUI
-
-/*
-				const folderSky = gui.addFolder( 'Sky' );
-				folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( updateSun );
-				folderSky.add( parameters, 'azimuth', - 180, 180, 0.1 ).onChange( updateSun );
-				folderSky.open();
-*/
-       // water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
-
-				//
-
-///////////////////layers//////////////////////
-
-var btn_layer = document.getElementById('layers');
-btn_layer.addEventListener('click', function(event) {
-console.log(event.target);
-if(lnt===null){
-  if(event.target.id>scene.children.length-3 && scene.children[scene.children.length-2].children.length>1){
-    if(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)].type==="Object3D"){
-    transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)].children[0]);
-    obj=null;
-    obj=scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)].children[0];
-    }else{
-      transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)]);
-      obj=null;
-      obj=scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)];
-
-    }
-  }else{
-if(scene.children[event.target.id].type!="Scene"){
-transformControls.attach(scene.children[event.target.id]);
-obj=null;
-obj=scene.children[event.target.id];
 }else{
-  transformControls.attach(scene.children[event.target.id].children[0]);
-  obj=null;
-  obj=scene.children[event.target.id].children[0]
-
-}}
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}
+}
+ function createSphere()
+{counter_sphere+=1;
+  const sphereRadius = 1;
+  const sphereWidthDivisions = 32;
+  const sphereHeightDivisions = 16;
+  const object = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
+  const sphereMat = new THREE.MeshStandardMaterial({color: '#ffffff',side:THREE.DoubleSide});
+  const sphere = new THREE.Mesh(object, sphereMat);
+  sphere.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
+  sphere.castShadow=true;
+  sphere.receiveShadow=true;
+  objects.push(sphere);
+  scene.add(sphere);
+  sphere.userData.editable =true;
+  sphere.userData.name = 'sphere'+counter_sphere;
+  //group.add(sphere);
+  scene.remove(transformControls);
+  if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
+    
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+lnt);
+      document.getElementById("layers").appendChild(node);
+      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
+    }
 }else{
-  if(event.target.id>scene.children.length-3 && scene.children[scene.children.length-2].children.length>1){
-    if(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt].type==="Object3D"){
-    transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt].children[0]);
-    obj=null;
-    obj=scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt].children[0];
-    }else{
-      transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt]);
-      obj=null;
-      obj=scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt];
-
-    }
-  }else{
-  if(scene.children[event.target.id-lnt].type!="Scene"){
-    transformControls.attach(scene.children[event.target.id-lnt]);
-    obj=null;
-    obj=scene.children[event.target.id-lnt];
-
-    }else{
-      transformControls.attach(scene.children[event.target.id-lnt].children[0]);
-      obj=null;
-      obj=scene.children[event.target.id-lnt].children[0];
-    }
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
 }
 }
-});
+
+function createCylinder()
+{counter_cylinder+=1;
+const object = new THREE.CylinderBufferGeometry( 2, 2, 4, 64);
+const cylindermat = new THREE.MeshStandardMaterial( {color: '#ffffff',side:THREE.DoubleSide} );
+const cylinder = new THREE.Mesh( object, cylindermat );
+cylinder.position.set(-8, 2, 0);
+cylinder.castShadow=true;
+cylinder.receiveShadow=true;
+objects.push(cylinder);
+scene.add(cylinder);
+cylinder.userData.editable =true;
+cylinder.userData.name = 'cylinder'+counter_cylinder;
+scene.remove(transformControls);
+
+//group.add(cylinder);
+if(lnt!=null){
+  if(scene.children[scene.children.length-1]!=null){
+  
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1+lnt);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1+lnt);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}else{
+if(scene.children[scene.children.length-1]!=null){
+  
+  const layer = document.createElement("button");
+  layer.setAttribute('id', scene.children.length-1);
+  layer.setAttribute('class', "layer");
+  layer.setAttribute("name", scene.children[scene.children.length-1].id);
+  document.body.appendChild(layer);
+  const node = document.getElementById(scene.children.length-1);
+  document.getElementById("layers").appendChild(node);
+  document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
+
+}
+}
+}
+
+export function createImage(){
+
+  function makeInstance(geometry, color, rotY, url) {
+    const texture = loader.load(url, render);
+    const material = new THREE.MeshStandardMaterial({
+      color,
+      map: texture,
+      alphaTest: 0.5,
+      transparent: true,
+      side: THREE.DoubleSide,
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    objects.push(mesh)
+    mesh.castShadow=true;
+    mesh.receiveShadow=true;
+    mesh.material.map.anisotropy=16;
+    scene.add(mesh);
+    mesh.userData.editable =true;
+    mesh.userData.name = 'img'+counter_img;
+    mesh.rotation.y = rotY;
+  }
+  scene.remove(transformControls);
+
+  makeInstance(geometry, 'white', 0,uploaded_image);  
+  counter_img=0;
+
+  if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
+    
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+lnt);
+      document.getElementById("layers").appendChild(node);
+      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
+    }
+}else{
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}
+}
+function sharefunc(){
+  var strMime = "image/jpeg";
+
+  const imgData = renderer.domElement.toDataURL(strMime);
+  const imgEl = document.getElementById( 'imgid' ); 
+  imgEl.src=imgData;
+  box.appendChild(imgEl);
+}
+
