@@ -1,5 +1,8 @@
 
 import { EmojiPicker } from "./Emoji.js";
+var pos_home=[];
+var rot_home=[];
+var scl_home=[];
 var check=false;
 var likers_array=[];
 let socket = io.connect('https://giraffe-design-tt8d.onrender.com');
@@ -614,13 +617,86 @@ const id=e.target.id;
             const serializedusersName=data[j].user;
             header.innerHTML=serializedDescription;
             users_name.innerHTML=serializedusersName;
+            if(data[j].post.scene.images!==undefined){
+              if(data[j].post.scene.images[1].url===undefined){
+                
+                data[j].post.scene.images=[];
+                data[j].post.scene.textures=[];
+
+              }}
     const serializedScene = JSON.stringify( data[j].post.scene);
    var scene_home = new THREE.ObjectLoader().parse( JSON.parse( serializedScene ) );
    scene_post.add(scene_home);
-   for(var w=scene_home.children.length-1;w>=0;w--)
+   for(var w=scene_home.children.length-1;w>=0;w--){
     if( scene_home.children[w].type ==='Object3D' ||  scene_home.children[w].type==='DirectionalLight'||  scene_home.children[w].type==='SpotLight' ||  scene_home.children[w].type==='HemisphereLight'||  scene_home.children[w].type==='CameraHelper'||  scene_home.children[w].userData.name==='Sky' ){
       scene_home.remove( scene_home.children[w]);
-    }
+    }else if(scene_home.children[w].name==='Water'){
+      const x = scene_home.children[w].position.x;
+      const y = scene_home.children[w].position.y;
+      const z = scene_home.children[k].position.z;
+
+      const _x = scene_home.children[w].rotation._x;
+      const _y = scene_home.children[w].rotation._y;
+      const _z = scene_home.children[w].rotation._z;
+
+      const ex = scene_home.children[w].scale.x;
+      const yi = scene_home.children[w].scale.y;
+      const zed = scene_home.children[w].scale.z;
+
+      pos_home.push( x, y, z );
+      rot_home.push(_x,_y,_z);
+      scl_home.push(ex,yi,zed);
+      scene_home.remove(scene_home.children[w]);
+      const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+
+     var water = new THREE.Water(
+          waterGeometry,
+          {
+            textureWidth: 512,
+            textureHeight: 512,
+            waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+
+              texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+            } ),
+            sunDirection: new THREE.Vector3(),
+            sunColor: 0xffffff,
+            waterColor: 0x001e0f,
+            side:THREE.DoubleSide,
+            distortionScale: 1.1,
+            fog: scene_home.fog !== undefined
+          }
+        );
+
+        water.rotation.x = - Math.PI / 2;
+water.userData.editable =true;
+water.name="Water";
+// water.geometry.deleteAtrribute('position');
+water.position.x=pos_home[0]
+water.position.y=pos_home[1]
+water.position.z=pos_home[2]
+
+water.rotation.x=rot_home[0]
+water.rotation.y=rot_home[1]
+water.rotation.z=rot_home[2]
+
+water.scale.x=scl_home[0]
+water.scale.y=scl_home[1]
+water.scale.z=scl_home[2]
+
+        scene_home.add( water );
+
+        const waterUniforms = water.material.uniforms;
+        waterUniforms[ 'size' ].value = 10;
+  }
+}   scene_post.add(scene_home);
+pos_home=[];
+
+
+rot_home=[];
+
+
+scl_home=[];
 
     var controls = new THREE.OrbitControls(camera, mycanvas);
 controls.target.set(0, 5, 0);controls.panSpeed = 1.0;
@@ -1229,6 +1305,8 @@ const light=new THREE.DirectionalLight(0xffa95c,1);
     camera.position.z +10,
 
   ) 
+  if(water!=null) water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+
     }
    anime();
     const timelaplse=performance.now()-start1;
@@ -1241,13 +1319,87 @@ const light=new THREE.DirectionalLight(0xffa95c,1);
    // const serializedusersName=data[b].user;
    // header.innerHTML=serializedDescription;
   //  users_name.innerHTML=serializedusersName;
+  if(jsonFiles[m].data.images!==undefined){
+    if(jsonFiles[m].data.images[1].url===undefined){
+      
+      jsonFiles[m].data.images=[];
+      jsonFiles[m].data.textures=[];
+
+    }}
 const serializedScene = JSON.stringify( jsonFiles[m].data);
 const scene_home = new THREE.ObjectLoader().parse( JSON.parse( serializedScene ) );
 scene_post.add(scene_home);
-for(var w=scene_home.children.length-1;w>=0;w--)
+for(var w=scene_home.children.length-1;w>=0;w--){
 if( scene_home.children[w].type ==='Object3D' ||  scene_home.children[w].type==='DirectionalLight'||  scene_home.children[w].type==='SpotLight' ||  scene_home.children[w].type==='HemisphereLight'||  scene_home.children[w].type==='CameraHelper'||  scene_home.children[w].userData.name==='Sky' ){
 scene_home.remove( scene_home.children[w]);
+}else if(scene_home.children[w].name==='Water'){
+  const x = scene_home.children[w].position.x;
+  const y = scene_home.children[w].position.y;
+  const z = scene_home.children[k].position.z;
+
+  const _x = scene_home.children[w].rotation._x;
+  const _y = scene_home.children[w].rotation._y;
+  const _z = scene_home.children[w].rotation._z;
+
+  const ex = scene_home.children[w].scale.x;
+  const yi = scene_home.children[w].scale.y;
+  const zed = scene_home.children[w].scale.z;
+
+  pos_home.push( x, y, z );
+  rot_home.push(_x,_y,_z);
+  scl_home.push(ex,yi,zed);
+  scene_home.remove(scene_home.children[w]);
+  const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+
+ var water = new THREE.Water(
+      waterGeometry,
+      {
+        textureWidth: 512,
+        textureHeight: 512,
+        waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+
+          texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+        } ),
+        sunDirection: new THREE.Vector3(),
+        sunColor: 0xffffff,
+        waterColor: 0x001e0f,
+        side:THREE.DoubleSide,
+        distortionScale: 1.1,
+        fog: scene_home.fog !== undefined
+      }
+    );
+
+    water.rotation.x = - Math.PI / 2;
+water.userData.editable =true;
+water.name="Water";
+// water.geometry.deleteAtrribute('position');
+water.position.x=pos_home[0]
+water.position.y=pos_home[1]
+water.position.z=pos_home[2]
+
+water.rotation.x=rot_home[0]
+water.rotation.y=rot_home[1]
+water.rotation.z=rot_home[2]
+
+water.scale.x=scl_home[0]
+water.scale.y=scl_home[1]
+water.scale.z=scl_home[2]
+
+    scene_home.add( water );
+
+    const waterUniforms = water.material.uniforms;
+    waterUniforms[ 'size' ].value = 10;
 }
+}   scene_post.add(scene_home);
+pos_home=[];
+
+
+rot_home=[];
+
+
+scl_home=[];
+
 
 const controls = new THREE.OrbitControls(camera, mycanvas);
 controls.target.set(0, 5, 0);controls.panSpeed = 1.0;
