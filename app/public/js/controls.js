@@ -24,7 +24,7 @@ if(roomurl==='https://giraffe-design-tt8d.onrender.com'){
 }else{
   var matched = roomurl.match(/([^/]*\/){3}/);
   console.log(matched[0]);
-  load_water=`${matched[0]}`+'/app/public/textures/waternormals.jpg';
+  load_water=`${matched[0]}`+'/app/public/Textures/waternormals.jpg';
 }
 export var obj;
 export var nowObj;
