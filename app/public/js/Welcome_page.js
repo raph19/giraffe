@@ -535,5 +535,7 @@ input3.addEventListener("change", (event) => {
 }else if(j==9){
   var a = document.getElementById("next"); 
   a.href = "https://giraffe-design-tt8d.onrender.com/editor"}
-
+  a.addEventListener("click", function(event) {
+    window.location.href = a.href;
+  });
 }
