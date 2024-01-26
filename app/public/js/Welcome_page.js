@@ -49,7 +49,7 @@ if(j==0){
     var rmv_vid= document.getElementById("welcome_box");
     rmv_vid.removeChild(rmv_vid.lastElementChild);
 
-    document.getElementById("par").innerHTML="You work your designs on a 3d space. You can try to hold left click and rotate through the scene, right click to move your point on view and go back and forth with the cursor to zoom in and out.";
+    document.getElementById("par").innerHTML="You work your designs on a 3d space. You can try to hold left click and rotate through the scene, hold right click to move your point on view and go back and forth with the cursor to zoom in and out.";
     document.getElementById("next").style.bottom="-410px";
 
     const windo_scene = document.createElement("div");
@@ -530,9 +530,9 @@ input3.addEventListener("change", (event) => {
       document.getElementById("texture").onclick = function() {document.getElementById("texture-input").style.display="inline-grid";};
 
 
-}else if(j==8){
+}else if(j==7){
   document.getElementById("par").innerHTML="These are the very basics, hit next and explore more inside the application :)";
-}else if(j==9){
+}else if(j==8){
   var a = document.getElementById('next'); 
   a.href = "https://giraffe-design-tt8d.onrender.com/editor"}
 
