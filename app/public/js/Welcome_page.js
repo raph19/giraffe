@@ -533,7 +533,7 @@ input3.addEventListener("change", (event) => {
 }else if(j==8){
   document.getElementById("par").innerHTML="These are the very basics, hit next and explore more inside the application :)";
 }else if(j==9){
-  var a = document.getElementById('next'); 
+  var a = document.getElementById("next"); 
   a.href = "https://giraffe-design-tt8d.onrender.com/editor"}
 
 }
