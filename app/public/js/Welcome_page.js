@@ -534,8 +534,9 @@ input3.addEventListener("change", (event) => {
   document.getElementById("par").innerHTML="These are the very basics, hit next and explore more inside the application :)";
 }else if(j==9){
   var a = document.getElementById("next"); 
-  a.href = "https://giraffe-design-tt8d.onrender.com/editor"}
+  a.href = "https://giraffe-design-tt8d.onrender.com/editor"
   a.addEventListener("click", function(event) {
     window.location.href = a.href;
   });
-}
+}}
+
