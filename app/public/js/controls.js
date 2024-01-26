@@ -535,6 +535,36 @@ water.name="Water";
           waterUniforms[ 'size' ].value = 10;
 //check=false;
       }
+      if(lnt!=null){
+
+        if(scene.children[scene.children.length-1]!=null){
+          scene.remove(transformControls);
+
+          const layer = document.createElement("button");
+          layer.setAttribute('id', scene.children.length-1+lnt);
+          layer.setAttribute('class', "layer");
+          layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
+          document.body.appendChild(layer);
+          const node = document.getElementById(scene.children.length-1+lnt);
+          document.getElementById("layers").appendChild(node);
+          document.getElementById(scene.children.length-1+lnt).innerHTML = water.name;
+        }
+        }else{
+
+          if(scene.children[scene.children.length-1]!=null){
+    scene.remove(transformControls);
+            const layer = document.createElement("button");
+            layer.setAttribute('id', scene.children.length-1);
+            layer.setAttribute('class', "layer");
+            layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
+            document.body.appendChild(layer);
+            const node = document.getElementById(scene.children.length-1);
+            document.getElementById("layers").appendChild(node);
+            document.getElementById(scene.children.length-1).innerHTML = water.name;
+        }
+      }
     }
 				// Skybox
 
