@@ -19,12 +19,12 @@ var load_water;
 // Example
 const roomurl = getCurrentURL()
 
-if(roomurl==='https://localhost:3000/'){
-  load_water='textures/waternormals.jpg';
+if(roomurl==='https://giraffe-design-tt8d.onrender.com'){
+  load_water='/app/textures/waternormals.jpg';
 }else{
   var matched = roomurl.match(/([^/]*\/){3}/);
   console.log(matched[0]);
-  load_water=`${matched[0]}`+'/textures/waternormals.jpg';
+  load_water=`${matched[0]}`+'/app/textures/waternormals.jpg';
 }
 export var obj;
 export var nowObj;
