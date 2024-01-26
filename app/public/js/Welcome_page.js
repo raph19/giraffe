@@ -34,7 +34,7 @@ if(j==0){
           container_vid.setAttribute('height', '480');
           container_vid.setAttribute('controls','controls');
           const container_source = document.createElement("source");
-          container_source.setAttribute('src', './app/public/Textures/home_vid.mp4');
+          container_source.setAttribute('src', 'textures/home_vid.mp4');
           container_source.setAttribute('type', 'video/mp4');
           container_vid.appendChild(container_source);
           document.getElementById("welcome_box").style.top="-109%";
