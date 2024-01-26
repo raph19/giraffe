@@ -37,7 +37,7 @@ if(j==0){
           container_source.setAttribute('src', 'textures/home_vid.mp4');
           container_source.setAttribute('type', 'video/mp4');
           container_vid.appendChild(container_source);
-          document.getElementById("welcome_box").style.top="-109%";
+          document.getElementById("welcome_box").style.top="-126%";
           document.getElementById("next").style.bottom="-586px;";
           document.getElementById("next").style.left="94%";
           document.getElementById("paragraph").style.width="46%";
@@ -530,6 +530,10 @@ input3.addEventListener("change", (event) => {
       document.getElementById("texture").onclick = function() {document.getElementById("texture-input").style.display="inline-grid";};
 
 
-}
+}else if(j==8){
+  document.getElementById("par").innerHTML="These are the very basics, hit next and explore more inside the application :)";
+}else if(j==9){
+  var a = document.getElementById('next'); 
+  a.href = "https://giraffe-design-tt8d.onrender.com/editor"}
 
 }

@@ -30,8 +30,15 @@ function exportmodel() {
   const exporter = new _GLTFExporter();
   // Parse the input and generate the glTF output
   scene.remove(transformControls);
+  const clonedScene = new THREE.Scene();    
+  
+      scene.children.forEach((child) => {if ( child.userData.name!='Sky' && child.type!='CameraHelper'){
+        const clonedObject = child.clone();
+        clonedScene.add(clonedObject);
+      }
+      });  
 
-  exporter.parse(scene, function(gltf) {
+  exporter.parse(clonedScene, function(gltf) {
 	
 		const output = JSON.stringify( gltf, null, 2 );
 		saveString( output, 'scene.gltf' );
@@ -179,10 +186,13 @@ scene.add(gltf.scene);
         if(lnt!=null){
 
           if(scene.children[scene.children.length-1]!=null){
-      
+            scene.remove(transformControls);
+
             const layer = document.createElement("button");
             layer.setAttribute('id', scene.children.length-1+lnt);
             layer.setAttribute('class', "layer");
+            layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
             document.body.appendChild(layer);
             const node = document.getElementById(scene.children.length-1+lnt);
             document.getElementById("layers").appendChild(node);
@@ -191,10 +201,12 @@ scene.add(gltf.scene);
           }else{
   
             if(scene.children[scene.children.length-1]!=null){
-      
+      scene.remove(transformControls);
               const layer = document.createElement("button");
               layer.setAttribute('id', scene.children.length-1);
               layer.setAttribute('class', "layer");
+              layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
               document.body.appendChild(layer);
               const node = document.getElementById(scene.children.length-1);
               document.getElementById("layers").appendChild(node);
@@ -219,11 +231,14 @@ scene.add(gltf.scene);
        
       }
         if(lnt!=null){
+          scene.remove(transformControls);
 
           for(var c=0;c<scene.children[scene.children.length-1].children.length/*to teleytaio poy piraja length-1*/;c++){
             const layer = document.createElement("button");
             layer.setAttribute('id', scene.children.length-1 + c + lnt);
             layer.setAttribute('class', "layer");
+            layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
             document.body.appendChild(layer);
             const node = document.getElementById(scene.children.length-1 + c +lnt);
             document.getElementById("layers").appendChild(node);
@@ -247,10 +262,14 @@ scene.add(gltf.scene);
               document.getElementById("layers").appendChild(node);
               document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
           }*/
+          scene.remove(transformControls);
+
           for(var c=0;c<scene.children[scene.children.length-1].children.length-1;c++){
             const layer = document.createElement("button");
             layer.setAttribute('id', scene.children.length-1 + c);
             layer.setAttribute('class', "layer");
+            layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
             document.body.appendChild(layer);
             const node = document.getElementById(scene.children.length-1 + c);
             document.getElementById("layers").appendChild(node);
@@ -381,22 +400,28 @@ materials.vertexColors = true
   scene.add(obj);
 
   if(lnt!=null){
+    scene.remove(transformControls);
 
     if(scene.children[scene.children.length-1]!=null){
 
       const layer = document.createElement("div");
       layer.setAttribute('id', scene.children.length-1);
+      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1);
       document.getElementById("layers").appendChild(node);
       document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
     }
     }else{
+      scene.remove(transformControls);
 
       if(scene.children[scene.children.length-1]!=null){
 
         const layer = document.createElement("div");
         layer.setAttribute('id', scene.children.length-1);
+        layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
         document.body.appendChild(layer);
         const node = document.getElementById(scene.children.length-1);
         document.getElementById("layers").appendChild(node);
@@ -558,24 +583,30 @@ geom.translate(
 
 scene.add(mesh);
 if(lnt!=null){
+  scene.remove(transformControls);
 
   if(scene.children[scene.children.length-1]!=null){
 
     const layer = document.createElement("div");
     layer.setAttribute('id', scene.children.length-1);
     layer.setAttribute('class', "layer");
+    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
     document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');;
   }
   }else{
+    scene.remove(transformControls);
 
     if(scene.children[scene.children.length-1]!=null){
 
       const layer = document.createElement("div");
       layer.setAttribute('id', scene.children.length-1);
       layer.setAttribute('class', "layer");
+      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1);
       document.getElementById("layers").appendChild(node);
@@ -597,7 +628,14 @@ if(lnt!=null){
 function stlExporter (){
 
 var exporterstl= new STLExporter();
-var str = exporterstl.parse( scene ); // Export the scene
+const clonedScene = new THREE.Scene();    
+  
+      scene.children.forEach((child) => {if ( child.userData.name!='Sky' && child.type!='CameraHelper'){
+        const clonedObject = child.clone();
+        clonedScene.add(clonedObject);
+      }
+      });
+var str = exporterstl.parse( clonedScene ); // Export the scene
 var blob = new Blob( [str], { type : 'text/plain' } ); // Generate Blob from the string
 //saveAs( blob, 'file.stl' ); //Save the Blob to file.stl
 
@@ -1036,6 +1074,8 @@ addocean();
       const layer = document.createElement("button");
       layer.setAttribute('id', scene.children.length-1+lnt);
       layer.setAttribute('class', "layer");
+      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
       document.getElementById("layers").appendChild(node);
@@ -1048,6 +1088,8 @@ addocean();
     const layer = document.createElement("button");
     layer.setAttribute('id', scene.children.length-1);
     layer.setAttribute('class', "layer");
+    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);

@@ -19,12 +19,12 @@ var load_water;
 // Example
 const roomurl = getCurrentURL()
 
-if(roomurl==='https://giraffe-design-tt8d.onrender.com'){
+if(roomurl==='https://localhost:3000/'){
   load_water='textures/waternormals.jpg';
 }else{
   var matched = roomurl.match(/([^/]*\/){3}/);
   console.log(matched[0]);
-  load_water=`${matched[0]}`+'textures/waternormals.jpg';
+  load_water=`${matched[0]}`+'/textures/waternormals.jpg';
 }
 export var obj;
 export var nowObj;
@@ -204,9 +204,53 @@ function getObjectData(obj) {
 
 export function removeobj()
 {
-  transformControls.detach(obj);
-scene.remove(obj);
+  const uuidToRemove = obj.uuid;
 
+// Find the index of the object with the specified uuid
+const indexToRemove = objects.findIndex(item => item.uuid === uuidToRemove);
+
+// If the object is found, remove it
+if (indexToRemove !== -1) {
+  objects.splice(indexToRemove, 1);
+}
+ // objects.remove(obj);
+// Detach TransformControls from the object
+transformControls.detach();
+
+// Remove the object from the scene
+if(obj.parent.children.length===1){
+  scene.remove(obj.parent);
+  const dynamicAttribute = 'name';
+  const attributeValue = obj.parent.id; 
+  const changelayers=obj.parent.id-182;
+  // Use querySelector to find the element with the specified dynamic attribute and value
+  const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+  elementToRemove.remove();
+  // Get all elements with the attribute "example"
+  const elementsWithAttribute = document.querySelectorAll('[name]');
+  
+  // Change the IDs of each element
+  elementsWithAttribute.forEach(element => {if(parseInt(element.id)>changelayers)
+    // Set the new ID, you can customize this logic based on your requirements
+    element.id = element.id-1;
+  });
+}else{
+scene.remove(obj);
+const dynamicAttribute = 'name';
+const attributeValue = obj.id; 
+const changelayers=obj.id-182;
+// Use querySelector to find the element with the specified dynamic attribute and value
+const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+elementToRemove.remove();
+// Get all elements with the attribute "example"
+const elementsWithAttribute = document.querySelectorAll('[name]');
+
+// Change the IDs of each element
+elementsWithAttribute.forEach(element => {if(parseInt(element.id)>changelayers)
+  // Set the new ID, you can customize this logic based on your requirements
+  element.id = element.id-1;
+});
+}
 }
 
 
@@ -308,6 +352,7 @@ scene.remove(transformControls);
       const layer_kiddo = document.createElement("button");
       layer_kiddo.setAttribute('id', scene.children.length-1+lnt);
       layer_kiddo.setAttribute('class', "layer");
+      layer_kiddo.setAttribute("name", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer_kiddo);
       const node = document.getElementById(scene.children.length-1+lnt);
       document.getElementById("layers").appendChild(node);
@@ -320,6 +365,7 @@ scene.remove(transformControls);
     const layer_kiddo = document.createElement("button");
     layer_kiddo.setAttribute('id', scene.children.length-1);
     layer_kiddo.setAttribute('class', "layer");
+    layer_kiddo.setAttribute("name", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer_kiddo);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
