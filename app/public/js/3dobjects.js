@@ -508,6 +508,7 @@ var jr=document.getElementById("join_room");
 if(jr!=null){
 document.getElementById("join_room").onclick=function(){myFunction7();};
 }
+document.getElementById("close_ex").onclick = function() {document.getElementById("box").style.visibility="hidden"};
 
 new EmojiPicker({
   trigger:[{
