@@ -934,7 +934,11 @@ function clearScene() {
     if ( scene.children[q].isMesh && scene.children[q].userData.name!=='Sky'){
         scene.remove(scene.children[q]);
     }
-} 
+}const elementToRemove = document.querySelector("#layers");
+elementToRemove.remove();
+objects.splice(0, objects.length); 
+transformControls.detach();
+
 localStorage.clear();     
 saveScene();
 }
