@@ -489,6 +489,7 @@ document.getElementById("ocean").onclick = function() {addocean()};
 
 
 document.getElementById("moon").onclick = function() {darkmode()};
+document.getElementById("close_ex").onclick = function() {document.getElementById("box").style.visibility="hidden"};
 
 document.getElementById("pop").onclick = function() {myFunction3()};
 document.getElementById("pop1").onclick = function() {myFunction4();elm.focus(); transformControls.detach(obj);};
@@ -503,12 +504,12 @@ document.getElementById("share").onclick=function(){transformControls.detach(obj
   sharefunc();if (document.getElementById("box").style.visibility="hidden"){document.getElementById("box").style.visibility="visible"}};
 
   document.getElementById("save_button4").onclick=function(){document.getElementById("box").style.visibility="hidden"};
+  document.getElementById("clear-button").onclick = function() {clearScene();};
 
 var jr=document.getElementById("join_room");
 if(jr!=null){
 document.getElementById("join_room").onclick=function(){myFunction7();};
 }
-document.getElementById("close_ex").onclick = function() {document.getElementById("box").style.visibility="hidden"};
 
 new EmojiPicker({
   trigger:[{
@@ -926,4 +927,89 @@ function sharefunc(){
   imgEl.src=imgData;
   box.appendChild(imgEl);
 }
+///clear scene///
+function clearScene() {
+  // Remove all objects from the scene
+  for(var q=scene.children.length-1;q>=0;q--){       
+    if ( scene.children[q].isMesh && scene.children[q].userData.name!=='Sky'){
+        scene.remove(scene.children[q]);
+    }
+} 
+localStorage.clear();     
+saveScene();
+}
+//local_Storage for scene//
 
+// Save the scene to localStorage
+function saveScene(){
+  scene.remove(transformControls);
+  const sceneData = JSON.stringify(scene);
+  localStorage.setItem('savedScene', sceneData);
+  console.log('Scene saved to localStorage');
+};
+var names=[];    var nms=0;
+var idz=[];      var ids=0;
+// Retrieve the scene from localStorage
+function loadScene(){
+  const savedScene = localStorage.getItem('savedScene');
+  
+  if (savedScene) {
+    const parsedScene = new THREE.ObjectLoader().parse( JSON.parse( savedScene ) );
+    for(var k=parsedScene.children.length-1;k>=0;k--){
+      if(parsedScene.children[k].isMesh && parsedScene.children[k].type!=='Object3D'&&parsedScene.children[k].type!=='DirectionalLight'&& parsedScene.children[k].type!=='CameraHelper' && parsedScene.children[k].userData.name!=='Sky' &&parsedScene.children[k].type!=='HemisphereLight' && parsedScene.children[k].type!=='SpotLight')
+   { 
+    var dds=parsedScene.children[k].id;
+    var g=parsedScene.children[k].userData.name;
+    names[nms]=g;
+    idz[ids]=dds;
+    scene.add(parsedScene.children[k]);
+    objects.push( scene.children[scene.children.length-1] );
+
+    if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
+    
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('class', "layer");
+    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+lnt);
+      document.getElementById("layers").appendChild(node);
+      //document.getElementById(parsedScene.children.length+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
+    }
+}else{
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('class', "layer");
+   layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1);
+    document.getElementById("layers").appendChild(node);
+   // document.getElementById(parsedScene.children.length).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}
+    console.log('Scene loaded from localStorage');}
+   nms++;ids++;
+ }var cnt=names.length;
+for(var r=names.length-1;r>=0;r--){
+
+  document.getElementById(r+5).innerHTML = names[r];
+  document.getElementById(r+5).setAttribute("name", idz[r]);
+  //objects.push( scene.children[r+cnt] );
+
+  //cnt=cnt+2;
+} 
+ } else {
+    console.log('No saved scene found');
+  }
+};
+
+// Automatically save the scene when the page is about to unload
+window.addEventListener('beforeunload', saveScene);
+
+// Load the scene when the page is loaded
+window.addEventListener('load', loadScene);
