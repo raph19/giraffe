@@ -239,10 +239,10 @@ scene.remove(obj);
 const dynamicAttribute = 'name';
 const attributeValue = obj.id; 
 const changelayers=obj.id-194;
-// Use querySelector to find the element with the specified dynamic attribute and value
+//querySelector to find the element with the specified dynamic attribute and value
 const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
 elementToRemove.remove();
-// Get all elements with the attribute "example"
+// all elements with the attribute "name"
 const elementsWithAttribute = document.querySelectorAll('[name]');
 
 // Change the IDs of each element
