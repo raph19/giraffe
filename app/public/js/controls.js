@@ -19,7 +19,7 @@ var load_water;
 // Example
 const roomurl = getCurrentURL()
 
-if(roomurl==='https://giraffe-design-tt8d.onrender.com'){
+if(roomurl==='https://localhost:3000/'){
   load_water='textures/waternormals.jpg';
 }else{
   var matched = roomurl.match(/([^/]*\/){3}/);
@@ -222,7 +222,7 @@ if(obj.parent.children.length===1){
   scene.remove(obj.parent);
   const dynamicAttribute = 'name';
   const attributeValue = obj.parent.id; 
-  const changelayers=obj.parent.id-182;
+  const changelayers=obj.parent.id-194;
   // Use querySelector to find the element with the specified dynamic attribute and value
   const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
   elementToRemove.remove();
@@ -238,7 +238,7 @@ if(obj.parent.children.length===1){
 scene.remove(obj);
 const dynamicAttribute = 'name';
 const attributeValue = obj.id; 
-const changelayers=obj.id-182;
+const changelayers=obj.id-194;
 // Use querySelector to find the element with the specified dynamic attribute and value
 const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
 elementToRemove.remove();
