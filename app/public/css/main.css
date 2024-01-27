@@ -834,7 +834,7 @@ columns: white!important;
         button#emoji_btn,button#emoji_btn1 {
           background: #657b8c00;
           position: relative;
-          top: -310%;
+          top: -289%;
           z-index: 10;
           width: 10%;
           left: 90%;
