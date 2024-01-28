@@ -1339,10 +1339,18 @@ input#colorpicker22 {
   visibility:hidden;
 }
 
+
 button#clear-button {
   background-color: #f0f8ff00;
   border: none;
   position: relative;
-  top: 40%;
+  top: 36%;
   left: 52%;
+}
+
+.night_mode>.container>input#model-input{
+  color: #ffffff;
+}
+.night_mode>.container>input#image-input{
+  color: #ffffff;
 }
