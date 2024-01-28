@@ -710,7 +710,7 @@ export var counter_img=0;
       layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
-      document.getElementsById("layers").appendChild(node);
+      document.getElementById("layers").appendChild(node);
       document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
