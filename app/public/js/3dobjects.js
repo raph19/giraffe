@@ -10,6 +10,7 @@ import { XRControllerModelFactory } from "https://cdn.jsdelivr.net/npm/three@0.1
 import{camera} from'./camera.js';
 import { addocean } from "./controls.js";
 import {lnt} from"./imp-exp.js";
+export var layerid;
 // Get the button, and when the user clicks on it, execute myFunction
 /*
 export const canvas1 = document.querySelector('#c');
@@ -477,12 +478,12 @@ document.getElementById("myBtn1").onclick = function() {myFunction1();};//docume
 document.getElementById("myBtn2").onclick = function() {myFunction2()};
 document.getElementById("myBtn3").onclick = function() {myFunction8()};
 
-document.getElementById("cube").onclick = function() {createCube();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("sphere").onclick = function() {createSphere();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("tetrahedron").onclick = function() {createTetrahedron();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("cylinder").onclick = function() {createCylinder();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("image").onclick = function() {document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){createImage();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"}else{document.getElementById("image-input").style.display="inline-grid";}};
-document.getElementById("model").onclick = function() {document.getElementById("model-input").style.display="inline-grid";document.getElementById("image-input").style.display="none";scene.remove(transformControls);};
+document.getElementById("cube").onclick = function() {createCube();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("sphere").onclick = function() {createSphere();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("tetrahedron").onclick = function() {createTetrahedron();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("cylinder").onclick = function() {createCylinder();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("image").onclick = function() {checkthewildcards();document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){createImage();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"}else{document.getElementById("image-input").style.display="inline-grid";}};
+document.getElementById("model").onclick = function() {checkthewildcards();document.getElementById("model-input").style.display="inline-grid";document.getElementById("image-input").style.display="none";scene.remove(transformControls);};
 document.getElementById("texture").onclick = function() {document.getElementById("texture-input").style.display="inline-grid";};
 
 document.getElementById("ocean").onclick = function() {addocean()};
@@ -710,7 +711,7 @@ export var counter_img=0;
       layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
-      document.getElementById("layers").appendChild(node);
+      document.getElementsById("layers").appendChild(node);
       document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
@@ -1031,3 +1032,53 @@ window.addEventListener('beforeunload', saveScene);
 
 // Load the scene when the page is loaded
 window.addEventListener('load', loadScene);
+
+var counter_wild=0;
+var counter_wild2=0;
+var counter_wilds=0;
+
+////////check the wildcards////////////
+function checkthewildcards(){
+//const dynamicAttribute = 'wildcard';
+//const attributeValue = mesh.id; 
+
+// all elements with the attribute "wildcard"
+const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+
+// Change the IDs of each element
+elementsWithAttribute.forEach(element => {
+  if(element.attributes[2].nodeValue==="199"){
+    counter_wild++;
+  }else{
+    if(counter_wild===0){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+  const textContent_wild= element.attributes[2].textContent;
+  const value_wild= element.attributes[2].value;
+  const x = parseInt(value_wild, 10);
+  const changed_wild=x+counter_wild2-199;
+
+  element.attributes[2].nodeValue=nodevalue_wild-changed_wild
+  element.attributes[2].textContent=textContent_wild-changed_wild
+  element.attributes[2].value=value_wild-changed_wild
+  }else{
+    const nodevalue_wild= element.attributes[2].nodeValue;
+  const textContent_wild= element.attributes[2].textContent;
+  const value_wild= element.attributes[2].value;
+  const x = parseInt(value_wild, 10);
+  const changed_wild=x-counter_wild2-counter_wild-199;
+
+  element.attributes[2].nodeValue=nodevalue_wild-changed_wild
+  element.attributes[2].textContent=textContent_wild-changed_wild
+  element.attributes[2].value=value_wild-changed_wild
+        counter_wild2++;
+  }
+
+  } counter_wilds++;
+
+
+});counter_wild=0;counter_wild2=0;
+for (var n = 5; n < 5 + counter_wilds; n++) {
+  scene.children[n].userData.layerid = n + 194; // 199 + (n - 5)
+}
+counter_wilds=0;
+}
