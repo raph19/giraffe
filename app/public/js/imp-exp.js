@@ -1176,11 +1176,11 @@ function checkthewildcards2(){
   elementsWithAttribute.forEach(element => {
 counter_wilds++;  
   });counter_wild=0;counter_wild2=0;
-  for (var n = 5; n < scene.children.length; n++) {
+  for (var n = scene.children.length-1; n < scene.children.length; n++) {
     if (scene.children[n] instanceof THREE.Scene) {
       for (var l = 0; l < counter_wilds; l++) {
-        scene.children[n].children[l].userData.layerid = l + 199; // 199 + l
-        var elementId = l+5; // Replace 'yourElementIdPrefix' with your actual ID prefix
+        scene.children[n].children[l].userData.layerid = l + 199 + scene.children.length-6// 199 + l
+        var elementId = l+scene.children.length-1; // Replace 'yourElementIdPrefix' with your actual ID prefix
   var currentElement = document.getElementById(elementId);
   if(scene.children[n].children[l].isMesh){      
   if (currentElement && currentElement.innerHTML === scene.children[n].children[l].name) {
