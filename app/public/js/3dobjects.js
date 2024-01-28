@@ -477,11 +477,11 @@ document.getElementById("myBtn1").onclick = function() {myFunction1();};//docume
 document.getElementById("myBtn2").onclick = function() {myFunction2()};
 document.getElementById("myBtn3").onclick = function() {myFunction8()};
 
-document.getElementById("cube").onclick = function() {createCube()};
-document.getElementById("sphere").onclick = function() {createSphere()};
-document.getElementById("tetrahedron").onclick = function() {createTetrahedron()};
-document.getElementById("cylinder").onclick = function() {createCylinder()};
-document.getElementById("image").onclick = function() {document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){createImage();}else{document.getElementById("image-input").style.display="inline-grid";}};
+document.getElementById("cube").onclick = function() {createCube();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("sphere").onclick = function() {createSphere();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("tetrahedron").onclick = function() {createTetrahedron();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("cylinder").onclick = function() {createCylinder();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("image").onclick = function() {document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){createImage();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"}else{document.getElementById("image-input").style.display="inline-grid";}};
 document.getElementById("model").onclick = function() {document.getElementById("model-input").style.display="inline-grid";document.getElementById("image-input").style.display="none";scene.remove(transformControls);};
 document.getElementById("texture").onclick = function() {document.getElementById("texture-input").style.display="inline-grid";};
 
@@ -518,7 +518,6 @@ new EmojiPicker({
   }],
   closeButton:true
 })
-
 
 const elm = document.getElementById('form');
 const elm2 = document.getElementById('form2');
@@ -708,10 +707,10 @@ export var counter_img=0;
       const layer = document.createElement("button");
       layer.setAttribute('id', scene.children.length-1+lnt);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
-      document.getElementById("layers").appendChild(node);
+      document.getElementsById("layers").appendChild(node);
       document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
@@ -721,7 +720,7 @@ export var counter_img=0;
     const layer = document.createElement("button");
     layer.setAttribute('id', scene.children.length-1);
     layer.setAttribute('class', "layer");
-    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
@@ -752,7 +751,7 @@ export var counter_img=0;
       const layer = document.createElement("button");
       layer.setAttribute('id', scene.children.length-1+lnt);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
       document.getElementById("layers").appendChild(node);
@@ -765,7 +764,7 @@ export var counter_img=0;
     const layer = document.createElement("button");
     layer.setAttribute('id', scene.children.length-1);
     layer.setAttribute('class', "layer");
-    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
@@ -797,7 +796,7 @@ export var counter_img=0;
       const layer = document.createElement("button");
       layer.setAttribute('id', scene.children.length-1+lnt);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
       document.getElementById("layers").appendChild(node);
@@ -810,7 +809,7 @@ export var counter_img=0;
     const layer = document.createElement("button");
     layer.setAttribute('id', scene.children.length-1);
     layer.setAttribute('class', "layer");
-    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
@@ -841,7 +840,7 @@ if(lnt!=null){
     const layer = document.createElement("button");
     layer.setAttribute('id', scene.children.length-1+lnt);
     layer.setAttribute('class', "layer");
-    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1+lnt);
     document.getElementById("layers").appendChild(node);
@@ -854,7 +853,7 @@ if(scene.children[scene.children.length-1]!=null){
   const layer = document.createElement("button");
   layer.setAttribute('id', scene.children.length-1);
   layer.setAttribute('class', "layer");
-  layer.setAttribute("name", scene.children[scene.children.length-1].id);
+  layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
   document.body.appendChild(layer);
   const node = document.getElementById(scene.children.length-1);
   document.getElementById("layers").appendChild(node);
@@ -897,7 +896,7 @@ export function createImage(){
       const layer = document.createElement("button");
       layer.setAttribute('id', scene.children.length-1+lnt);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
       document.getElementById("layers").appendChild(node);
@@ -910,7 +909,7 @@ export function createImage(){
     const layer = document.createElement("button");
     layer.setAttribute('id', scene.children.length-1);
     layer.setAttribute('class', "layer");
-    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
@@ -934,11 +933,16 @@ function clearScene() {
     if ( scene.children[q].isMesh && scene.children[q].userData.name!=='Sky'){
         scene.remove(scene.children[q]);
     }
-}const elementToRemove = document.querySelector("#layers");
-elementToRemove.remove();
+}
+const elementToRemove = document.querySelectorAll('.layer');
+
+elementToRemove.forEach(element => {
+  element.remove();
+
+});
 objects.splice(0, objects.length); 
 transformControls.detach();
-
+document.getElementById("clear-button").style.visibility="hidden";
 localStorage.clear();     
 saveScene();
 }
@@ -951,8 +955,8 @@ function saveScene(){
   localStorage.setItem('savedScene', sceneData);
   console.log('Scene saved to localStorage');
 };
-var names=[];    var nms=0;
-var idz=[];      var ids=0;
+
+let loadobjs=[]; var ldobjs=0;
 // Retrieve the scene from localStorage
 function loadScene(){
   const savedScene = localStorage.getItem('savedScene');
@@ -961,53 +965,63 @@ function loadScene(){
     const parsedScene = new THREE.ObjectLoader().parse( JSON.parse( savedScene ) );
     for(var k=parsedScene.children.length-1;k>=0;k--){
       if(parsedScene.children[k].isMesh && parsedScene.children[k].type!=='Object3D'&&parsedScene.children[k].type!=='DirectionalLight'&& parsedScene.children[k].type!=='CameraHelper' && parsedScene.children[k].userData.name!=='Sky' &&parsedScene.children[k].type!=='HemisphereLight' && parsedScene.children[k].type!=='SpotLight')
-   { 
-    var dds=parsedScene.children[k].id;
+   {    
+    if (!Array.isArray(loadobjs)) {
+      loadobjs = [];
+    }   
+    loadobjs.push(parsedScene.children[k]);
+    ldobjs++;
+  }
+    }
+    loadobjs.reverse();
+    for(var d=0; d<loadobjs.length;d++){
+      scene.add(loadobjs[d]);
+      objects.push( loadobjs[d] );
+
+    }
+   /* var dds=parsedScene.children[k].id;
     var g=parsedScene.children[k].userData.name;
     names[nms]=g;
     idz[ids]=dds;
     scene.add(parsedScene.children[k]);
     objects.push( scene.children[scene.children.length-1] );
-
+*/
+for(var f=5;f<=scene.children.length-1;f++){
     if(lnt!=null){
     if(scene.children[scene.children.length-1]!=null){
     
       const layer = document.createElement("button");
-      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('id', f+lnt);
       layer.setAttribute('class', "layer");
-    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[f].id);
       document.body.appendChild(layer);
-      const node = document.getElementById(scene.children.length-1+lnt);
+      const node = document.getElementById(f+lnt);
       document.getElementById("layers").appendChild(node);
-      //document.getElementById(parsedScene.children.length+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+      document.getElementById(f+lnt).innerHTML = scene.children[f].userData.name;
     
     }
 }else{
   if(scene.children[scene.children.length-1]!=null){
     
     const layer = document.createElement("button");
-    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('id', f);
     layer.setAttribute('class', "layer");
-   layer.setAttribute("name", scene.children[scene.children.length-1].id);
+   layer.setAttribute("wildcard", scene.children[f].id);
     document.body.appendChild(layer);
-    const node = document.getElementById(scene.children.length-1);
+    const node = document.getElementById(f);
     document.getElementById("layers").appendChild(node);
-   // document.getElementById(parsedScene.children.length).innerHTML = scene.children[scene.children.length-1].userData.name;
+   document.getElementById(f).innerHTML = scene.children[f].userData.name;
   
   }
 }
+}
     console.log('Scene loaded from localStorage');}
-   nms++;ids++;
- }var cnt=names.length;
-for(var r=names.length-1;r>=0;r--){
+ //  nms++;ids++;
+ 
+if(objects.length>0) document.getElementById("clear-button").style.visibility="visible";
 
-  document.getElementById(r+5).innerHTML = names[r];
-  document.getElementById(r+5).setAttribute("name", idz[r]);
-  //objects.push( scene.children[r+cnt] );
 
-  //cnt=cnt+2;
-} 
- } else {
+  else {
     console.log('No saved scene found');
   }
 };
