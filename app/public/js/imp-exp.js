@@ -104,7 +104,7 @@ input.addEventListener("change", (event) => {
       model = glb.scene;      
       
       scene.add(model);
-
+      if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
       const clip = glb.animations[0];
     
       const mixer = new THREE.AnimationMixer(model);
@@ -173,6 +173,7 @@ input.addEventListener("change", (event) => {
 if(gltf.scene.children[0].userData.name==="Sky"){ 
   gltf.scene.remove(gltf.scene.children[0]);
 scene.add(gltf.scene);
+if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
  iterate();
 }
         else{
@@ -180,6 +181,7 @@ scene.add(gltf.scene);
             if(gltf.scene.children[k].type==='DirectionalLight'|| gltf.scene.children[k].type==='CameraHelper' || gltf.scene.children[k].userData.name==='Sky' ||gltf.scene.children[k].type==='HemisphereLight' || gltf.scene.children[k].type==='SpotLight')
             gltf.scene.remove(gltf.scene.children[k]);
         }scene.add(gltf.scene);
+        if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
            iterate();
        
       }
@@ -220,6 +222,7 @@ scene.add(gltf.scene);
       if(gltf.scene.children[0].userData.name==="Sky"){ 
   gltf.scene.remove(gltf.scene.children[0]);
 scene.add(gltf.scene);
+if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
  iterate();
 }
         else{
@@ -227,6 +230,7 @@ scene.add(gltf.scene);
             if(gltf.scene.children[k].type==='DirectionalLight'|| gltf.scene.children[k].type==='CameraHelper' || gltf.scene.children[k].userData.name==='Sky' ||gltf.scene.children[k].type==='HemisphereLight' || gltf.scene.children[k].type==='SpotLight')
             gltf.scene.remove(gltf.scene.children[k]);
         }scene.add(gltf.scene);
+        if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
            iterate();
        
       }
@@ -398,7 +402,7 @@ materials.vertexColors = true
       if(obj.children[0].type=='Mesh'){
         
   scene.add(obj);
-
+  if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
   if(lnt!=null){
     scene.remove(transformControls);
 
@@ -582,6 +586,7 @@ geom.translate(
 
 
 scene.add(mesh);
+if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"
 if(lnt!=null){
   scene.remove(transformControls);
 
@@ -1007,6 +1012,7 @@ if(event.target.id<=projects_big_data){
       var big_data_scened = new THREE.ObjectLoader().parse(JSON.parse(serializedScene));
     
       scene.add(big_data_scened);
+      if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
       big_data_scened.traverse( function( object ) {       
         if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') objects.push( object );
         if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') object.castShadow = true;
@@ -1032,6 +1038,7 @@ if(event.target.id<=projects_big_data){
       let catchid=event.target.id-1;
       scened = new THREE.ObjectLoader().parse( JSON.parse( serializedScene ) );
       scene.add(scened);
+      if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
       if(data[0].projects[event.target.id -1].project_name.length>0){
         document.getElementById("form").value=data[0].projects[event.target.id -1-projects_big_data].project_name.valueOf();
       }
