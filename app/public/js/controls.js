@@ -38,7 +38,7 @@ var objdata;
 var objectdata=[];
 var objectdata1=[];
 var nowobjectdata=[];
-
+var counter_wilds=0;
 
 export var view1Elem = document.querySelector('#view1');
 export const view2Elem = document.querySelector('#view2');
@@ -219,7 +219,7 @@ if (indexToRemove !== -1) {
  // objects.remove(obj);
 // Detach TransformControls from the object
 transformControls.detach();
-
+scene.remove(transformControls);
 // Remove the object from the scene
 if(obj.parent.children.length===1){
   scene.remove(obj.parent);
@@ -240,8 +240,8 @@ if(obj.parent.children.length===1){
 }else{
 scene.remove(obj);
 const dynamicAttribute = 'wildcard';
-const attributeValue = obj.id; 
-const changelayers=obj.id-194;
+const attributeValue = obj.userData.layerid; 
+const changelayers=obj.userData.layerid-194;
 //querySelector to find the element with the specified dynamic attribute and value
 const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
 elementToRemove.remove();
@@ -267,8 +267,11 @@ elementsWithAttribute.forEach(element => {if(parseInt(element.id)>=changelayers)
     counteraki=0;
   }
 }
-
+counter_wilds++;
 });counteraki=0;
+for (var n = 5; n < scene.children.length; n++) {
+  scene.children[n].userData.layerid = n + 194; // 199 + (n - 5)
+}
 }
 }
 
