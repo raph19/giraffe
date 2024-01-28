@@ -10,7 +10,6 @@ import { XRControllerModelFactory } from "https://cdn.jsdelivr.net/npm/three@0.1
 import{camera} from'./camera.js';
 import { addocean } from "./controls.js";
 import {lnt} from"./imp-exp.js";
-export var layerid;
 // Get the button, and when the user clicks on it, execute myFunction
 /*
 export const canvas1 = document.querySelector('#c');
@@ -482,8 +481,8 @@ document.getElementById("cube").onclick = function() {createCube();checkthewildc
 document.getElementById("sphere").onclick = function() {createSphere();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
 document.getElementById("tetrahedron").onclick = function() {createTetrahedron();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
 document.getElementById("cylinder").onclick = function() {createCylinder();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("image").onclick = function() {checkthewildcards();document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){createImage();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"}else{document.getElementById("image-input").style.display="inline-grid";}};
-document.getElementById("model").onclick = function() {checkthewildcards();document.getElementById("model-input").style.display="inline-grid";document.getElementById("image-input").style.display="none";scene.remove(transformControls);};
+document.getElementById("image").onclick = function() {document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){createImage();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"}else{document.getElementById("image-input").style.display="inline-grid";}};
+document.getElementById("model").onclick = function() {document.getElementById("model-input").style.display="inline-grid";document.getElementById("image-input").style.display="none";scene.remove(transformControls);};
 document.getElementById("texture").onclick = function() {document.getElementById("texture-input").style.display="inline-grid";};
 
 document.getElementById("ocean").onclick = function() {addocean()};
