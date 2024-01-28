@@ -224,8 +224,8 @@ scene.remove(transformControls);
 if(obj.parent.children.length===1){
   scene.remove(obj.parent);
   const dynamicAttribute = 'wildcard';
-  const attributeValue = obj.parent.id; 
-  const changelayers=obj.parent.id-194;
+  const attributeValue = obj.parent.userData.layerid; 
+  const changelayers=obj.parent.userData.layerid-194;
   // Use querySelector to find the element with the specified dynamic attribute and value
   const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
   elementToRemove.remove();
@@ -236,8 +236,26 @@ if(obj.parent.children.length===1){
   elementsWithAttribute.forEach(element => {if(parseInt(element.id)>changelayers)
     // Set the new ID, you can customize this logic based on your requirements
     element.id = element.id-1;
-  });
-}else{
+    if(element.attributes[2].nodeValue==="199"){
+      counteraki=199;
+    }
+    else if(element.attributes[2].nodeValue>199){
+      if(element.attributes[2].nodeValue-counteraki>1){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+    const textContent_wild= element.attributes[2].textContent;
+    const value_wild= element.attributes[2].value;
+    element.attributes[2].nodeValue=nodevalue_wild-1
+    element.attributes[2].textContent=textContent_wild-1
+    element.attributes[2].value=value_wild-1
+    }else{
+      counteraki=0;
+    }
+  }
+  counter_wilds++;
+  });counteraki=0;
+  for (var n = 5; n < scene.children.length; n++) {
+    scene.children[n].userData.layerid = n + 194; // 199 + (n - 5)
+  }}else{
 scene.remove(obj);
 const dynamicAttribute = 'wildcard';
 const attributeValue = obj.userData.layerid; 
