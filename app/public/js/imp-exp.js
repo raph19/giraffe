@@ -8,7 +8,6 @@ import { renderer } from "./renderer.js";
 import{STLExporter} from "./stlexporter.js";
 import{objects,editable} from "./3dobjects.js";
 import { transformControls,obj,controls, addocean } from "./controls.js";
-
 export var gltf_model_counter_signal;
 export var obj_model_counter_signal;
 
@@ -78,7 +77,7 @@ export var uploaded;
 export var uploaded_obj;
 export var uploadedmtl;
 const input = document.querySelector("#model-input");
-input.addEventListener("change", (event) => {
+input.addEventListener("change", (event) => { 
   var file = event.target.files[0];
   if(file.name.includes("glb")){
     var upmodel = URL.createObjectURL(file);  
@@ -104,6 +103,7 @@ input.addEventListener("change", (event) => {
       model = glb.scene;      
       
       scene.add(model);
+      checkthewildcards2();
       if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
       const clip = glb.animations[0];
     
@@ -193,7 +193,7 @@ if(document.getElementById("clear-button").style.visibility="hidden")document.ge
             const layer = document.createElement("button");
             layer.setAttribute('id', scene.children.length-1+lnt);
             layer.setAttribute('class', "layer");
-            layer.setAttribute("name", scene.children[scene.children.length-1].id);
+            layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
             document.body.appendChild(layer);
             const node = document.getElementById(scene.children.length-1+lnt);
@@ -207,7 +207,7 @@ if(document.getElementById("clear-button").style.visibility="hidden")document.ge
               const layer = document.createElement("button");
               layer.setAttribute('id', scene.children.length-1);
               layer.setAttribute('class', "layer");
-              layer.setAttribute("name", scene.children[scene.children.length-1].id);
+              layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
               document.body.appendChild(layer);
               const node = document.getElementById(scene.children.length-1);
@@ -241,7 +241,7 @@ if(document.getElementById("clear-button").style.visibility="hidden")document.ge
             const layer = document.createElement("button");
             layer.setAttribute('id', scene.children.length-1 + c + lnt);
             layer.setAttribute('class', "layer");
-            layer.setAttribute("name", scene.children[scene.children.length-1].id);
+            layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
             document.body.appendChild(layer);
             const node = document.getElementById(scene.children.length-1 + c +lnt);
@@ -272,7 +272,7 @@ if(document.getElementById("clear-button").style.visibility="hidden")document.ge
             const layer = document.createElement("button");
             layer.setAttribute('id', scene.children.length-1 + c);
             layer.setAttribute('class', "layer");
-            layer.setAttribute("name", scene.children[scene.children.length-1].id);
+            layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
             document.body.appendChild(layer);
             const node = document.getElementById(scene.children.length-1 + c);
@@ -284,7 +284,8 @@ if(document.getElementById("clear-button").style.visibility="hidden")document.ge
             document.getElementById(scene.children.length-1 + c).innerHTML = scene.children[scene.children.length-1].children[c].name;
             }
           }
-        }
+        }     
+
     }
 /*
   const geoms=[]
@@ -352,10 +353,10 @@ console.log(hasMesh ? 'Found meshes!' : 'No meshes.');
     }*/
     
 //  }
+  checkthewildcards2();
 });
 
   }
-
 
   }else if(file.name.includes("obj")){
     gltf_model_counter_signal=0;
@@ -402,6 +403,7 @@ materials.vertexColors = true
       if(obj.children[0].type=='Mesh'){
         
   scene.add(obj);
+  checkthewildcards2();
   if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
   if(lnt!=null){
     scene.remove(transformControls);
@@ -410,7 +412,7 @@ materials.vertexColors = true
 
       const layer = document.createElement("div");
       layer.setAttribute('id', scene.children.length-1);
-      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1);
@@ -424,7 +426,7 @@ materials.vertexColors = true
 
         const layer = document.createElement("div");
         layer.setAttribute('id', scene.children.length-1);
-        layer.setAttribute("name", scene.children[scene.children.length-1].id);
+        layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
         document.body.appendChild(layer);
         const node = document.getElementById(scene.children.length-1);
@@ -586,6 +588,7 @@ geom.translate(
 
 
 scene.add(mesh);
+checkthewildcards2();
 if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"
 if(lnt!=null){
   scene.remove(transformControls);
@@ -595,7 +598,7 @@ if(lnt!=null){
     const layer = document.createElement("div");
     layer.setAttribute('id', scene.children.length-1);
     layer.setAttribute('class', "layer");
-    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
@@ -610,7 +613,7 @@ if(lnt!=null){
       const layer = document.createElement("div");
       layer.setAttribute('id', scene.children.length-1);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1);
@@ -1081,7 +1084,7 @@ addocean();
       const layer = document.createElement("button");
       layer.setAttribute('id', scene.children.length-1+lnt);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("name", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
@@ -1095,7 +1098,7 @@ addocean();
     const layer = document.createElement("button");
     layer.setAttribute('id', scene.children.length-1);
     layer.setAttribute('class', "layer");
-    layer.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
 
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
@@ -1157,4 +1160,41 @@ input3.addEventListener("change", (event) => {
 );
       }
       });
+var counter_wild=0;
+var counter_wild2=0;
+var counter_wilds=0;
 
+///////////////check wildcards2/////////////
+function checkthewildcards2(){
+  //const dynamicAttribute = 'wildcard';
+  //const attributeValue = mesh.id; 
+  
+  // all elements with the attribute "wildcard"
+  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+  
+  // Change the IDs of each element
+  elementsWithAttribute.forEach(element => {
+counter_wilds++;  
+  });counter_wild=0;counter_wild2=0;
+  for (var n = 5; n < scene.children.length; n++) {
+    if (scene.children[n] instanceof THREE.Scene) {
+      for (var l = 0; l < counter_wilds; l++) {
+        scene.children[n].children[l].userData.layerid = l + 199; // 199 + l
+        var elementId = l+5; // Replace 'yourElementIdPrefix' with your actual ID prefix
+  var currentElement = document.getElementById(elementId);
+  if(scene.children[n].children[l].isMesh){      
+  if (currentElement && currentElement.innerHTML === scene.children[n].children[l].name) {
+    // Change the 'wildcard' attribute to something
+    currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
+  }
+}else{
+  if (currentElement && currentElement.innerHTML === scene.children[n].children[l].children[0].name) {
+    // Change the 'wildcard' attribute to something
+    currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
+  }
+}
+      }
+    }
+  }
+  counter_wilds=0;
+  }
