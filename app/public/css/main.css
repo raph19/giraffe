@@ -1342,4 +1342,7 @@ input#colorpicker22 {
 button#clear-button {
   background-color: #f0f8ff00;
   border: none;
+  position: relative;
+  top: 40%;
+  left: 52%;
 }
