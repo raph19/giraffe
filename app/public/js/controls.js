@@ -19,7 +19,7 @@ var load_water;
 // Example
 const roomurl = getCurrentURL()
 
-if(roomurl==='https://giraffe-design-tt8d.onrender.com'){
+if(roomurl==='https://localhost:3000/'){
   load_water='textures/waternormals.jpg';
 }else{
   var matched = roomurl.match(/([^/]*\/){3}/);
@@ -221,8 +221,8 @@ if (indexToRemove !== -1) {
 transformControls.detach();
 scene.remove(transformControls);
 // Remove the object from the scene
-if(obj.parent.children.length===1){
-  for(var omg=0;omg<scene.children.length;omg++){
+if(obj.parent.children.length===1&&obj.parent.type!=="Group"){
+  for(var omg=5;omg<scene.children.length;omg++){
     if(scene.children[omg].type==='Scene'){
       const childtoremove=obj.parent;
     scene.children[omg].remove(childtoremove);
@@ -263,9 +263,9 @@ if(obj.parent.children.length===1){
 }
   });counteraki=0;
   for(var b=0;b<scene.children.length;b++){
-    if(scene.children[omg].type==='Scene'){
+    if(scene.children[b].type==='Scene'){
       for (var o = 0; o < scene.children[b].length; o++)
-    scene.children[n].userData.layerid = o + 194;
+    scene.children[o].userData.layerid = o + 194;
   }
 }
    {
@@ -312,7 +312,7 @@ for (var n = 5; n < scene.children.length; n++) {
 }else if(obj.type==="Mesh"&&obj.parent.type==="Object3D"){
   for(var t=0;t<scene.children.length;t++){
     if(scene.children[t].type==='Scene'){
-      const childtoremove=obj;
+      const childtoremove=obj.parent;
     scene.children[t].remove(childtoremove);
   }
 }
@@ -350,15 +350,65 @@ for (var n = 5; n < scene.children.length; n++) {
 
 }
   });counteraki=0;
-  for(var b=0;b<scene.children.length;b++){
-    if(scene.children[omg].type==='Scene'){
-      for (var o = 0; o < scene.children[b].length; o++)
-    scene.children[n].userData.layerid = o + 194;
+  for(var bi=0;bi<scene.children.length;bi++){
+    if(scene.children[bi].type==='Scene'){
+      for (var oo = 0; oo < scene.children[bi].length; oo++)
+    scene.children[oo].userData.layerid = o + 194;
   }
 }
-   {
-     // 199 + (n - 5)
+   
+}else if(obj.type==="Mesh"&&obj.parent.type==="Group"){
+
+  for(var ef=5;ef<scene.children.length;ef++){
+    if(scene.children[ef].type==='Group'){
+      if(scene.children[ef].children.length>1){
+      const childtoremove=obj;
+    scene.children[ef].remove(childtoremove);
+  }else{
+    const childtoremove=obj.parent;
+    scene.remove(childtoremove);
   }
+}}
+  const dynamicAttribute = 'wildcard';
+  const attributeValue = obj.userData.layerid; 
+  const changelayers=obj.userData.layerid-194;
+  // Use querySelector to find the element with the specified dynamic attribute and value
+  const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+  elementToRemove.remove();
+  // Get all elements with the attribute "example"
+  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+  
+  // Change the IDs of each element
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+    // Set the new ID, you can customize this logic based on your requirements
+    element.id = element.id-1;
+    if(element.attributes[2].nodeValue==="199"){
+      counteraki=199;
+    }
+    else if(element.attributes[2].nodeValue>199){
+      if(element.attributes[2].nodeValue-counteraki>1){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+    const textContent_wild= element.attributes[2].textContent;
+    const value_wild= element.attributes[2].value;
+    element.attributes[2].nodeValue=nodevalue_wild-1
+    element.attributes[2].textContent=textContent_wild-1
+    element.attributes[2].value=value_wild-1
+    }else{
+      counteraki=0;
+    }
+  }
+  counter_wilds++;
+}else{
+  counter_wilds++;
+
+}
+  });counteraki=0;
+  for(var ib=0;ib<scene.children.length;ib++){
+    if(scene.children[ib].type==='Scene'){
+      for (var oy = 0; oy < scene.children[ib].length; oy++)
+    scene.children[oy].userData.layerid = oy + 194;
+  }
+}
 }
 }
 
