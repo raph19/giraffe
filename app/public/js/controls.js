@@ -19,7 +19,7 @@ var load_water;
 // Example
 const roomurl = getCurrentURL()
 
-if(roomurl==='https://giraffe-design-tt8d.onrender.com'){
+if(roomurl==='https://localhost:3000/'){
   load_water='textures/waternormals.jpg';
 }else{
   var matched = roomurl.match(/([^/]*\/){3}/);
@@ -229,8 +229,8 @@ if(obj.parent.children.length===1&&obj.parent.type!=="Group"){
   }
 }
   const dynamicAttribute = 'wildcard';
-  const attributeValue = obj.parent.userData.layerid; 
-  const changelayers=obj.parent.userData.layerid-194;
+  const attributeValue = obj.userData.layerid; 
+  const changelayers=obj.userData.layerid-194;
   // Use querySelector to find the element with the specified dynamic attribute and value
   const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
   elementToRemove.remove();
@@ -262,15 +262,15 @@ if(obj.parent.children.length===1&&obj.parent.type!=="Group"){
 
 }
   });counteraki=0;
-  for(var b=0;b<scene.children.length;b++){
+  for(var b=5;b<scene.children.length;b++){
     if(scene.children[b].type==='Scene'){
-      for (var o = 0; o < scene.children[b].length; o++)
-    scene.children[o].userData.layerid = o + 194;
+      for (var o = 0; o < scene.children[b].children.length-1; o++)
+    scene.children[b].children[o].userData.layerid = 5+ o + 194;
   }
 }
    {
      // 199 + (n - 5)
-  }}else if(obj.type==="Mesh"&&obj.parent.type==="Scene"){
+  }}else if(obj.type==="Mesh"&&obj.parent.type==="Scene"&&obj.parent.children.length>4){
 scene.remove(obj);
 const dynamicAttribute = 'wildcard';
 const attributeValue = obj.userData.layerid; 
@@ -353,7 +353,8 @@ for (var n = 5; n < scene.children.length; n++) {
   for(var bi=0;bi<scene.children.length;bi++){
     if(scene.children[bi].type==='Scene'){
       for (var oo = 0; oo < scene.children[bi].length; oo++)
-    scene.children[oo].userData.layerid = o + 194;
+    scene.children[bi].children[oo].userData.layerid = 5+ oo + 194;
+
   }
 }
    
@@ -406,8 +407,8 @@ for (var n = 5; n < scene.children.length; n++) {
   for(var ib=0;ib<scene.children.length;ib++){
     if(scene.children[ib].type==='Scene'){
       for (var oy = 0; oy < scene.children[ib].length; oy++)
-    scene.children[oy].userData.layerid = oy + 194;
-  }
+      scene.children[ib].children[o].userData.layerid = 5+ oy + 194;
+    }
 }
 }
 }
