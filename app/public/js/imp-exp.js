@@ -249,6 +249,8 @@ if(document.getElementById("clear-button").style.visibility="hidden")document.ge
             if(scene.children[scene.children.length-1].children[c].type==="Object3D"){
               document.getElementById(scene.children.length-1 + c +lnt).innerHTML = scene.children[scene.children.length-1].children[c].children[0].name;
 
+            }else if(scene.children[scene.children.length-1].children[c].type==="Mesh"){
+              document.getElementById(scene.children.length-1 + c +lnt).innerHTML = scene.children[scene.children.length-1].children[c].name;
             }else{
               scene.children[scene.children.length-1].children[c].name="model_tuc"
             document.getElementById(scene.children.length-1 + c+lnt).innerHTML = scene.children[scene.children.length-1].children[c].name;
@@ -601,7 +603,7 @@ if(lnt!=null){
     document.body.appendChild(layer);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');;
+    document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
   }
   }else{
     scene.remove(transformControls);
@@ -616,7 +618,7 @@ if(lnt!=null){
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1);
       document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');;
+      document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
   }
 }
 checkthewildcards2();
@@ -911,8 +913,13 @@ addids();
 */
 let projects_big_data;
 let projects_small;
-window.onload = function(onloadthedata) {
- {fetch('/projects', {method: 'GET'})
+export var all_saved_projects;
+var projects_counter;
+var big_projects_counter;
+
+export function fetchDataAndInitialize() {
+
+ {return fetch('/projects', {method: 'GET'})
     .then(function(response) {
       if(response.ok) {        console.log('loaded');
       return response.json();}
@@ -927,19 +934,21 @@ window.onload = function(onloadthedata) {
       for (var j = 0; j < data[0].projects.length; j++) {
        console.log(data[0].projects[j])
         document.getElementById("more").innerHTML += '<button>' + data[0].projects[j].project_name.valueOf() + '</button>';
-      let project_counter=j;
+      //let project_counter=j;
     }
 addids();
-      }
+      } projects_counter=data[0].projects.length;
     })
   
     .catch(function(error) {
    console.log(error);
  });
+}}
+
 //////////////non blocking example//////////
 console.log('non blocking example');
-}
-{fetch('/get_files_grid_fs', {method: 'GET'})
+export function fetchbigDataAndInitialize() {
+{return fetch('/get_files_grid_fs', {method: 'GET'})
 .then(function(response) {
    if(response.ok) return response.json();
    throw new Error('Request failed.');
@@ -952,14 +961,17 @@ if(data.length>0&&document.getElementById("more").innerHTML==="No projects yet")
   for (var b = 0; b < data.length; b++) {
      document.getElementById("more").innerHTML += '<button>' + data[b].filename.valueOf() + '</button>';
    }
+   big_projects_counter = data.length;
+all_saved_projects = big_projects_counter+ projects_counter;
 addids();
 
 
+
 })
-}
+
 }
 
-
+}
 export var lnt=null;
 function addids() {
 var cls = document.getElementById("more");
@@ -1179,13 +1191,16 @@ counter_wilds++;
   for (var n = scene.children.length-1; n < scene.children.length; n++) {
     if (scene.children[n] instanceof THREE.Scene || scene.children[n].type==="Group") {
       for (var l = 0; l < counter_wilds; l++) {
-        scene.children[n].children[l].userData.layerid = l + 199 + scene.children.length-6// 199 + l
-        var elementId = l+scene.children.length-1; // Replace 'yourElementIdPrefix' with your actual ID prefix
+        scene.children[n].children[l].userData.layerid = l + 199 + scene.children.length-6 + lnt;// 199 + l
+        var elementId = l+scene.children.length-1 +lnt; // Replace 'yourElementIdPrefix' with your actual ID prefix
   var currentElement = document.getElementById(elementId);
   if(scene.children[n].children[l].isMesh){      
-  if (currentElement && currentElement.innerHTML === scene.children[n].children[l].name) {
+  if (currentElement && currentElement.innerHTML === scene.children[n].children[l].name)  {
     // Change the 'wildcard' attribute to something
     currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
+  }else if(currentElement && currentElement.innerHTML === scene.children[n].children[l].name.split('_').slice(0, -1).join('.')){
+    currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
+
   }
 }else{
   if (currentElement && currentElement.innerHTML === scene.children[n].children[l].children[0].name) {
