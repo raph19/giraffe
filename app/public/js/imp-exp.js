@@ -395,15 +395,14 @@ mtlLoader.load(
     uploaded_mtl,
     (materials) => {
         materials.preload();
-        console.log(materials);
+        console.log(materials);                         
+loader2.setMaterials(materials);
         // const objLoader = new OBJLoader()            
           loader2.load( uploaded_model_obj, (obj) => {   
-                         loader2.setMaterials(materials);
-
-materials.vertexColors = true
       let hasMesh = false;
       if(obj.children[0].type=='Mesh'){
-        
+        obj.children[0].geometry.computeFaceNormals();
+        obj.children[0].geometry.computeVertexNormals();
   scene.add(obj);
   if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
   if(lnt!=null){
@@ -413,7 +412,7 @@ materials.vertexColors = true
 
       const layer = document.createElement("div");
       layer.setAttribute('id', scene.children.length-1);
-      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].children[0].id);
 
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1);
@@ -427,7 +426,7 @@ materials.vertexColors = true
 
         const layer = document.createElement("div");
         layer.setAttribute('id', scene.children.length-1);
-        layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+        layer.setAttribute("wildcard", scene.children[scene.children.length-1].children[0].id);
 
         document.body.appendChild(layer);
         const node = document.getElementById(scene.children.length-1);
@@ -449,42 +448,13 @@ obj.traverse( function( object ) {
 console.log(objects[0]);
 console.log(hasMesh ? 'Found meshes!' : 'No meshes.');
     }else if(obj.children[0].type=='Points'){ 
-      obj.layers.disable();
-     // for(var i=0;i<obj.children[0].geometry.groups.length;i++){
-  //   var geometry = new THREE.ConvexGeometry( );
+      obj.children[0].geometry.computeFaceNormals();
+      obj.children[0].geometry.computeVertexNormals();     
+
     const groupArray=[];
 var mat=[];
 var vertices=[];
-    /* for ( let i = 0; i < obj.children[0].geometry.attributes.position.array.length; ) {
-
-      var x = obj.children[0].geometry.attributes.position.array[i];
-      var y = obj.children[0].geometry.attributes.position.array[i+1];
-      var z = obj.children[0].geometry.attributes.position.array[i+2];
-      vertices.push( x, y, z );
-       i+=3;
- 
-  
-      }
-
-    const geometry = new THREE.BufferGeometry();
-    // geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-    const material = new THREE.PointsMaterial( { color: 0x888888 } );
-    geometry.setAttribute(
-              'position',
-              new THREE.Float32BufferAttribute(new Float32Array(vertices), 3)
-            );
-            geometry.verticesNeedUpdate = true;
-            geometry.computeVertexNormals();
-            geometry.setDrawRange( 0, vertices.length );  
-            geometry.boundingSphere=0;
-          //  geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-          material=mat;
-            const points = new THREE.Points( geometry, material );
-            scene.add( points );
-            
-     // const mesh = new THREE.Mesh( geometry, material1 );
-     // scene.add( mesh );
-    //}*/ 
+    
          for ( var n = 0; n < obj.children[0].geometry.groups.length; n++) {
 
       var group_obj=obj.children[0].geometry.groups[n];
@@ -492,14 +462,7 @@ var vertices=[];
       groupArray.push( group_obj );
 
       }
-/*    for ( let i = 0; i < obj.children[0].geometry.attributes.position.array.length; ) {
-      const x = obj.children[0].geometry.attributes.position.array[i]/10000;
-      const y = obj.children[0].geometry.attributes.position.array[i+1]/10000;
-      const z = obj.children[0].geometry.attributes.position.array[i+2]/10000;
-    
-      vertices.push( x, y, z );
-      i=i+3;
-    }*/
+
 
     for ( let i = 0; i < obj.children[0].geometry.attributes.position.array.length; ) {
       const x = obj.children[0].geometry.attributes.position.array[i]/545;
@@ -520,25 +483,18 @@ var vertices=[];
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices,3 ));
-    //geometry.computeVertexNormals();
-    //geometry.normalizeNormals();
-            geometry.groups= groupArray;
-           // geometry.boundingSphere=0;
+ 
+    
+    geometry.groups= groupArray;
+
     const material = mat;
     const points = new THREE.Points( geometry, material );
-    /*
 
-
-        const Shape = new THREE.Shape(vertices);
-    const geom = new THREE.ShapeBufferGeometry(Shape);
-
-
-*/
 const geom= new THREE.BufferGeometry( points);
 
 geom.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices,3 ));
-//geom.computeVertexNormals();
-//geometry.normalizeNormals();
+
+
 geom.groups= groupArray;
 
 geom.computeBoundingBox();
@@ -567,26 +523,8 @@ geom.translate(
 
         
     var mesh = new THREE.Mesh( geom,material );
-    //mesh.traverse( function( object ) {       
-    
-   //  if ( object.material[i].type==='PointsMaterial' ) {
-  //  objects.push(mesh);
-  //  mesh.castShadow = true; 
-   // mesh.receiveShadow = true; 
-
-  //  mesh.userData.editable=true;
-      
-      //mesh.boundingSphere.setFromPoints( vertices )
-
-   // }}
-      //
-     // if( object.type ==='DirectionalLight' || object.type==='CameraHelper' || object.type==='GridHelper' ){
-     //   scened.remove(object);
-
- // } );
+    mesh.name=file.name.split('.').slice(0, -1).join('.');
     }
- 
-
 
 scene.add(mesh);
 if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"
@@ -1209,6 +1147,16 @@ counter_wilds++;
   }
 }
       }
+    }else if(scene.children[n].type==="Mesh"){
+      scene.children[n].userData.layerid =  199 + scene.children.length-6 + lnt;// 199 + l
+      var elementId =scene.children.length-1 +lnt; // Replace 'yourElementIdPrefix' with your actual ID prefix
+var currentElement = document.getElementById(elementId);
+//if (currentElement && currentElement.innerHTML === scene.children[n].name.split('_').slice(0, -1).join('.'))  {
+  // Change the 'wildcard' attribute to something
+  currentElement.setAttribute('wildcard',scene.children[n].userData.layerid );
+  console.log("den mpainei kan?");
+
+//}
     }
   }
   counter_wilds=0;
