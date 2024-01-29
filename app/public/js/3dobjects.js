@@ -9,7 +9,8 @@ import { ARButton } from './ARbutton.js';
 import { XRControllerModelFactory } from "https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/webxr/XRControllerModelFactory.min.js";
 import{camera} from'./camera.js';
 import { addocean } from "./controls.js";
-import {lnt} from"./imp-exp.js";
+import {lnt,all_saved_projects} from"./imp-exp.js";
+import { fetchDataAndInitialize,fetchbigDataAndInitialize } from "./imp-exp.js";
 // Get the button, and when the user clicks on it, execute myFunction
 /*
 export const canvas1 = document.querySelector('#c');
@@ -710,7 +711,7 @@ export var counter_img=0;
       layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer);
       const node = document.getElementById(scene.children.length-1+lnt);
-      document.getElementsById("layers").appendChild(node);
+      document.getElementById("layers").appendChild(node);
       document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
@@ -987,17 +988,17 @@ function loadScene(){
     objects.push( scene.children[scene.children.length-1] );
 */
 for(var f=5;f<=scene.children.length-1;f++){
-    if(lnt!=null){
+    if(all_saved_projects!=null){
     if(scene.children[scene.children.length-1]!=null){
     
       const layer = document.createElement("button");
-      layer.setAttribute('id', f+lnt);
+      layer.setAttribute('id', f+all_saved_projects);
       layer.setAttribute('class', "layer");
     layer.setAttribute("wildcard", scene.children[f].id);
       document.body.appendChild(layer);
-      const node = document.getElementById(f+lnt);
+      const node = document.getElementById(f+all_saved_projects);
       document.getElementById("layers").appendChild(node);
-      document.getElementById(f+lnt).innerHTML = scene.children[f].userData.name;
+      document.getElementById(f+all_saved_projects).innerHTML = scene.children[f].userData.name;
     
     }
 }else{
@@ -1029,8 +1030,20 @@ if(objects.length>0) document.getElementById("clear-button").style.visibility="v
 // Automatically save the scene when the page is about to unload
 window.addEventListener('beforeunload', saveScene);
 
+window.onload = function () {
+  fetchDataAndInitialize()
+  .then(function () {
+    // Call your window load function after the data fetching is complete
+    fetchbigDataAndInitialize()
+    .then(function () {
+    loadScene();
+    })
+  })
+  .catch(function (error) {
+    console.error('Error initializing:', error);
+  });
+};
 // Load the scene when the page is loaded
-window.addEventListener('load', loadScene);
 
 var counter_wild=0;
 var counter_wild2=0;
