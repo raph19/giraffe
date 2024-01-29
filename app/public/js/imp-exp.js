@@ -395,15 +395,14 @@ mtlLoader.load(
         materials.preload();
         console.log(materials);
         // const objLoader = new OBJLoader()            
-loader2.setMaterials(materials);
           loader2.load( uploaded_model_obj, (obj) => {   
-                         
+                         loader2.setMaterials(materials);
+
 materials.vertexColors = true
       let hasMesh = false;
       if(obj.children[0].type=='Mesh'){
         
   scene.add(obj);
-  checkthewildcards2();
   if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
   if(lnt!=null){
     scene.remove(transformControls);
@@ -444,7 +443,7 @@ obj.traverse( function( object ) {
         object.userData.editable=true;    
         if (object.isMesh) object.material.side=THREE.DoubleSide;
       } );
-     
+
 console.log(objects[0]);
 console.log(hasMesh ? 'Found meshes!' : 'No meshes.');
     }else if(obj.children[0].type=='Points'){ 
@@ -588,7 +587,6 @@ geom.translate(
 
 
 scene.add(mesh);
-checkthewildcards2();
 if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"
 if(lnt!=null){
   scene.remove(transformControls);
@@ -621,8 +619,10 @@ if(lnt!=null){
       document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');;
   }
 }
+checkthewildcards2();
 });
   });
+
 }
 }
   });
