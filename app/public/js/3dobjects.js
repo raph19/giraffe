@@ -931,7 +931,7 @@ function sharefunc(){
 function clearScene() {
   // Remove all objects from the scene
   for(var q=scene.children.length-1;q>=0;q--){       
-    if ( scene.children[q].isMesh && scene.children[q].userData.name!=='Sky'){
+    if (scene.children[q].type!=='CameraHelper' && scene.children[q].type!=='HemisphereLight' && scene.children[q].type!=='SpotLight' && scene.children[q].type!=='DirectionalLight' && scene.children[q].userData.name!=='Sky'){
         scene.remove(scene.children[q]);
     }
 }
