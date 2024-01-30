@@ -8,7 +8,9 @@ import { createImage } from "./3dobjects.js";
 import{Water} from "./Water.js";
 import{Sky} from "./Sky.js";
 import{GUI} from "./gui.js";
-import{check,pos,rot,scl,lnt} from"./imp-exp.js";
+import{check,pos,rot,scl,lnt,checkthewildcards2} from"./imp-exp.js";
+
+
 export const raycaster = new THREE.Raycaster();
 export const mouse = new THREE.Vector2(); //x,y pos of mouseclick
 const moveMouse = new THREE.Vector2();
@@ -225,7 +227,7 @@ if(obj.parent.children.length===1&&obj.parent.type!=="Group"){
   for(var omg=5;omg<scene.children.length;omg++){
     if(scene.children[omg].type==='Scene'){
       const childtoremove=obj.parent;
-    scene.children[omg].remove(childtoremove);
+    scene.remove(childtoremove);
   }
 }
   const dynamicAttribute = 'wildcard';
@@ -609,7 +611,7 @@ scene.remove(transformControls);
       const layer_kiddo = document.createElement("button");
       layer_kiddo.setAttribute('id', scene.children.length-1+lnt);
       layer_kiddo.setAttribute('class', "layer");
-      layer_kiddo.setAttribute("name", scene.children[scene.children.length-1].id);
+      layer_kiddo.setAttribute("wildcard", scene.children[scene.children.length-1].id);
       document.body.appendChild(layer_kiddo);
       const node = document.getElementById(scene.children.length-1+lnt);
       document.getElementById("layers").appendChild(node);
@@ -622,7 +624,7 @@ scene.remove(transformControls);
     const layer_kiddo = document.createElement("button");
     layer_kiddo.setAttribute('id', scene.children.length-1);
     layer_kiddo.setAttribute('class', "layer");
-    layer_kiddo.setAttribute("name", scene.children[scene.children.length-1].id);
+    layer_kiddo.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer_kiddo);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
@@ -630,7 +632,7 @@ scene.remove(transformControls);
   
   }
 }
-
+checkthewildcards2();
 }
 export var uploaded_image;
 
