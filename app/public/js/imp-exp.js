@@ -365,11 +365,11 @@ if(lnt!=null){
 //}
 //}
       function iterate(){
- gltf.scene.traverse( function( object ) {
-					if ( object.isMesh  ) objects.push( object );
-					if ( object.isMesh )  object.castShadow = true;  
-         if ( object.isMesh ) object.receiveShadow = true;
-          if (object.isMesh) hasMesh = true;      
+ gltf.scene.traverse( function( object) {
+					if ( object.isMesh ) objects.push( object );
+					if ( object.isMesh)  object.castShadow = true;  
+         if ( object.isMesh) object.receiveShadow = true;
+          if (object.isMesh ) hasMesh = true;      
           if (object.isMesh) object.userData.editable=true;    
           if (object.isMesh) object.material.side=THREE.DoubleSide
         } );}
@@ -1145,7 +1145,7 @@ var counter_wild2=0;
 var counter_wilds=0;
 
 ///////////////check wildcards2/////////////
-function checkthewildcards2(){
+export function checkthewildcards2(){
   //const dynamicAttribute = 'wildcard';
   //const attributeValue = mesh.id; 
   
