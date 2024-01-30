@@ -103,6 +103,36 @@ input.addEventListener("change", (event) => {
       model = glb.scene;      
       
       scene.add(model);
+      if(lnt!=null){
+
+        if(scene.children[scene.children.length-1]!=null){
+          scene.remove(transformControls);
+
+          const layer = document.createElement("button");
+          layer.setAttribute('id', scene.children.length-1+lnt);
+          layer.setAttribute('class', "layer");
+          layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+
+          document.body.appendChild(layer);
+          const node = document.getElementById(scene.children.length-1+lnt);
+          document.getElementById("layers").appendChild(node);
+          document.getElementById(scene.children.length-1+lnt).innerHTML = file.name.split('.').slice(0, -1).join('.');
+        }
+        }else{
+
+          if(scene.children[scene.children.length-1]!=null){
+    scene.remove(transformControls);
+            const layer = document.createElement("button");
+            layer.setAttribute('id', scene.children.length-1);
+            layer.setAttribute('class', "layer");
+            layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+
+            document.body.appendChild(layer);
+            const node = document.getElementById(scene.children.length-1);
+            document.getElementById("layers").appendChild(node);
+            document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
+        }
+      }
       checkthewildcards2();
       if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
       const clip = glb.animations[0];
@@ -1128,7 +1158,7 @@ counter_wilds++;
   });counter_wild=0;counter_wild2=0;
   for (var n = scene.children.length-1; n < scene.children.length; n++) {
     if (scene.children[n] instanceof THREE.Scene || scene.children[n].type==="Group") {
-      for (var l = 0; l < counter_wilds; l++) {
+      for (var l = 0; l <= scene.children[n].children.length-1;/*teleytaiopoualajaapo counterwilds;*/l++) {
         scene.children[n].children[l].userData.layerid = l + 199 + scene.children.length-6 + lnt;// 199 + l
         var elementId = l+scene.children.length-1 +lnt; // Replace 'yourElementIdPrefix' with your actual ID prefix
   var currentElement = document.getElementById(elementId);
@@ -1140,6 +1170,10 @@ counter_wilds++;
     currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
 
   }
+}else if(scene.children[n].children[l].type==="Object3D")
+{
+  currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
+
 }else{
   if (currentElement && currentElement.innerHTML === scene.children[n].children[l].children[0].name) {
     // Change the 'wildcard' attribute to something
