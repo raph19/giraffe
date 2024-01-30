@@ -1,1056 +1,629 @@
-import {_GLTFExporter} from "./three-gltf-exporter/index.js";
+import {camera} from "./camera.js";
+import{render} from "./render.js";
+import { canvas,renderer } from "./renderer.js";
+import { objects ,counter_cube,counter_sphere,counter_cylinder,counter_tetrahedron,counter_img} from "./3dobjects.js";
 import { scene } from "./scene.js";
-import { GLTFLoader } from "./GLTFLoader.js";
-import { Loop } from "./Loop.js";
-var loop = new Loop(camera, scene, renderer);
-import{camera} from"./camera.js"
-import { renderer } from "./renderer.js";
-import{STLExporter} from "./stlexporter.js";
-import{objects,editable} from "./3dobjects.js";
-import { transformControls,obj,controls, addocean } from "./controls.js";
-export var gltf_model_counter_signal;
-export var obj_model_counter_signal;
-
-export var pos=[];
-export var rot=[];
-export var scl=[];
-export var check=false;
-const exportbutton = document.getElementById('export');
-exportbutton.addEventListener('click', exportmodel);
-export var model;
-const exportbutton2 = document.getElementById('export_Stl');
-exportbutton2.addEventListener('click', stlExporter);
-export var mtlLoader= new THREE.MTLLoader();
-
-//////////////////////////Export scene to gltf////////////////////////////////
-
-function exportmodel() {
-
-  const exporter = new _GLTFExporter();
-  // Parse the input and generate the glTF output
-  scene.remove(transformControls);
-  const clonedScene = new THREE.Scene();    
-  
-      scene.children.forEach((child) => {if ( child.userData.name!='Sky' && child.type!='CameraHelper'){
-        const clonedObject = child.clone();
-        clonedScene.add(clonedObject);
-      }
-      });  
-
-  exporter.parse(clonedScene, function(gltf) {
-	
-		const output = JSON.stringify( gltf, null, 2 );
-		saveString( output, 'scene.gltf' );
-  }, {});
+import{UndoManager}from "../js/undo-manager.js";
+import { createImage } from "./3dobjects.js";
+import{Water} from "./Water.js";
+import{Sky} from "./Sky.js";
+import{GUI} from "./gui.js";
+import{check,pos,rot,scl,lnt} from"./imp-exp.js";
+export const raycaster = new THREE.Raycaster();
+export const mouse = new THREE.Vector2(); //x,y pos of mouseclick
+const moveMouse = new THREE.Vector2();
+function getCurrentURL () {
+  return window.location.href
 }
-
-function saveString(text, filename) {
-
-  save(new Blob([text], {
-    type: 'text/plain'
-  }), filename);
-}
-const link = document.createElement('a');
-link.style.display = 'none';
-document.body.appendChild(link); // Firefox workaround, see #6594
-
-function save(blob, filename) {
-
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
-
-  // URL.revokeObjectURL( url ); breaks Firefox...
-
-}
-///////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////Load 3D-model////////////////////////////////
-const loader = new GLTFLoader();
-export var loader2 = new THREE.OBJLoader();
-
-var uploaded_model;
-var uploaded_model_obj;
-
-export var uploaded;
-export var uploaded_obj;
-export var uploadedmtl;
-const input = document.querySelector("#model-input");
-input.addEventListener("change", (event) => { 
-  var file = event.target.files[0];
-  if(file.name.includes("glb")){
-    var upmodel = URL.createObjectURL(file);  
- 
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-     var upload = reader.result;
-     // document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
-      
-    });
-    reader.readAsArrayBuffer(file); //read contents of the file
-    document.getElementById("model").onclick = function() {
-      loader.load(upmodel, (glb) => {
-       
-            let hasMesh = false;
-     /*       for(var j=0;j<gltf.scene.children[2].children.length-1;j++){
-              gltf.scene.children[2].children[j].geometry.computeBoundingSphere(); 
-              if(isNaN(gltf.scene.children[2].children[j].geometry.boundingSphere.radius))  gltf.scene.children[2].children[j].geometry.boundingSphere.radius=0;
-            }
-        */
-         //scene.add(glb.scene.children[0])
-         
-      model = glb.scene;      
-      
-      scene.add(model);
-      checkthewildcards2();
-      if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
-      const clip = glb.animations[0];
-    
-      const mixer = new THREE.AnimationMixer(model);
-      const action = mixer.clipAction(clip);
-      action.play();
-    
-      model.tick = (delta) => mixer.update(delta);    
-      loop.updatables.push(model);
-      loop.start();
-//scene.add(model)
-     //flamingo =model;
-    //var updatables=[];
-      // move the target to the center of the front bird
-     // controls.target.copy(flamingo.position);
-    
-      //loop.updatables.push(flamingo);
-        //if(gltf.scene.children[2]==null){
-
-         // }else{
-        /*for(var j=0;gltf.scene.children[2].children.length;j++){
-          if ( gltf.scene.children[2].children[j].isMesh  ) objects.push( gltf.scene.children[2].children[j] );
-          if ( gltf.scene.children[2].children[j].isMesh ) gltf.scene.children[2].children[j].castShadow = true;  if (gltf.scene.children[2].children[j].isMesh) hasMesh = true;      
-          gltf.scene.children[2].children[j].userData.editable=true;    
-        }*/
-        
-    //  }
-    });
-    
-      }
-    
-    //scene.add( upmodel);
-
-    
-  }
-  if(file.name.includes("gltf")){
-    gltf_model_counter_signal=1;
-    obj_model_counter_signal=0;
-    console.log((file.size/1024)/1024);
-    const dracoLoader = new THREE.DRACOLoader();
-    dracoLoader.setDecoderPath('/js/draco/');
-    loader.setDRACOLoader(dracoLoader);
-
-    scene.remove(transformControls);
-
-   uploaded_model = URL.createObjectURL(file);  
-   
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-   uploaded = reader.result;
-   // document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
-    
-  });
-  reader.readAsArrayBuffer(file); //read contents of the file
-  console.log((file.size/1024)/1024);
-
-  document.getElementById("model").onclick = function() {
-  loader.load(uploaded_model, (gltf) => {
-   
-        let hasMesh = false;
- /*       for(var j=0;j<gltf.scene.children[2].children.length-1;j++){
-          gltf.scene.children[2].children[j].geometry.computeBoundingSphere(); 
-          if(isNaN(gltf.scene.children[2].children[j].geometry.boundingSphere.radius))  gltf.scene.children[2].children[j].geometry.boundingSphere.radius=0;
-        }
-    */
-   if(gltf.scene.children.length===1){
-if(gltf.scene.children[0].userData.name==="Sky"){ 
-  gltf.scene.remove(gltf.scene.children[0]);
-scene.add(gltf.scene);
-if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
- iterate();
-}
-        else{
-          for(var k=gltf.scene.children.length-1;k>=0;k--){
-            if(gltf.scene.children[k].type==='DirectionalLight'|| gltf.scene.children[k].type==='CameraHelper' || gltf.scene.children[k].userData.name==='Sky' ||gltf.scene.children[k].type==='HemisphereLight' || gltf.scene.children[k].type==='SpotLight')
-            gltf.scene.remove(gltf.scene.children[k]);
-        }scene.add(gltf.scene);
-        if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
-           iterate();
-       
-      }
-        if(lnt!=null){
-
-          if(scene.children[scene.children.length-1]!=null){
-            scene.remove(transformControls);
-
-            const layer = document.createElement("button");
-            layer.setAttribute('id', scene.children.length-1+lnt);
-            layer.setAttribute('class', "layer");
-            layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-
-            document.body.appendChild(layer);
-            const node = document.getElementById(scene.children.length-1+lnt);
-            document.getElementById("layers").appendChild(node);
-            document.getElementById(scene.children.length-1+lnt).innerHTML = file.name.split('.').slice(0, -1).join('.');
-          }
-          }else{
-  
-            if(scene.children[scene.children.length-1]!=null){
-      scene.remove(transformControls);
-              const layer = document.createElement("button");
-              layer.setAttribute('id', scene.children.length-1);
-              layer.setAttribute('class', "layer");
-              layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-
-              document.body.appendChild(layer);
-              const node = document.getElementById(scene.children.length-1);
-              document.getElementById("layers").appendChild(node);
-              document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
-          }
-        }
-     // }else{   if(gltf.scene.children[0].userData.name==="Sky"){ 
-     // gltf.scene.remove(gltf.scene.children[0]);
-    //scene.add(gltf.scene);
-    }else{
-      if(gltf.scene.children[0].userData.name==="Sky"){ 
-  gltf.scene.remove(gltf.scene.children[0]);
-scene.add(gltf.scene);
-if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
- iterate();
-}
-        else{
-          for(var k=gltf.scene.children.length-1;k>=0;k--){
-            if(gltf.scene.children[k].type==='DirectionalLight'|| gltf.scene.children[k].type==='CameraHelper' || gltf.scene.children[k].userData.name==='Sky' ||gltf.scene.children[k].type==='HemisphereLight' || gltf.scene.children[k].type==='SpotLight')
-            gltf.scene.remove(gltf.scene.children[k]);
-        }scene.add(gltf.scene);
-        if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
-           iterate();
-       
-      }
-        if(lnt!=null){
-          scene.remove(transformControls);
-
-          for(var c=0;c<scene.children[scene.children.length-1].children.length/*to teleytaio poy piraja length-1*/;c++){
-            const layer = document.createElement("button");
-            layer.setAttribute('id', scene.children.length-1 + c + lnt);
-            layer.setAttribute('class', "layer");
-            layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-
-            document.body.appendChild(layer);
-            const node = document.getElementById(scene.children.length-1 + c +lnt);
-            document.getElementById("layers").appendChild(node);
-            if(scene.children[scene.children.length-1].children[c].type==="Object3D"){
-              document.getElementById(scene.children.length-1 + c +lnt).innerHTML = scene.children[scene.children.length-1].children[c].children[0].name;
-
-            }else if(scene.children[scene.children.length-1].children[c].type==="Mesh"){
-              document.getElementById(scene.children.length-1 + c +lnt).innerHTML = scene.children[scene.children.length-1].children[c].name;
-            }else{
-              scene.children[scene.children.length-1].children[c].name="model_tuc"
-            document.getElementById(scene.children.length-1 + c+lnt).innerHTML = scene.children[scene.children.length-1].children[c].name;
-            }
-          }
-          }else{
-  
-         /*   if(scene.children[scene.children.length-1]!=null){
-      
-              const layer = document.createElement("button");
-              layer.setAttribute('id', scene.children.length-1);
-              layer.setAttribute('class', "layer");
-              document.body.appendChild(layer);
-              const node = document.getElementById(scene.children.length-1);
-              document.getElementById("layers").appendChild(node);
-              document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
-          }*/
-          scene.remove(transformControls);
-
-          for(var c=0;c<scene.children[scene.children.length-1].children.length-1;c++){
-            const layer = document.createElement("button");
-            layer.setAttribute('id', scene.children.length-1 + c);
-            layer.setAttribute('class', "layer");
-            layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-
-            document.body.appendChild(layer);
-            const node = document.getElementById(scene.children.length-1 + c);
-            document.getElementById("layers").appendChild(node);
-            if(scene.children[scene.children.length-1].children[c].type==="Object3D"){
-              document.getElementById(scene.children.length-1 + c).innerHTML = scene.children[scene.children.length-1].children[c].children[0].name;
-
-            }else{
-            document.getElementById(scene.children.length-1 + c).innerHTML = scene.children[scene.children.length-1].children[c].name;
-            }
-          }
-        }     
-
-    }
-/*
-  const geoms=[]
-  const meshes=[]
-  gltf.scene.updateMatrixWorld(true,true)
-  gltf.scene.traverse(e=>e.isMesh && meshes.push(e) && (geoms.push(( e.geometry.index ) ? e.geometry.toNonIndexed() : e.geometry().clone())));
-  geoms.forEach((g,i)=>g.applyMatrix4(meshes[i].matrixWorld));
-  const gg = new THREE.BufferGeometryUtils.mergeBufferGeometries(geoms,true);
-  gg.applyMatrix4(gltf.scene.matrix.clone().invert());
-  gg.userData.materials = meshes.map(m=>m.material);
-  const mesh = new THREE.Mesh( gg,gg.userData.materials);
-  objects.push(mesh);
-  //mesh.children=meshes;
-    mesh.castShadow = true; 
-    mesh.receiveShadow = true; 
-
-    mesh.userData.editable=true;
- //iterate();
-scene.add(mesh);
-if(lnt!=null){
-
-  if(scene.children[scene.children.length-1]!=null){
-
-    const layer = document.createElement("button");
-    layer.setAttribute('id', scene.children.length-1+lnt);
-    layer.setAttribute('class', "layer");
-    document.body.appendChild(layer);
-    const node = document.getElementById(scene.children.length-1+lnt);
-    document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1+lnt).innerHTML = file.name.split('.').slice(0, -1).join('.');
-  }
-  for(var c=1;c<meshes.length-1;c++){
-    const layer = document.createElement("button");
-    layer.setAttribute('id', scene.children.length-1+lnt+c);
-    layer.setAttribute('class', "layer");
-    document.body.appendChild(layer);
-    const node = document.getElementById(scene.children.length-1+lnt+c);
-    document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1+lnt+c).innerHTML = meshes[c].name;
-  }*/
-
-
-
-
-//}
-//}
-      function iterate(){
- gltf.scene.traverse( function( object ) {
-					if ( object.isMesh  ) objects.push( object );
-					if ( object.isMesh )  object.castShadow = true;  
-         if ( object.isMesh ) object.receiveShadow = true;
-          if (object.isMesh) hasMesh = true;      
-          if (object.isMesh) object.userData.editable=true;    
-          if (object.isMesh) object.material.side=THREE.DoubleSide
-        } );}
-        
-    
-console.log(objects[0]);
-console.log(hasMesh ? 'Found meshes!' : 'No meshes.');
-     // }else{
-    /*for(var j=0;gltf.scene.children[2].children.length;j++){
-      if ( gltf.scene.children[2].children[j].isMesh  ) objects.push( gltf.scene.children[2].children[j] );
-      if ( gltf.scene.children[2].children[j].isMesh ) gltf.scene.children[2].children[j].castShadow = true;  if (gltf.scene.children[2].children[j].isMesh) hasMesh = true;      
-      gltf.scene.children[2].children[j].userData.editable=true;    
-    }*/
-    
-//  }
-  checkthewildcards2();
-});
-
-  }
-
-  }else if(file.name.includes("obj")){
-    gltf_model_counter_signal=0;
-    obj_model_counter_signal=1;
-
-   uploaded_model_obj = URL.createObjectURL(file);  
-   
-   
-  const reader2 = new FileReader();
-  reader2.addEventListener("load", () => {
-   uploaded_obj = reader2.result;
-   // document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
-    
-  });
-  reader2.readAsArrayBuffer(file); //read contents of the file
-  
-  input.addEventListener("change", (event) => {
-    if(event.target.files[0].name.includes("mtl")){
-    const file2 = event.target.files[0];
-    var uploaded_mtl = URL.createObjectURL(file2);  
-   
-   
-  const reader2 = new FileReader();
-  reader2.addEventListener("load", () => {
-    uploadedmtl = reader2.result;
-   // document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
-    
-  });
-  reader2.readAsArrayBuffer(file2); //read contents of the file
-/////////////////////////////////////////////////////////////////////////////////obj loader//////////////////////////////////////////////////////////////////////////////////////////////////////
-document.getElementById("model").onclick = function() {
-  
-mtlLoader.load(
-    uploaded_mtl,
-    (materials) => {
-        materials.preload();
-        console.log(materials);                         
-loader2.setMaterials(materials);
-        // const objLoader = new OBJLoader()            
-          loader2.load( uploaded_model_obj, (obj) => {   
-      let hasMesh = false;
-      if(obj.children[0].type=='Mesh'){
-        obj.children[0].geometry.computeFaceNormals();
-        obj.children[0].geometry.computeVertexNormals();
-  scene.add(obj);
-  if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
-  if(lnt!=null){
-    scene.remove(transformControls);
-
-    if(scene.children[scene.children.length-1]!=null){
-
-      const layer = document.createElement("div");
-      layer.setAttribute('id', scene.children.length-1);
-      layer.setAttribute("wildcard", scene.children[scene.children.length-1].children[0].id);
-
-      document.body.appendChild(layer);
-      const node = document.getElementById(scene.children.length-1);
-      document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
-    }
-    }else{
-      scene.remove(transformControls);
-
-      if(scene.children[scene.children.length-1]!=null){
-
-        const layer = document.createElement("div");
-        layer.setAttribute('id', scene.children.length-1);
-        layer.setAttribute("wildcard", scene.children[scene.children.length-1].children[0].id);
-
-        document.body.appendChild(layer);
-        const node = document.getElementById(scene.children.length-1);
-        document.getElementById("layers").appendChild(node);
-        document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
-    }
-  }
-
-
-obj.traverse( function( object ) {
-        if ( object.isMesh  ) objects.push( object );
-        if ( object.isMesh ) object.castShadow = true;  
-        if ( object.isMesh ) object.receiveShadow = true;
-        if (object.isMesh) hasMesh = true;      
-        object.userData.editable=true;    
-        if (object.isMesh) object.material.side=THREE.DoubleSide;
-      } );
-
-console.log(objects[0]);
-console.log(hasMesh ? 'Found meshes!' : 'No meshes.');
-    }else if(obj.children[0].type=='Points'){ 
-      obj.children[0].geometry.computeFaceNormals();
-      obj.children[0].geometry.computeVertexNormals();     
-
-    const groupArray=[];
-var mat=[];
-var vertices=[];
-    
-         for ( var n = 0; n < obj.children[0].geometry.groups.length; n++) {
-
-      var group_obj=obj.children[0].geometry.groups[n];
-
-      groupArray.push( group_obj );
-
-      }
-
-
-    for ( let i = 0; i < obj.children[0].geometry.attributes.position.array.length; ) {
-      const x = obj.children[0].geometry.attributes.position.array[i]/545;
-      const y = obj.children[0].geometry.attributes.position.array[i+1]/545;
-      const z = obj.children[0].geometry.attributes.position.array[i+2]/545;
-    
-      vertices.push( x, y, z );
-      i=i+3;
-    }
-    
-      for ( var count = 0; count < obj.children[0].material.length; count++) {
-
-        var material_obj=obj.children[0].material[count];
-  
-        mat.push( material_obj );
-  
-        }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices,3 ));
- 
-    
-    geometry.groups= groupArray;
-
-    const material = mat;
-    const points = new THREE.Points( geometry, material );
-
-const geom= new THREE.BufferGeometry( points);
-
-geom.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices,3 ));
-
-
-geom.groups= groupArray;
-
-geom.computeBoundingBox();
-geom.translate(
-        -geom.boundingBox.min.x,
-        -geom.boundingBox.min.y,
-        -geom.boundingBox.min.z);
-
-      /*  const geoms=[]
-        const point=[]
-        obj.updateMatrixWorld(true,true)
-        obj.traverse(e=>e.isPoints && point.push(e) && (geoms.push(( e.geometry.index ) ? e.geometry.toNonIndexed() : e.geometry().clone())));
-        geoms.forEach((g,i)=>g.applyMatrix4(point[i].matrixWorld));
-        const gg = new THREE.BufferGeometryUtils.mergeBufferGeometries(geoms,true);
-        gg.applyMatrix4(obj.matrix.clone().invert());
-        gg.userData.materials = point.map(m=>m.material);
-        const mesh = new THREE.Mesh( gg,gg.userData.materials);
-        objects.push(mesh);
-          mesh.castShadow = true; 
-          mesh.receiveShadow = true; 
-      
-          mesh.userData.editable=true;
-            
-      scene.add(mesh);
-*/
-
-        
-    var mesh = new THREE.Mesh( geom,material );
-    mesh.name=file.name.split('.').slice(0, -1).join('.');
-    }
-
-scene.add(mesh);
-if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"
-if(lnt!=null){
-  scene.remove(transformControls);
-
-  if(scene.children[scene.children.length-1]!=null){
-
-    const layer = document.createElement("div");
-    layer.setAttribute('id', scene.children.length-1);
-    layer.setAttribute('class', "layer");
-    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-
-    document.body.appendChild(layer);
-    const node = document.getElementById(scene.children.length-1);
-    document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
-  }
-  }else{
-    scene.remove(transformControls);
-
-    if(scene.children[scene.children.length-1]!=null){
-
-      const layer = document.createElement("div");
-      layer.setAttribute('id', scene.children.length-1);
-      layer.setAttribute('class', "layer");
-      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-
-      document.body.appendChild(layer);
-      const node = document.getElementById(scene.children.length-1);
-      document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1).innerHTML = file.name.split('.').slice(0, -1).join('.');
-  }
-}
-checkthewildcards2();
-});
-  });
-
-}
-}
-  });
-  }
-});
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////Export scene to stl///////////////////////////
-
-function stlExporter (){
-
-var exporterstl= new STLExporter();
-const clonedScene = new THREE.Scene();    
-  
-      scene.children.forEach((child) => {if ( child.userData.name!='Sky' && child.type!='CameraHelper'){
-        const clonedObject = child.clone();
-        clonedScene.add(clonedObject);
-      }
-      });
-var str = exporterstl.parse( clonedScene ); // Export the scene
-var blob = new Blob( [str], { type : 'text/plain' } ); // Generate Blob from the string
-//saveAs( blob, 'file.stl' ); //Save the Blob to file.stl
-
-//Following code will help to save the file without FileSaver.js
-var link1 = document.createElement('a');
-link1.style.display = 'none';
-
-document.body.appendChild(link1);
-link1.href = URL.createObjectURL(blob);
-link1.download = 'Scene.stl';
-link1.click();
-}
-///////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////save to our mongoDB///////////////////////////
-var project_name=document.getElementById("form");
-console.log(project_name.value);
-
-var team_name=document.getElementById("form2");
-console.log(project_name.value);
-
-var join_team_name=document.getElementById("form3");
-console.log(project_name.value);
-
-var post_name=document.getElementById("form4");
-console.log(post_name.value);
-/*if(scened){
-
-if(document.getElementById("form").value=data[0].projects[catchid].project_name.valueOf()){
-
-  const btn_ovrt = document.getElementById('save_button');
-  btn_ovrt.addEventListener('click', function(e) {
-    console.log('button was clicked');
-    transformControls.detach(obj);
-    fetch('/overwrite', {method: 'POST',body: JSON.stringify({scene,project_name:project_name.value}),
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'}})
-  
-      .then(function(response) {
-        if(response.ok) {
-          console.log('saved');
-          return;
-        }
-        throw new Error('Request failed.');
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
-  });
-}
-
-}else{*/
-var user_username;
-const btn_save = document.getElementById('save_button');
-btn_save.addEventListener('click', function(e) {
-  console.log('button was clicked');
-  transformControls.detach(obj);
-/*
-var sceneeeeee= JSON.stringify(scene);
-  
-  const scene_tosave = new Blob([sceneeeeee], {type: 'text/plain'});
-
-
-  var reader3 = new FileReader();
-  var fileByteArray = [];
-  reader3.readAsArrayBuffer(scene_tosave);
-  reader3.onloadend = function (evt) {
-      if (evt.target.readyState == FileReader.DONE) {
-         var arrayBuffer = evt.target.result,
-             array = new Uint8Array(arrayBuffer);
-         for (var i = 0; i < array.length; i++) {
-             fileByteArray.push(array[i]);
-          }
-      }
-      
-      */
-      const size = new TextEncoder().encode(JSON.stringify(scene)).length
-      const kiloBytes = size / 1024;
-      const megaBytes = kiloBytes / 1024;
-     console.log(megaBytes);
-     if(megaBytes>16){
-      const forma = document.createElement('form');
-
-      forma.setAttribute('action', '/save_file_grid_fs');
-      forma.setAttribute('method', 'POST');
-      forma.setAttribute('enctype', 'multipart/form-data');
-      document.body.appendChild(forma);
-
-
-      const big_data_file = document.createElement('input');
-      big_data_file.setAttribute('type', 'file');
-      big_data_file.setAttribute('name', 'big_data_file');
-      big_data_file.setAttribute('id', 'scene_input');
-      forma.appendChild(big_data_file);
-
-      const sub = document.createElement('input');
-      sub.setAttribute('type', 'Submit');
-      sub.setAttribute('id', 'sub');
-      forma.appendChild(sub);
-
-          let fileName = project_name.value;
-          let file = new File([JSON.stringify(scene)], fileName,{type: 'text/plain', lastModified:new Date().getTime()}, 'utf-8');
-          let container = new DataTransfer(); 
-          container.items.add(file);
-          document.querySelector('#scene_input').files = container.files;
-      /*    
-      fetch('/save_file_grid_fs', {method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'}})
-    
-        .then(function(response) {
-          if(response.ok) {
-            console.log('saved');
-            return;
-          }
-          throw new Error('Request failed.');
-        })
-        .catch(function(error) {
-          console.log(error);
-        });*/
-     }else{
-     fetch('/saved', {method: 'POST',body: JSON.stringify({scene,project_name:project_name.value}),
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'}})
-
-    .then(function(response) {
-      if(response.ok) {
-        console.log('saved');
-        return;
-      }
-      throw new Error('Request failed.');
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
-//////////////non blocking example//////////
-console.log('non blocking example');
-  }
-});
-
-
-const btn_save2 = document.getElementById('save_button2');
-btn_save2.addEventListener('click', function(e) {
-  console.log('button was clicked');
-  transformControls.detach(obj);
-  fetch('/save_team', {method: 'POST',body: JSON.stringify({team_name:team_name.value}),
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'}})
-
-    .then(function(response) {
-      if(response.ok) {
-        console.log('saved');
-        return;
-      }
-      throw new Error('Request failed.');
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
-  
-});
-
-const btn_save3 = document.getElementById('save_button3');
-btn_save3.addEventListener('click', function(e) {
-  console.log('button was clicked');
-  transformControls.detach(obj);
-  fetch('/join_team', {method: 'POST',body: JSON.stringify({team_name:join_team_name.value}),
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'}})
-
-    .then(function(response) {
-      if(response.ok) {
-        console.log('saved');
-        return;
-      }
-      throw new Error('Request failed.');
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
-});
-/////////////////////////////////looad-save/////////////////////
-const btn_save4 = document.getElementById('save_button4');
-btn_save4.addEventListener('click', function(e) {
-  console.log('button was clicked');
-  transformControls.detach(obj);
-  const size = new TextEncoder().encode(JSON.stringify(scene)).length
-      const kiloBytes = size / 1024;
-      const megaBytes = kiloBytes / 1024;
-     console.log(megaBytes);
-     if(megaBytes>16){
-      {fetch('/get_files_grid_fs', {method: 'GET'})
-      .then(function(response) {
-         if(response.ok) return response.json();
-         throw new Error('Request failed.');
-       })
-       .then(function(data) {
-      
-        for (var g = 0; g < data.length; g++) {
-           if(data[g].filename===document.getElementById("form").value){
-            const filetopost=data[g].filename;
-            fetch('/big_data_post', {method: 'POST',body: JSON.stringify({filetopost,post_name:post_name.value}),
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json'}})
-           }
-         }      
-      
-      })
-      }
-
-     }else{
-  fetch('/posts', {method: 'POST',body: JSON.stringify({scene,post_name:post_name.value}),
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'}})
-
-    .then(function(response) {
-      if(response.ok) {
-        console.log('saved');
-        return;
-      }
-      throw new Error('Request failed.');
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
-  }
-});
-
-////////////////////////////////////////////////////////////////////
-
-
-///////////////////load from our mongoDB////////////////////////////
-/*const btn_load_projects = document.getElementById('pop');
-btn_load_projects.addEventListener('click', function(e) {
-
-  {fetch('/projects', {method: 'GET'})
-    .then(function(response) {
-      if(response.ok) {        console.log('loaded');
-      return response.json();}
-      throw new Error('Request failed.');
-    })
-    .then(function(data) {
-
-      for (var j = 0; j < data[0].projects.length; j++) {
-       console.log(data[0].projects[j])
-        document.getElementById("more").innerHTML += '<button>' + data[0].projects[j].project_name.valueOf() + '</button>';
-      }
-addids();
-    })
-
-    .catch(function(error) {
-   console.log(error);
- });
-}
-
-});
-*/
-let projects_big_data;
-let projects_small;
-export var all_saved_projects;
-var projects_counter;
-var big_projects_counter;
-
-export function fetchDataAndInitialize() {
-
- {return fetch('/projects', {method: 'GET'})
-    .then(function(response) {
-      if(response.ok) {        console.log('loaded');
-      return response.json();}
-      throw new Error('Request failed.');
-    })
-    .then(function(data) {
-      projects_small= data.length;
-      if(data[0].projects.length==0){
-
-      document.getElementById("more").innerHTML = "No projects yet";
-      }else{
-      for (var j = 0; j < data[0].projects.length; j++) {
-       console.log(data[0].projects[j])
-        document.getElementById("more").innerHTML += '<button>' + data[0].projects[j].project_name.valueOf() + '</button>';
-      //let project_counter=j;
-    }
-addids();
-      } projects_counter=data[0].projects.length;
-    })
-  
-    .catch(function(error) {
-   console.log(error);
- });
-}}
-
-//////////////non blocking example//////////
-console.log('non blocking example');
-export function fetchbigDataAndInitialize() {
-{return fetch('/get_files_grid_fs', {method: 'GET'})
-.then(function(response) {
-   if(response.ok) return response.json();
-   throw new Error('Request failed.');
- })
- .then(function(data) {
-     projects_big_data=data.length;
-if(data.length>0&&document.getElementById("more").innerHTML==="No projects yet"){
-  document.getElementById("more").innerHTML=""
-}
-  for (var b = 0; b < data.length; b++) {
-     document.getElementById("more").innerHTML += '<button>' + data[b].filename.valueOf() + '</button>';
-   }
-   big_projects_counter = data.length;
-all_saved_projects = big_projects_counter+ projects_counter;
-addids();
-
-
-
-})
-
-}
-
-}
-export var lnt=null;
-function addids() {
-var cls = document.getElementById("more");
-var length=cls.children.length;
-lnt=length;
-for ( var n=0; n < length; n++) {
-    cls.children[n].id= (n + 1); 
-}
-}
-//reach requested project//
-const btn_load = document.getElementById('more');
-export var scened;
-btn_load.addEventListener('click', function(event) {
-const  thisisthefilerequested= event.target.innerHTML;
-
-  console.log('button was clicked');
-if(event.target.id<=projects_big_data){
-  document.getElementById("form").value=thisisthefilerequested;
-  {fetch('/get_file_grid_fs', {method: 'POST', body: JSON.stringify({thisisthefilerequested}),/*})
-  .then(function(response) {
-     if(response.ok) return response.json();
-     throw new Error('Request failed.');
-   }) .then(function(data) {
-   
-    const serializedScene = JSON.stringify(data);
-  var big_data_scened = new THREE.ObjectLoader().parse(JSON.parse(serializedScene));
-
-  scene.add(big_data_scened);
-  big_data_scened.traverse( function( object ) {       
-    if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') objects.push( object );
-    if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') object.castShadow = true;
-    if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') object.receiveShadow = true;
-   
-} ); 
-  
-  });
-  }*/
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'}})
-    .then(function (response) {
-      if (response.ok) {
-        // If the response is successful, handle the data here
-        return response.json(); // Parse the response as JSON
-      }
-      throw new Error('Request failed.');
-    })
-    .then(function (jsonData) {
-      // Handle the JSON data here
-      console.log('Received JSON data:', jsonData);
-      // You can work with the JSON data here
-      const serializedScene = JSON.stringify(jsonData);
-      var big_data_scened = new THREE.ObjectLoader().parse(JSON.parse(serializedScene));
-    
-      scene.add(big_data_scened);
-      if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
-      big_data_scened.traverse( function( object ) {       
-        if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') objects.push( object );
-        if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') object.castShadow = true;
-        if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') object.receiveShadow = true;
-       
-    } ); 
-    })
-    .catch(function (error) {
-      // Handle errors here
-      console.error('Error:', error);
-    });
-   }
+var load_water;
+// Example
+const roomurl = getCurrentURL()
+
+if(roomurl==='https://localhost:3000/'){
+  load_water='textures/waternormals.jpg';
 }else{
- {fetch('/projects', {method: 'GET'})
-   .then(function(response) {
-      if(response.ok) return response.json();
-      throw new Error('Request failed.');
-    })
-    .then(function(data) {
-      //console.log(data[0].projects[19].scene); 
-       
-      const serializedScene = JSON.stringify( data[0].projects[event.target.id -1-projects_big_data].scene);
-      let catchid=event.target.id-1;
-      scened = new THREE.ObjectLoader().parse( JSON.parse( serializedScene ) );
-      scene.add(scened);
-      if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible";
-      if(data[0].projects[event.target.id -1].project_name.length>0){
-        document.getElementById("form").value=data[0].projects[event.target.id -1-projects_big_data].project_name.valueOf();
-      }
-      scened.traverse( function( object ) {       
-        if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') objects.push( object );
-        if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') object.castShadow = true;
-        if ( object.isMesh && object.userData.name!='Sky' && object.name!='Water') object.receiveShadow = true;
-       
-    } );     
-    for(var k=scened.children.length-1;k>=0;k--){
-      if(scened.children[k].type==='Object3D'||scened.children[k].type==='DirectionalLight'|| scened.children[k].type==='CameraHelper' || scened.children[k].userData.name==='Sky' ||scened.children[k].type==='HemisphereLight' || scened.children[k].type==='SpotLight')
-    scened.remove(scened.children[k]);
-    else if(scened.children[k].name==='Water'){
-       check=true;
-        const x = scened.children[k].position.x;
-        const y = scened.children[k].position.y;
-        const z = scened.children[k].position.z;
+  var matched = roomurl.match(/([^/]*\/){3}/);
+  console.log(matched[0]);
+  load_water=`${matched[0]}`+'/textures/waternormals.jpg';
+}
+export var obj;
+export var nowObj;
+export var newObj;
 
-        const _x = scened.children[k].rotation._x;
-        const _y = scened.children[k].rotation._y;
-        const _z = scened.children[k].rotation._z;
+var counteraki=0;
 
-        const ex = scened.children[k].scale.x;
-        const yi = scened.children[k].scale.y;
-        const zed = scened.children[k].scale.z;
 
-        pos.push( x, y, z );
-        rot.push(_x,_y,_z);
-        scl.push(ex,yi,zed);
-            scened.remove(scened.children[k]);
+var objdata;
 
-addocean();
-   check=false; }
+var objectdata=[];
+var objectdata1=[];
+var nowobjectdata=[];
+var counter_wilds=0;
+
+export var view1Elem = document.querySelector('#view1');
+export const view2Elem = document.querySelector('#view2');
+
+export var controls = new THREE.OrbitControls(camera, view1Elem);
+controls.target.set(0, 5, 0);
+controls.maxDistance = 900;
+
+controls.update();
+export var editorHistory = new UndoManager();
+
+export var transformControls = new THREE.TransformControls( camera, view1Elem);
+
+transformControls.addEventListener( 'dragging-changed', function ( event ) {
+
+  controls.enabled = ! event.value;
+
+} );
+
+window.addEventListener('click',  function (event) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  /*if(!togl){  
+
+  mouse.x = (( x / (canvas.clientWidth/2)) *  2 - 1);
+  mouse.y = ( y / canvas.clientHeight) * - 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const found = raycaster.intersectObjects(objects);
+  if(found.length>0 && found[0].object.userData.editable){
+
+  console.log(found[0].object.userData.name);
+  found[0].object.material.color.set( 'green' ); 
+  transformControls.attach(found[0].object);
+  transformControls.setMode('translate');
+  scene.add(transformControls);
+}
+}else{*/
+
+
+  mouse.x = ( x / canvas.clientWidth ) *  2 - 1;
+  mouse.y = ( y / canvas.clientHeight) * - 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const found = raycaster.intersectObjects(objects);
+
+  if(found.length>0 && found[0].object.userData.editable){
+   obj = found[0].object;
+  //obj.material.color.set( 'green' ); 
+  transformControls.attach(obj);
+  transformControls.setMode('translate');
+  scene.add(transformControls);
+
+  document.getElementById("uuid1").innerHTML = obj.uuid;
+  document.getElementById("x").value = obj.position.x;
+  document.getElementById("y").value = obj.position.y;
+  document.getElementById("z").value = obj.position.z;
+  document.getElementById("x_r").value = obj.rotation.x;
+  document.getElementById("y_r").value = obj.rotation.y;
+  document.getElementById("z_r").value = obj.rotation.z;
+  document.getElementById("x_s").value = obj.scale.x;
+  document.getElementById("y_s").value = obj.scale.y;
+  document.getElementById("z_s").value = obj.scale.z;
+ /* for(var i=0;i<objectdata.length;i++){
+    console.log(objectdata[i]);
   }
-/////////////////////////////////////add loaded scene to layers////////////////////////////////////////
+if(objectdata.length>1 && objectdata[this.length]!=objectdata[this.length+1])
+{
+  console.log(objectdata[this.length+1]);
+  objdata=getObjectData(obj);
+//  }*/
+}
+  } )
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////control_toolbar//////////////////////////////////////////
+  var inX = document.getElementById('x');
+  inX.addEventListener('input', function() {
+    obj.position.x= inX.value;
+});
+var inY = document.getElementById('y');
+inY.addEventListener('input', function() {
+  obj.position.y= inY.value;
+});
+var inZ = document.getElementById('z');
+inZ.addEventListener('input', function() {
+  obj.position.z= inZ.value;
+});
+var inX1 = document.getElementById('x_r');
+inX1.addEventListener('input', function() {
+  obj.rotation.x= inX1.value;
+});
+var inY1 = document.getElementById('y_r');
+inY1.addEventListener('input', function() {
+  obj.rotation.y= inY1.value;
+});
+var inZ1 = document.getElementById('z_r');
+inZ1.addEventListener('input', function() {
+  obj.rotation.z= inZ1.value;
+});
+var inX2 = document.getElementById('x_s');
+inX2.addEventListener('input', function() {
+  obj.scale.x= inX2.value;
+});
+var inY2 = document.getElementById('y_s');
+inY2.addEventListener('input', function() {
+  obj.scale.y= inY2.value;
+});
+var inZ2 = document.getElementById('z_s');
+inZ2.addEventListener('input', function() {
+  obj.scale.z= inZ2.value;
+});
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////undo_redo//////////////////////////////////////////////
+var oldObjData = null;
+var newObjData = null;
+
+transformControls.addEventListener( 'mouseDown', function(e) {
+       oldObjData = getObjectData(obj);
+       console.log(oldObjData);
+        objectdata.push(oldObjData);
+
+       document.getElementById("uuid1").innerHTML = transformControls.children[0].object.uuid;
+       document.getElementById("x").value = transformControls.children[0].object.position.x;
+       document.getElementById("y").value = transformControls.children[0].object.position.y;
+       document.getElementById("z").value = transformControls.children[0].object.position.z;
+       document.getElementById("x_r").value = transformControls.children[0].object.rotation.x;
+       document.getElementById("y_r").value = transformControls.children[0].object.rotation.y;
+       document.getElementById("z_r").value = transformControls.children[0].object.rotation.z;
+       document.getElementById("x_s").value = transformControls.children[0].object.scale.x;
+       document.getElementById("y_s").value = transformControls.children[0].object.scale.y;
+       document.getElementById("z_s").value = transformControls.children[0].object.scale.z;
+ } );
+ transformControls.addEventListener( 'mouseUp', function(e) {
+        newObjData = getObjectData(obj);
+        console.log(oldObjData)
+ objectdata1.push(newObjData);
+
+ } );
+
+ transformControls.addEventListener( 'dragging-changed', function ( e ) {
+        if(e.value === false) { // End dragging
+          addHistory(oldObjData, newObjData); // Store undo/redo  
+          console.log("4")  
+        }
+ } );
+
+
+function getObjectData(obj) {
+  var data = {
+        uuid: obj.uuid, // !Important, used in addHistory.
+        position: ({x: obj.position.x, y: obj.position.y, z: obj.position.z}),
+        rotation: ({x: obj.rotation._x, y: obj.rotation._y, z: obj.rotation._z}),
+        scale: ({x: obj.scale.x, y: obj.scale.y, z: obj.scale.z}),
+       // opacity: Number(obj.userData.opacity),
+    };
+    return data;
+}
+
+export function removeobj()
+{
+  const uuidToRemove = obj.uuid;
+
+// Find the index of the object with the specified uuid
+const indexToRemove = objects.findIndex(item => item.uuid === uuidToRemove);
+
+// If the object is found, remove it
+if (indexToRemove !== -1) {
+  objects.splice(indexToRemove, 1);
+}
+ // objects.remove(obj);
+// Detach TransformControls from the object
+transformControls.detach();
+scene.remove(transformControls);
+// Remove the object from the scene
+if(obj.parent.children.length===1&&obj.parent.type!=="Group"){
+  for(var omg=5;omg<scene.children.length;omg++){
+    if(scene.children[omg].type==='Scene'){
+      const childtoremove=obj.parent;
+    scene.children[omg].remove(childtoremove);
+  }
+}
+  const dynamicAttribute = 'wildcard';
+  const attributeValue = obj.userData.layerid; 
+  const changelayers=obj.userData.layerid-194;
+  // Use querySelector to find the element with the specified dynamic attribute and value
+  const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+  elementToRemove.remove();
+  // Get all elements with the attribute "example"
+  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+  
+  // Change the IDs of each element
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+    // Set the new ID, you can customize this logic based on your requirements
+    element.id = element.id-1;
+    if(element.attributes[2].nodeValue==="199"){
+      counteraki=199;
+    }
+    else if(element.attributes[2].nodeValue>199){
+      if(element.attributes[2].nodeValue-counteraki>1){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+    const textContent_wild= element.attributes[2].textContent;
+    const value_wild= element.attributes[2].value;
+    element.attributes[2].nodeValue=nodevalue_wild-1
+    element.attributes[2].textContent=textContent_wild-1
+    element.attributes[2].value=value_wild-1
+    }else{
+      counteraki=0;
+    }
+  }
+  counter_wilds++;
+}else{
+  counter_wilds++;
+
+}
+  });counteraki=0;
+  for(var b=5;b<scene.children.length;b++){
+    if(scene.children[b].type==='Scene'){
+      for (var o = 0; o < scene.children[b].children.length-1; o++)
+    scene.children[b].children[o].userData.layerid = 5+ o + 194;
+  }
+}
+   {
+     // 199 + (n - 5)
+  }}else if(obj.type==="Mesh"&&obj.parent.type==="Scene"&&obj.parent.children.length>4&&obj.parent.uuid===scene.uuid){
+scene.remove(obj);
+const dynamicAttribute = 'wildcard';
+const attributeValue = obj.userData.layerid; 
+const changelayers=obj.userData.layerid-194;
+//querySelector to find the element with the specified dynamic attribute and value
+const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+elementToRemove.remove();
+// all elements with the attribute "name"
+const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+
+// Change the IDs of each element
+elementsWithAttribute.forEach(element => {if(parseInt(element.id)>=changelayers){
+  // Set the new ID, you can customize this logic based on your requirements
+  element.id = element.id-1;
+  if(element.attributes[2].nodeValue==="199"){
+    counteraki=199;
+  }
+  else if(element.attributes[2].nodeValue>199){
+    if(element.attributes[2].nodeValue-counteraki>1){
+  const nodevalue_wild= element.attributes[2].nodeValue;
+  const textContent_wild= element.attributes[2].textContent;
+  const value_wild= element.attributes[2].value;
+  element.attributes[2].nodeValue=nodevalue_wild-1
+  element.attributes[2].textContent=textContent_wild-1
+  element.attributes[2].value=value_wild-1
+  }else{
+    counteraki=0;
+  }
+}
+counter_wilds++;
+}else{
+  counter_wilds++;
+
+}
+});counteraki=0;
+for (var n = 5; n < scene.children.length; n++) {
+  scene.children[n].userData.layerid = n + 194; // 199 + (n - 5)
+}
+}else if(obj.type==="Mesh"&&obj.parent.type==="Object3D"){
+  for(var t=0;t<scene.children.length;t++){
+    if(scene.children[t].type==='Scene'){
+      const childtoremove=obj.parent;
+    scene.children[t].remove(childtoremove);
+  }
+}
+  const dynamicAttribute = 'wildcard';
+  const attributeValue = obj.userData.layerid; 
+  const changelayers=obj.userData.layerid-194;
+  // Use querySelector to find the element with the specified dynamic attribute and value
+  const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+  elementToRemove.remove();
+  // Get all elements with the attribute "example"
+  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+  
+  // Change the IDs of each element
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+    // Set the new ID, you can customize this logic based on your requirements
+    element.id = element.id-1;
+    if(element.attributes[2].nodeValue==="199"){
+      counteraki=199;
+    }
+    else if(element.attributes[2].nodeValue>199){
+      if(element.attributes[2].nodeValue-counteraki>1){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+    const textContent_wild= element.attributes[2].textContent;
+    const value_wild= element.attributes[2].value;
+    element.attributes[2].nodeValue=nodevalue_wild-1
+    element.attributes[2].textContent=textContent_wild-1
+    element.attributes[2].value=value_wild-1
+    }else{
+      counteraki=0;
+    }
+  }
+  counter_wilds++;
+}else{
+  counter_wilds++;
+
+}
+  });counteraki=0;
+  for(var bi=5;bi<scene.children.length;bi++){
+    if(scene.children[bi].type==='Scene'){
+      for (var oo = 0; oo < scene.children[bi].length; oo++)
+    scene.children[bi].children[oo].userData.layerid = 5+ oo + 194;
+
+  }
+}
+   
+}else if(obj.type==="Mesh"&&obj.parent.type==="Scene"&&obj.parent.uuid!==scene.uuid){
+  for(var ti=5;ti<scene.children.length;ti++){
+    if(scene.children[ti].type==='Scene'){
+      const childtoremove=obj;
+    scene.children[ti].remove(childtoremove);
+  }
+}
+  const dynamicAttribute = 'wildcard';
+  const attributeValue = obj.userData.layerid; 
+  const changelayers=obj.userData.layerid-194;
+  // Use querySelector to find the element with the specified dynamic attribute and value
+  const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+  elementToRemove.remove();
+  // Get all elements with the attribute "example"
+  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+  
+  // Change the IDs of each element
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+    // Set the new ID, you can customize this logic based on your requirements
+    element.id = element.id-1;
+    if(element.attributes[2].nodeValue==="199"){
+      counteraki=199;
+    }
+    else if(element.attributes[2].nodeValue>199){
+      if(element.attributes[2].nodeValue-counteraki>1){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+    const textContent_wild= element.attributes[2].textContent;
+    const value_wild= element.attributes[2].value;
+    element.attributes[2].nodeValue=nodevalue_wild-1
+    element.attributes[2].textContent=textContent_wild-1
+    element.attributes[2].value=value_wild-1
+    }else{
+      counteraki=0;
+    }
+  }
+  counter_wilds++;
+}else{
+  counter_wilds++;
+
+}
+  });counteraki=0;
+  for(var ibi=0;bi<scene.children.length;ibi++){
+    if(scene.children[ibi].type==='Scene'){
+      for (var ioo = 0; ioo < scene.children[ibi].length; ioo++)
+    scene.children[ibi].children[oo].userData.layerid = 5+ ioo + 194;
+
+  }
+}
+}else if(obj.type==="Mesh"&&obj.parent.type==="Group"){
+
+  for(var ef=5;ef<scene.children.length;ef++){
+    if(scene.children[ef].type==='Group'){
+      if(scene.children[ef].children.length>1){
+      const childtoremove=obj;
+    scene.children[ef].remove(childtoremove);
+  }else{
+    const childtoremove=obj.parent;
+    scene.remove(childtoremove);
+  }
+}}
+  const dynamicAttribute = 'wildcard';
+  const attributeValue = obj.userData.layerid; 
+  const changelayers=obj.userData.layerid-194;
+  // Use querySelector to find the element with the specified dynamic attribute and value
+  const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+  elementToRemove.remove();
+  // Get all elements with the attribute "example"
+  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+  
+  // Change the IDs of each element
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+    // Set the new ID, you can customize this logic based on your requirements
+    element.id = element.id-1;
+    if(element.attributes[2].nodeValue==="199"){
+      counteraki=199;
+    }
+    else if(element.attributes[2].nodeValue>199){
+      if(element.attributes[2].nodeValue-counteraki>1){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+    const textContent_wild= element.attributes[2].textContent;
+    const value_wild= element.attributes[2].value;
+    element.attributes[2].nodeValue=nodevalue_wild-1
+    element.attributes[2].textContent=textContent_wild-1
+    element.attributes[2].value=value_wild-1
+    }else{
+      counteraki=0;
+    }
+  }
+  counter_wilds++;
+}else{
+  counter_wilds++;
+
+}
+  });counteraki=0;
+  for(var ib=0;ib<scene.children.length;ib++){
+    if(scene.children[ib].type==='Scene'){
+      for (var oy = 0; oy < scene.children[ib].length; oy++)
+      scene.children[ib].children[o].userData.layerid = 5+ oy + 194;
+    }
+}
+}else if(obj.type==="Group"){
+
+  for(var fi=5;fi<scene.children.length;fi++){
+    if(scene.children[fi].type==='Group'){
+ 
+    const childtoremove=obj;
+    scene.remove(childtoremove);
+  }
+}
+  const dynamicAttribute = 'wildcard';
+  const attributeValue = obj.children[0].userData.layerid; 
+  const changelayers=obj.children[0].userData.layerid-194;
+  // Use querySelector to find the element with the specified dynamic attribute and value
+  const elementToRemove = document.querySelector(`[${dynamicAttribute}="${attributeValue}"]`);
+  elementToRemove.remove();
+  // Get all elements with the attribute "example"
+  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
+  
+  // Change the IDs of each element
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+    // Set the new ID, you can customize this logic based on your requirements
+    element.id = element.id-1;
+    if(element.attributes[2].nodeValue==="199"){
+      counteraki=199;
+    }
+    else if(element.attributes[2].nodeValue>199){
+      if(element.attributes[2].nodeValue-counteraki>1){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+    const textContent_wild= element.attributes[2].textContent;
+    const value_wild= element.attributes[2].value;
+    element.attributes[2].nodeValue=nodevalue_wild-1
+    element.attributes[2].textContent=textContent_wild-1
+    element.attributes[2].value=value_wild-1
+    }else{
+      counteraki=0;
+    }
+  }
+  counter_wilds++;
+}else{
+  counter_wilds++;
+
+}
+  });counteraki=0;
+  for(var ib=0;ib<scene.children.length;ib++){
+    if(scene.children[ib].type==='Scene'){
+      for (var oy = 0; oy < scene.children[ib].length; oy++)
+      scene.children[ib].children[o].userData.layerid = 5+ oy + 194;
+    }
+}
+}
+}
+
+
+function addHistory(oldObjData , newObjData ) {      
+  
+  if(oldObjData && newObjData && oldObjData.uuid == newObjData.uuid) {
+   editorHistory.add({
+            undo: function() {    
+              if(oldObjData.uuid==obj.uuid){
+                resetObject(oldObjData);
+                obj.position.copy( nowObj.position );
+                obj.scale.copy( nowObj.scale );
+               // obj.rotation._x.copy(nowObj.rotation.x);
+
+              }else{                
+                var check=true;         
+
+                while(check){
+
+                for(var i=0;i<objectdata.length;i++){
+                  console.log(objectdata[i]);
+                  if(objectdata[i].uuid==obj.uuid && objectdata[i].position!=obj.position)             
+                {
+                  objdata=getObjectData(objectdata[i]);
+                //  }{
+                  resetObject(objdata);
+                  obj.position.copy( nowObj.position );
+                  obj.scale.copy( nowObj.scale );
+                  obj.rotation.copy( nowObj.rotation );
+                  check=false;                
+                }
+                  
+              }
+              }
+            }
+              },
+            redo: function() {
+              if(newObjData.uuid==obj.uuid){
+                resetObject(newObjData);
+                obj.position.copy( nowObj.position );
+                obj.scale.copy( nowObj.scale );
+                obj.rotation.copy( nowObj.rotation );  
+              }else{                
+                var check=true;         
+
+                while(check){
+
+                for(var i=0;i<objectdata1.length;i++){
+                  console.log(objectdata1[i]);
+                  if(objectdata1[i].uuid==obj.uuid)             
+                {
+                  objdata=getObjectData(objectdata1[i]);
+                //  }{
+                  resetObject(objdata);
+                  obj.position.copy( nowObj.position );
+                  obj.scale.copy( nowObj.scale );
+                  obj.rotation.copy( nowObj.rotation );
+
+                  check=false;
+                  }
+              }
+              }
+            }            }
+        });
+    }
+}
+function resetObject(data) {
+   nowObj = {
+    
+    uuid:data.uuid,// you can find object by data.uuid.
+    position: ({x: data.position.x, y: data.position.y, z: data.position.z}), 
+    rotation: ({x: data.rotation.x, y: data.rotation.y, z: data.rotation.z}),
+    scale: ({x: data.scale.x, y: data.scale.y, z: data.scale.z}),
+}; 
+return nowObj;
+}
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////copy_paste/////////////////////////////////////////
+var i=0;
+export function cloning(){
+i++;
+scene.remove(transformControls);
+
+  const objclone = obj.clone();
+  objclone.position.copy(obj.position)
+  objclone.scale.copy( obj.scale );
+  objclone.rotation.copy(obj.rotation );
+  objclone.castShadow=true;
+  objclone.receiveShadow=true;
+  objects.push(objclone);
+  scene.add(objclone);
+  objclone.userData.editable =true;
+  
   if(lnt!=null){
     if(scene.children[scene.children.length-1]!=null){
     
-      const layer = document.createElement("button");
-      layer.setAttribute('id', scene.children.length-1+lnt);
-      layer.setAttribute('class', "layer");
-      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-
-      document.body.appendChild(layer);
+      const layer_kiddo = document.createElement("button");
+      layer_kiddo.setAttribute('id', scene.children.length-1+lnt);
+      layer_kiddo.setAttribute('class', "layer");
+      layer_kiddo.setAttribute("name", scene.children[scene.children.length-1].id);
+      document.body.appendChild(layer_kiddo);
       const node = document.getElementById(scene.children.length-1+lnt);
       document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].name;
+      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
 }else{
   if(scene.children[scene.children.length-1]!=null){
     
-    const layer = document.createElement("button");
-    layer.setAttribute('id', scene.children.length-1);
-    layer.setAttribute('class', "layer");
-    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-
-    document.body.appendChild(layer);
+    const layer_kiddo = document.createElement("button");
+    layer_kiddo.setAttribute('id', scene.children.length-1);
+    layer_kiddo.setAttribute('class', "layer");
+    layer_kiddo.setAttribute("name", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer_kiddo);
     const node = document.getElementById(scene.children.length-1);
     document.getElementById("layers").appendChild(node);
     document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
@@ -1058,106 +631,327 @@ addocean();
   }
 }
 
-
-
-   return catchid;})
-    .catch(function(error) {
-      console.log(error);
-    });
 }
-}
-  });
-  
-/////////////////////////////////////////////////////////////////
+export var uploaded_image;
 
-///////////////////texture load//////////////////
-var uploaded_texture;
-var up_text;
-var loader3= new THREE.TextureLoader();
-const input3 = document.querySelector("#texture-input");
-input3.addEventListener("change", (event) => {
-  const file3 = event.target.files[0];
+const image_input = document.querySelector("#image-input");
+image_input.addEventListener("change", function() {
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    uploaded_image = reader.result;
 
-  
-   uploaded_texture = URL.createObjectURL(file3);  
-   
-  const reader3 = new FileReader();
-  reader3.addEventListener("load", () => {
-    up_text = reader3.result;
-   // document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
+    document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
     
   });
-  reader3.readAsArrayBuffer(file3); //read contents of the file
-  document.getElementById("texture").onclick = function() {
+  reader.readAsDataURL(this.files[0]); //read contents of the file
+////for obj textures///////////// edw kalytera na stelnw to up adi to uploaded image
+//var up = URL.createObjectURL(this.files[0]);  
+}); 
 
-  loader3.load(uploaded_texture,
-    
-    function ( texture ) {
-		// in this example we create the material when the texture is loaded
-		obj.material = new THREE.MeshBasicMaterial( {
-			map: texture,
-      side:THREE.DoubleSide
-		 } );
-	},
+///////////////////////////////////////////////////////////////////////////////////////
 
-	// onProgress callback currently not supported
-	undefined,
 
-	// onError callback
-	function ( err ) {
-		console.error( 'An error happened.' );
-	}
-);
-      }
-      });
-var counter_wild=0;
-var counter_wild2=0;
-var counter_wilds=0;
+/////////////////////////////////colour_palette///////////////////////////////////////
 
-///////////////check wildcards2/////////////
-function checkthewildcards2(){
-  //const dynamicAttribute = 'wildcard';
-  //const attributeValue = mesh.id; 
-  
-  // all elements with the attribute "wildcard"
-  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
-  
-  // Change the IDs of each element
-  elementsWithAttribute.forEach(element => {
-counter_wilds++;  
-  });counter_wild=0;counter_wild2=0;
-  for (var n = scene.children.length-1; n < scene.children.length; n++) {
-    if (scene.children[n] instanceof THREE.Scene || scene.children[n].type==="Group") {
-      for (var l = 0; l < counter_wilds; l++) {
-        scene.children[n].children[l].userData.layerid = l + 199 + scene.children.length-6 + lnt;// 199 + l
-        var elementId = l+scene.children.length-1 +lnt; // Replace 'yourElementIdPrefix' with your actual ID prefix
-  var currentElement = document.getElementById(elementId);
-  if(scene.children[n].children[l].isMesh){      
-  if (currentElement && currentElement.innerHTML === scene.children[n].children[l].name)  {
-    // Change the 'wildcard' attribute to something
-    currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
-  }else if(currentElement && currentElement.innerHTML === scene.children[n].children[l].name.split('_').slice(0, -1).join('.')){
-    currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
+export let colorpicker;
+const defaultColor = "#f1f1f1";
 
-  }
-}else{
-  if (currentElement && currentElement.innerHTML === scene.children[n].children[l].children[0].name) {
-    // Change the 'wildcard' attribute to something
-    currentElement.setAttribute('wildcard',scene.children[n].children[l].userData.layerid );
-  }
+window.addEventListener("load", startup, false);
+
+function startup() {
+  colorpicker = document.getElementById("colorpicker");
+  colorpicker.value = defaultColor;
+  colorpicker.addEventListener("input", updateFirst, false);
+  colorpicker.select();
 }
-      }
-    }else if(scene.children[n].type==="Mesh"){
-      scene.children[n].userData.layerid =  199 + scene.children.length-6 + lnt;// 199 + l
-      var elementId =scene.children.length-1 +lnt; // Replace 'yourElementIdPrefix' with your actual ID prefix
-var currentElement = document.getElementById(elementId);
-//if (currentElement && currentElement.innerHTML === scene.children[n].name.split('_').slice(0, -1).join('.'))  {
-  // Change the 'wildcard' attribute to something
-  currentElement.setAttribute('wildcard',scene.children[n].userData.layerid );
-  console.log("den mpainei kan?");
 
-//}
+function updateFirst(event) {
+  const sb = scene.background;
+    sb.set(event.target.value);
+}
+
+export let colorpicker2;
+const defaultColor2 = "#025702";
+
+window.addEventListener("load", startup1, false);
+
+function startup1() {
+  colorpicker2 = document.getElementById("colorpicker2");
+  colorpicker2.value = defaultColor2;
+  colorpicker2.addEventListener("input", updateFirst1, false);
+  colorpicker2.select();
+}
+
+function updateFirst1(event) {
+  obj.material.color.set( event.target.value );
+}
+/////////////////////////////////////////////////////////////////////////////////
+//const gui = new GUI();
+
+
+var sun = new THREE.Vector3();
+sun.castShadow=true;
+
+/*
+var ground;
+
+var rgb=new THREE.RGBELoader().load('textures/small_empty_room_1_8k.hdr', texture => {
+  const gen = new THREE.PMREMGenerator(renderer)
+  const envMap = gen.fromEquirectangular(texture).texture
+  scene.environment = envMap
+  scene.background = envMap
+  
+  texture.dispose()
+  gen.dispose()
+})
+*/
+
+export	var	water;
+				// Water
+       export function addocean(){
+if(check===false){
+				const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+
+			water = new THREE.Water(
+					waterGeometry,
+					{
+						textureWidth: 512,
+						textureHeight: 512,
+						waterNormals: new THREE.TextureLoader().load( load_water, function ( texture ) {
+
+							texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+						} ),
+						sunDirection: new THREE.Vector3(),
+						sunColor: 0xffffff,
+						waterColor: 0x001e0f,
+            side:THREE.DoubleSide,
+						distortionScale: 1.1,
+						fog: scene.fog !== undefined
+					}
+				);
+
+				water.rotation.x = - Math.PI / 2;
+objects.push(water);
+water.userData.editable =true;
+water.name="Water";
+
+				scene.add( water );
+
+        const waterUniforms = water.material.uniforms;
+				waterUniforms[ 'size' ].value = 10;
+
+				/*const folderWater = gui.addFolder( 'Water' );
+				folderWater.add( waterUniforms.distortionScale, 'value', 0, 8, 0.1 ).name( 'distortionScale' );
+				folderWater.add( waterUniforms.size, 'value', 0.1, 10, 0.1 ).name( 'size' );
+				folderWater.open();
+        */
+        
+      }else{
+        const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+
+        water = new THREE.Water(
+            waterGeometry,
+            {
+              textureWidth: 512,
+              textureHeight: 512,
+              waterNormals: new THREE.TextureLoader().load( load_water, function ( texture ) {
+  
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  
+              } ),
+              sunDirection: new THREE.Vector3(),
+              sunColor: 0xffffff,
+              waterColor: 0x001e0f,
+              side:THREE.DoubleSide,
+              distortionScale: 1.1,
+              fog: scene.fog !== undefined
+            }
+          );
+  
+          water.rotation.x = - Math.PI / 2;
+  objects.push(water);
+  water.userData.editable =true;
+  water.name="Water";
+ // water.geometry.deleteAtrribute('position');
+  water.position.x=pos[0]
+  water.position.y=pos[1]
+  water.position.z=pos[2]
+
+  water.rotation.x=rot[0]
+  water.rotation.y=rot[1]
+  water.rotation.z=rot[2]
+
+  water.scale.x=scl[0]
+  water.scale.y=scl[1]
+  water.scale.z=scl[2]
+
+          scene.add( water );
+  
+          const waterUniforms = water.material.uniforms;
+          waterUniforms[ 'size' ].value = 10;
+//check=false;
+      }
+      if(lnt!=null){
+
+        if(scene.children[scene.children.length-1]!=null){
+          scene.remove(transformControls);
+
+          const layer = document.createElement("button");
+          layer.setAttribute('id', scene.children.length-1+lnt);
+          layer.setAttribute('class', "layer");
+          layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
+          document.body.appendChild(layer);
+          const node = document.getElementById(scene.children.length-1+lnt);
+          document.getElementById("layers").appendChild(node);
+          document.getElementById(scene.children.length-1+lnt).innerHTML = water.name;
+        }
+        }else{
+
+          if(scene.children[scene.children.length-1]!=null){
+    scene.remove(transformControls);
+            const layer = document.createElement("button");
+            layer.setAttribute('id', scene.children.length-1);
+            layer.setAttribute('class', "layer");
+            layer.setAttribute("name", scene.children[scene.children.length-1].id);
+
+            document.body.appendChild(layer);
+            const node = document.getElementById(scene.children.length-1);
+            document.getElementById("layers").appendChild(node);
+            document.getElementById(scene.children.length-1).innerHTML = water.name;
+        }
+      }
     }
-  }
-  counter_wilds=0;
-  }
+				// Skybox
+
+				const sky = new THREE.Sky();
+				sky.scale.setScalar( 10000 );
+        sky.userData.name="Sky";
+				scene.add( sky );
+
+				const skyUniforms = sky.material.uniforms;
+
+				skyUniforms[ 'turbidity' ].value = 7;
+				skyUniforms[ 'rayleigh' ].value = 2;
+				skyUniforms[ 'mieCoefficient' ].value = 0.005;
+				skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+
+				const parameters = {
+					elevation: 2,
+					azimuth: 180
+				};
+
+				const pmremGenerator = new THREE.PMREMGenerator( renderer );
+				const sceneEnv = new THREE.Scene();
+
+				let renderTarget;
+
+				function updateSun() {
+
+					const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
+					const theta = THREE.MathUtils.degToRad( parameters.azimuth );
+
+					sun.setFromSphericalCoords( 1, phi, theta );
+
+					sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
+				if(water!=null)	water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
+
+					if ( renderTarget !== undefined ) renderTarget.dispose();
+
+					sceneEnv.add( sky );
+					renderTarget = pmremGenerator.fromScene( sceneEnv );
+					scene.add( sky );
+
+					scene.environment = renderTarget.texture;
+
+				}
+
+				updateSun();
+
+		//		const geometry = new THREE.BoxGeometry( 30, 30, 30 );
+		//		const material = new THREE.MeshStandardMaterial( { roughness: 0 } );
+
+		//	var	mesh = new THREE.Mesh( geometry, material );
+		//		scene.add( mesh );
+
+				//
+
+				/*controls = new OrbitControls( camera, renderer.domElement );
+				controls.maxPolarAngle = Math.PI * 0.495;
+				controls.target.set( 0, 10, 0 );
+				controls.minDistance = 40.0;
+				controls.maxDistance = 200.0;
+				controls.update();
+*/
+				//
+
+			/*	stats = new Stats();
+				container.appendChild( stats.dom );
+*/
+				// GUI
+
+/*
+				const folderSky = gui.addFolder( 'Sky' );
+				folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( updateSun );
+				folderSky.add( parameters, 'azimuth', - 180, 180, 0.1 ).onChange( updateSun );
+				folderSky.open();
+*/
+       // water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+
+				//
+
+///////////////////layers//////////////////////
+
+var btn_layer = document.getElementById('layers');
+btn_layer.addEventListener('click', function(event) { scene.add(transformControls);
+console.log(event.target);
+if(lnt===null){
+  if(event.target.id>scene.children.length-3 && scene.children[scene.children.length-2].children.length>1){
+    if(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)].type==="Object3D"){
+    transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)].children[0]);
+    obj=null;
+    obj=scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)].children[0];
+    }else{
+      transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)]);
+      obj=null;
+      obj=scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)];
+
+    }
+  }else{
+if(scene.children[event.target.id].type!="Scene"){
+transformControls.attach(scene.children[event.target.id]);
+obj=null;
+obj=scene.children[event.target.id];
+}else{
+  transformControls.attach(scene.children[event.target.id].children[0]);
+  obj=null;
+  obj=scene.children[event.target.id].children[0]
+
+}}
+}else{
+  if(event.target.id>scene.children.length-3 && scene.children[scene.children.length-2].children.length>1){
+    if(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt].type==="Object3D"){
+    transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt].children[0]);
+    obj=null;
+    obj=scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt].children[0];
+    }else{
+      transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt]);
+      obj=null;
+      obj=scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt];
+
+    }
+  }else{
+  if(scene.children[event.target.id-lnt].type!="Scene"){
+    transformControls.attach(scene.children[event.target.id-lnt]);
+    obj=null;
+    obj=scene.children[event.target.id-lnt];
+
+    }else{
+      transformControls.attach(scene.children[event.target.id-lnt].children[0]);
+      obj=null;
+      obj=scene.children[event.target.id-lnt].children[0];
+    }
+}
+}
+});
