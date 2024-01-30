@@ -6,7 +6,7 @@ import { renderer } from "./renderer.js";
 import { EmojiPicker } from "./Emoji.js";
 import { VRButton } from './VRbutton.js';
 import { ARButton } from './ARbutton.js';
-import { XRControllerModelFactory } from "https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/webxr/XRControllerModelFactory.min.js";
+//import { XRControllerModelFactory } from "https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/webxr/XRControllerModelFactory.min.js";
 import{camera} from'./camera.js';
 import { addocean } from "./controls.js";
 import {lnt,all_saved_projects} from"./imp-exp.js";
