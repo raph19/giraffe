@@ -61,7 +61,7 @@
           <div class = "panel1">
               <div class = "screen1"></div>
               <div class="objectdata" id="objdata">                
-                  <div id="uuid">id:<span id="uuid1"></span></div>
+                  <div id="uuid">name:<span id="uuid1"></span></div>
                     <div class="xyz">
                       <div>x<div id="ex"></div></div>
                       <div>y<div id="yi"></div></div>
@@ -90,69 +90,39 @@
       <label for="colorpicker">Background:</label>
       <input type="color" id="colorpicker"></div>
       <div class="tool1"    >
-      <label for="colorpicker2">Material:</label>
+      <label for="colorpicker2">Material Colour</label>
       <input type="color" id="colorpicker2"></div>
       <div class="tool2"        >
-          <button id="texture">Add Texture:</button>
+          <button id="texture">Material Texture</button><span>
+                <div class="image-preview"><div id="preview-image" src=""></div></div></span>
           <input type="file" id="texture-input" accept="image/jpeg, image/png, image/jpg, image/gif">
           <div id="uploadtexture"></div>
       </div>
       <div class="layers"  id="layers"       >Scene
       </div>
-    <button id="clear-button">Clear Scene</button>
+      <button id="save_workspace2">Save Workspace</button>
+      <div id="lastSavedAt2"></div>
+      <button id="clear-button">Clear Scene</button>
   </div>
-  </div>  <% if(currentUser!=null && currentUser.teams.length>0){ %>
-      <div id="bottom_box"> <div id="room"><button id="join_room">Join Room </button> </div></div><div id="teamstocolaborate">
-      <% for(var i=0; i < currentUser.teams.length; i++) { %>
-          <%  var val = currentUser.teams[i].team_name;%>
-  
-           <button id="room_buttons"><a href="https://giraffe-design-tt8d.onrender.com/room/<%= val %>" id="room_links"><%=val%></a></button>
-           <% } %>
-      
-      <%}%>
-      </div>
-      <button id="share">Share your work</button>
-      <div class="boxing">
+  </div>  
+     <div id="users">
+          </div>
+     </div> 
+     <div class="boxing">
    
   <div class="menu2" id="menoy2">
   
-  <div class="popup1" id="pop1">Save project<span class="popuptext1" id="myPopup1">
+  <div class="popup1" id="pop1" attribute="team_save">Save project<span class="popuptext1" id="myPopup1">
       <div class="input-group">
           <span class="input-group-addon" id="basic-addon1">-</span>
           <input type="text" class="form-control" id="form" placeholder="Project Name" name="project_name" aria-describedby="basic-addon1">
       </div>
-      <input type="submit" class="btn btn-default navbar-btn" id="save_button" value="Save" /></span></div> <!--when we hit submit the form is gonna trigger and send data to  our route-->
+      <input type="submit" class="btn btn-default navbar-btn" id="save_button_teams" value="Save" /></span></div> <!--when we hit submit the form is gonna trigger and send data to  our route-->
    
   <div class="popup" id="pop">Load project
-      <span class="popuptext" id="myPopup"><div id="more">
+      <span class="popuptext" id="myPopup"><div id="more_teams">
       </div></span>
-  
     </div>
-  
-    <div class="popup2" id="pop2">Create Team<span class="popuptext2" id="myPopup2">
-      <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">-</span>
-          <input type="text" class="form-control" id="form2" placeholder="Team Name" name="team_name" aria-describedby="basic-addon1">
-      </div>
-      <input type="submit" class="btn btn-default navbar-btn" id="save_button2" value="Save" /></span></div>
-  
-      <div class="popup3" id="pop3">Join Team<span class="popuptext3" id="myPopup3">
-          <div class="input-group">
-              <span class="input-group-addon" id="basic-addon1">-</span>
-              <input type="text" class="form-control" id="form3" placeholder="Team Name" name="join_team_name" aria-describedby="basic-addon1">
-          </div>
-          <input type="submit" class="btn btn-default navbar-btn" id="save_button3" value="Join" /></span></div>
-  </div>
-  <div id="boxx">
-      <div id="box">
-        <div id="close_ex" class="close"></div>
-  <div class="input-group">
-      <span class="input-group-addon" id="basic-addon1">-</span>
-      <input type="text" class="form-control" id="form4" placeholder="Description" name="comment" aria-describedby="basic-addon1">
-  </div>
-  <input type="submit" class="btn btn-default navbar-btn" id="save_button4" value="Share" /></span><button id="emoji_btn">&#128512</button></div>
-  <img id="imgid">
-  </div>
   </div>
       <script src="https://giraffe-design-tt8d.onrender.com/js/main.js" type="module"></script>
     
