@@ -1,18 +1,40 @@
 
 import { EmojiPicker } from "./Emoji.js";
-var pos_home=[];
-var rot_home=[];
-var scl_home=[];
+ var pos_home=[];
+ var rot_home=[];
+ var scl_home=[];
 var check=false;
 var likers_array=[];
 let socket = io.connect('https://giraffe-design-tt8d.onrender.com');
-function getCurrentURL () {
-  return window.location.href
-}
+
 let user_username;
 let projects_small
-// Example
-const homeurl = getCurrentURL()
+function cutUrl(url, segmentsToRemove) {
+  // Use URL object to handle absolute URLs
+  var urlObject = new URL(url);
+
+  // Get path segments
+  var pathSegments = urlObject.pathname.split('/');
+
+  // Remove the specified number of segments from the beginning
+  pathSegments = pathSegments.slice(segmentsToRemove);
+
+  // Join the remaining path segments to form the modified path
+  var modifiedPath = pathSegments.join('/');
+
+  // Update the URL object with the modified path
+  urlObject.pathname = modifiedPath;
+
+  // Get the updated URL as a string
+  var modifiedUrl = urlObject.href;
+
+  return modifiedUrl;
+}
+var needtocut = window.location.href;
+
+// Remove the first three segments
+var homeurl = cutUrl(needtocut, 3);
+console.log(homeurl);
 socket.on('connect', function() {
   // Connected, let's sign-up for to receive messages for this room
   socket.emit('home', homeurl);
@@ -98,7 +120,7 @@ const t=j;
 
               let img = document.createElement('img');
               img.src =
-              "textures/like.png";
+              "https://giraffe-design-tt8d.onrender.com/textures/like.png";
               img.setAttribute('id', f);
               img.setAttribute('class', "img_like");
 
@@ -108,13 +130,13 @@ const t=j;
               
 console.log(kiddo);
 const fourth = kiddo.item(3);
-fourth.style.color="rgb(51, 51, 51)";
+fourth.style.color="rgb(255, 255, 255)";
               btn_like.addEventListener('click', function(event) {
 
                   //var liker =data[0].username;
                   var   likes_area= document.getElementById(event.target.id).getElementsByClassName("little_like")[0];
 
-                if(fourth.style.color==="rgb(51, 51, 51)"){
+                if(fourth.style.color==="rgb(255, 255, 255)"){
                 if(!likes_area){
   const like_Area=document.createElement("div");
   like_Area.setAttribute('id', 'like_Area');
@@ -122,7 +144,7 @@ fourth.style.color="rgb(51, 51, 51)";
 
   let img_like = document.createElement('img');
   img_like.src =
-  "textures/like.png";
+  "https://giraffe-design-tt8d.onrender.com/textures/like.png";
   img_like.setAttribute('id', q);
   img_like.setAttribute('class', "little_like");
 
@@ -178,14 +200,14 @@ if(!check){
     
       var rmv=document.getElementById(event.target.id);
   rmv.removeChild(rmv.lastElementChild);
-      fourth.style.color="rgb(51, 51, 51)";
+      fourth.style.color="rgb(255, 255, 255)";
            check=false;
 
     }else{
       const counter_likes=document.getElementById(event.target.id).getElementsByClassName("likez")[0].innerHTML;
       const curlike=Number(counter_likes)-1;
       document.getElementById(event.target.id).getElementsByClassName("likez")[0].innerHTML=curlike;     
-      fourth.style.color="rgb(51, 51, 51)";
+      fourth.style.color="rgb(255, 255, 255)";
        check=false;
     }
 
@@ -226,14 +248,14 @@ if(!check){
 
   let img2 = document.createElement('img');
   img2.src =
-  "textures/heart.png";
+  "https://giraffe-design-tt8d.onrender.com/textures/heart.png";
   img2.setAttribute('id', 'img_heart');
 
   reactions_box.appendChild(img2);
 
 let img3 = document.createElement('img');
 img3.src =
-"textures/wow.png";
+"https://giraffe-design-tt8d.onrender.com/textures/wow.png";
 img3.setAttribute('id', 'img_wow');
 
 reactions_box.appendChild(img3);
@@ -249,7 +271,7 @@ const reactions2 = document.createElement("button");
 
               let img4 = document.createElement('img');
               img4.src =
-              "textures/dislike.png";
+              "https://giraffe-design-tt8d.onrender.com/textures/dislike.png";
               img4.setAttribute('id', 'img_dislike');
 
               reactions_box2.appendChild(img4);
@@ -419,7 +441,7 @@ const id=e.target.id;
           
             let img_like = document.createElement('img');
             img_like.src =
-            "textures/like.png";
+            "https://giraffe-design-tt8d.onrender.com/textures/like.png";
             img_like.setAttribute('id', q);
             img_like.setAttribute('class', "little_like");
           
@@ -604,7 +626,8 @@ const id=e.target.id;
             camera.position.y +10,
             camera.position.z +10,
       
-          ) 
+          )  
+          if(water!=null) water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
             }
            anime();
             let timelaplse=performance.now()-start;
@@ -626,68 +649,69 @@ const id=e.target.id;
               }}
     const serializedScene = JSON.stringify( data[j].post.scene);
    var scene_home = new THREE.ObjectLoader().parse( JSON.parse( serializedScene ) );
-   scene_post.add(scene_home);
    for(var w=scene_home.children.length-1;w>=0;w--){
     if( scene_home.children[w].type ==='Object3D' ||  scene_home.children[w].type==='DirectionalLight'||  scene_home.children[w].type==='SpotLight' ||  scene_home.children[w].type==='HemisphereLight'||  scene_home.children[w].type==='CameraHelper'||  scene_home.children[w].userData.name==='Sky' ){
       scene_home.remove( scene_home.children[w]);
-    }else if(scene_home.children[w].name==='Water'){
-      const x = scene_home.children[w].position.x;
-      const y = scene_home.children[w].position.y;
-      const z = scene_home.children[k].position.z;
+    }    else if(scene_home.children[w].name==='Water'){
+       const x = scene_home.children[w].position.x;
+       const y = scene_home.children[w].position.y;
+       const z = scene_home.children[k].position.z;
 
-      const _x = scene_home.children[w].rotation._x;
-      const _y = scene_home.children[w].rotation._y;
-      const _z = scene_home.children[w].rotation._z;
+       const _x = scene_home.children[w].rotation._x;
+       const _y = scene_home.children[w].rotation._y;
+       const _z = scene_home.children[w].rotation._z;
 
-      const ex = scene_home.children[w].scale.x;
-      const yi = scene_home.children[w].scale.y;
-      const zed = scene_home.children[w].scale.z;
+       const ex = scene_home.children[w].scale.x;
+       const yi = scene_home.children[w].scale.y;
+       const zed = scene_home.children[w].scale.z;
 
-      pos_home.push( x, y, z );
-      rot_home.push(_x,_y,_z);
-      scl_home.push(ex,yi,zed);
-      scene_home.remove(scene_home.children[w]);
-      const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+       pos_home.push( x, y, z );
+       rot_home.push(_x,_y,_z);
+       scl_home.push(ex,yi,zed);
+       scene_home.remove(scene_home.children[w]);
+       const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
 
-     var water = new THREE.Water(
-          waterGeometry,
-          {
-            textureWidth: 512,
-            textureHeight: 512,
-            waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
-
-              texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-
-            } ),
-            sunDirection: new THREE.Vector3(),
-            sunColor: 0xffffff,
-            waterColor: 0x001e0f,
-            side:THREE.DoubleSide,
-            distortionScale: 1.1,
-            fog: scene_home.fog !== undefined
-          }
-        );
-
-        water.rotation.x = - Math.PI / 2;
+      var water = new THREE.Water(
+           waterGeometry,
+           {
+             textureWidth: 512,
+             textureHeight: 512,
+             waterNormals: new THREE.TextureLoader().load( 'https://giraffe-design-tt8d.onrender.com/textures/waternormals.jpg', function ( texture ) {
+ 
+               texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+ 
+             } ),
+             sunDirection: new THREE.Vector3(),
+             sunColor: 0xffffff,
+             waterColor: 0x001e0f,
+             side:THREE.DoubleSide,
+             distortionScale: 1.1,
+             fog: scene_home.fog !== undefined
+           }
+         );
+ 
+         water.rotation.x = - Math.PI / 2;
+ water.userData.editable =true;
+ water.name="Water";
 // water.geometry.deleteAtrribute('position');
-water.position.x=pos_home[0]
-water.position.y=pos_home[1]
-water.position.z=pos_home[2]
+ water.position.x=pos_home[0]
+ water.position.y=pos_home[1]
+ water.position.z=pos_home[2]
 
-water.rotation.x=rot_home[0]
-water.rotation.y=rot_home[1]
-water.rotation.z=rot_home[2]
+ water.rotation.x=rot_home[0]
+ water.rotation.y=rot_home[1]
+ water.rotation.z=rot_home[2]
 
-water.scale.x=scl_home[0]
-water.scale.y=scl_home[1]
-water.scale.z=scl_home[2]
+ water.scale.x=scl_home[0]
+ water.scale.y=scl_home[1]
+ water.scale.z=scl_home[2]
 
-        scene_home.add( water );
-
-        const waterUniforms = water.material.uniforms;
-        waterUniforms[ 'size' ].value = 10;
-  }
-}   scene_post.add(scene_home);
+         scene_home.add( water );
+ 
+         const waterUniforms = water.material.uniforms;
+         waterUniforms[ 'size' ].value = 10;
+   }
+}   scene_post.add(scene_home);document.getElementById('popupContainer').style.display = 'none';
 pos_home=[];
 
 
@@ -695,6 +719,7 @@ rot_home=[];
 
 
 scl_home=[];
+
 
     var controls = new THREE.OrbitControls(camera, mycanvas);
 controls.target.set(0, 5, 0);controls.panSpeed = 1.0;
@@ -833,7 +858,7 @@ controls.update();
       
                     let img5 = document.createElement('img');
                     img5.src =
-                    "textures/like.png";
+                    "https://giraffe-design-tt8d.onrender.com/textures/like.png";
                     img5.setAttribute('id', f);
                     img5.setAttribute('class', "img_like");
       
@@ -843,13 +868,13 @@ controls.update();
                     
       console.log(kiddo);
       const fourth = kiddo.item(3);
-      fourth.style.color="rgb(51, 51, 51)";
+      fourth.style.color="rgb(255, 255, 255)";
                     btn_like.addEventListener('click', function(event) {
       
                         //var liker =data[0].username;
                         var   likes_area= document.getElementById(event.target.id).getElementsByClassName("little_like")[0];
       
-                      if(fourth.style.color==="rgb(51, 51, 51)"){
+                      if(fourth.style.color==="rgb(255, 255, 255)"){
                       if(!likes_area){
         const like_Area=document.createElement("div");
         like_Area.setAttribute('id', 'like_Area');
@@ -857,7 +882,7 @@ controls.update();
       
         let img_like1 = document.createElement('img');
         img_like1.src =
-        "textures/like.png";
+        "https://giraffe-design-tt8d.onrender.com/textures/like.png";
         img_like1.setAttribute('id', q);
         img_like1.setAttribute('class', "little_like");
       
@@ -914,14 +939,14 @@ controls.update();
           
             var rmv=document.getElementById(event.target.id);
         rmv.removeChild(rmv.lastElementChild);
-            fourth.style.color="rgb(51, 51, 51)";
+            fourth.style.color="rgb(255, 255, 255)";
                  check=false;
       
           }else{
             const counter_likes=document.getElementById(event.target.id).getElementsByClassName("likez")[0].innerHTML;
             const curlike=Number(counter_likes)-1;
             document.getElementById(event.target.id).getElementsByClassName("likez")[0].innerHTML=curlike;     
-            fourth.style.color="rgb(51, 51, 51)";
+            fourth.style.color="rgb(255, 255, 255)";
              check=false;
           }
       
@@ -963,14 +988,14 @@ controls.update();
 
     let img6 = document.createElement('img');
     img6.src =
-    "textures/heart.png";
+    "https://giraffe-design-tt8d.onrender.com/textures/heart.png";
     img6.setAttribute('id', 'img_heart');
   
     reactions_box.appendChild(img6);
   
   let img7 = document.createElement('img');
   img7.src =
-  "textures/wow.png";
+  "https://giraffe-design-tt8d.onrender.com/textures/wow.png";
   img7.setAttribute('id', 'img_wow');
   
   reactions_box.appendChild(img7);
@@ -986,7 +1011,7 @@ controls.update();
   
                 let img8 = document.createElement('img');
                 img8.src =
-                "textures/dislike.png";
+                "https://giraffe-design-tt8d.onrender.com/textures/dislike.png";
                 img8.setAttribute('id', 'img_dislike');
   
                 reactions_box2.appendChild(img8);
@@ -1304,7 +1329,6 @@ const light=new THREE.DirectionalLight(0xffa95c,1);
 
   ) 
   if(water!=null) water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
-
     }
    anime();
     const timelaplse=performance.now()-start1;
@@ -1326,7 +1350,6 @@ const light=new THREE.DirectionalLight(0xffa95c,1);
     }}
 const serializedScene = JSON.stringify( jsonFiles[m].data);
 const scene_home = new THREE.ObjectLoader().parse( JSON.parse( serializedScene ) );
-scene_post.add(scene_home);
 for(var w=scene_home.children.length-1;w>=0;w--){
 if( scene_home.children[w].type ==='Object3D' ||  scene_home.children[w].type==='DirectionalLight'||  scene_home.children[w].type==='SpotLight' ||  scene_home.children[w].type==='HemisphereLight'||  scene_home.children[w].type==='CameraHelper'||  scene_home.children[w].userData.name==='Sky' ){
 scene_home.remove( scene_home.children[w]);
@@ -1354,7 +1377,7 @@ scene_home.remove( scene_home.children[w]);
       {
         textureWidth: 512,
         textureHeight: 512,
-        waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+        waterNormals: new THREE.TextureLoader().load( 'https://giraffe-design-tt8d.onrender.com/textures/waternormals.jpg', function ( texture ) {
 
           texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
@@ -1389,7 +1412,7 @@ water.scale.z=scl_home[2]
     const waterUniforms = water.material.uniforms;
     waterUniforms[ 'size' ].value = 10;
 }
-}   scene_post.add(scene_home);
+}   scene_post.add(scene_home);document.getElementById('popupContainer').style.display = 'none';
 pos_home=[];
 
 
@@ -1397,7 +1420,6 @@ rot_home=[];
 
 
 scl_home=[];
-
 
 const controls = new THREE.OrbitControls(camera, mycanvas);
 controls.target.set(0, 5, 0);controls.panSpeed = 1.0;
@@ -1424,7 +1446,7 @@ if(m===jsonFiles.length-1){
   
     let img_like = document.createElement('img');
     img_like.src =
-    "textures/like.png";
+    "https://giraffe-design-tt8d.onrender.com/textures/like.png";
     img_like.setAttribute('id', o+projects_small);
     img_like.setAttribute('class', "little_like");
   
@@ -1447,7 +1469,7 @@ if(m===jsonFiles.length-1){
 }
         }
       for(var z=0;z<data.length;z++){   
-        if(data[z].comments.length>0){      
+        if(data[z].comments!==undefined&&data[z].comments.length>0){      
 
           for(var k=0;k<data[z].names.length;k++){
 
@@ -1527,7 +1549,7 @@ if(m===jsonFiles.length-1){
           
             let img_like = document.createElement('img');
             img_like.src =
-            "textures/like.png";
+            "https://giraffe-design-tt8d.onrender.com/textures/like.png";
             img_like.setAttribute('id', arg.id);
             img_like.setAttribute('class', "little_like");
           
