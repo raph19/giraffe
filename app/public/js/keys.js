@@ -1,5 +1,5 @@
 
-import{cloning, transformControls} from "./controls.js";
+import{cloning, transformControls,obj} from "./controls.js";
 import{editorHistory} from "./controls.js";
 import{removeobj} from "./controls.js";
 
@@ -10,15 +10,20 @@ var newobj;
 window.addEventListener('keydown', function (event) {
 switch (event.key) {
     case 't':
+            if (event.shiftKey) {
         transformControls.setMode('translate')
-        break
+        break}
     case 'r':
+        if (event.shiftKey) {
+        if (obj.userData.merged === undefined)
         transformControls.setMode('rotate')
-        break
+        break}
     case 's':
+        if (event.shiftKey) {
+        if (obj.userData.merged === undefined)
         transformControls.setMode('scale')
-        break
-        case 'z':
+        break}
+        case 'z': if (event.ctrlKey) {
             /*if(newObjData==null){
                 objects.pop(obj);
                 scene.remove(obj);
@@ -32,18 +37,84 @@ switch (event.key) {
         //}
         
             //obj.position.set()
-        break
-        case 'y':
+        break}
+        case 'y':if (event.ctrlKey) {
             editorHistory.redo();
-            break
+            break}
 
-        case 'c':
+        case 'c': if(event.shiftKey) {
          cloning();
-            break
+            break}
 
-            case'd':
+            case'd': if(event.shiftKey) {
             removeobj();
-            break
+            break}
+                /*case'`':
+        if(togl){
+                    document.getElementById('view1').style.width="100%";
+                  togl=false;      
+          }else{
+                    document.getElementById('view1').style.width="200%";
+                    document.getElementById('view2').style.width="0%";  
+                  togl=true;
+          }    
+    break*/
+
+}
+})
+
+
+}
+import{cloning, transformControls,obj} from "./controls.js";
+import{editorHistory} from "./controls.js";
+import{removeobj} from "./controls.js";
+
+               // document.getElementById('view1').style.width="200%";                  
+export function keys(){
+let togl=true;             
+var newobj;
+window.addEventListener('keydown', function (event) {
+switch (event.key) {
+    case 't':
+            if (event.shiftKey) {
+        transformControls.setMode('translate')
+        break}
+    case 'r':
+        if (event.shiftKey) {
+        if (obj.userData.merged === undefined)
+        transformControls.setMode('rotate')
+        break}
+    case 's':
+        if (event.shiftKey) {
+        if (obj.userData.merged === undefined)
+        transformControls.setMode('scale')
+        break}
+        case 'z': if (event.ctrlKey) {
+            /*if(newObjData==null){
+                objects.pop(obj);
+                scene.remove(obj);
+                scene.remove(transformControls);
+                console.log(obj.position);
+
+            }else{ */
+             
+            editorHistory.undo();
+           
+        //}
+        
+            //obj.position.set()
+        break}
+        case 'y':if (event.ctrlKey) {
+            editorHistory.redo();
+            break}
+
+        case 'c': if(event.shiftKey) {
+         cloning();
+            break}
+
+            case'd': if(event.shiftKey) {
+            removeobj();
+            break}
                 /*case'`':
         if(togl){
                     document.getElementById('view1').style.width="100%";
