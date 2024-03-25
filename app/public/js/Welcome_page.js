@@ -19,12 +19,17 @@ let nowObj;
 let newObj;
 let editorHistory = new UndoManager();
 
-document.getElementById("next").onclick = function() {changebox();j++};
+document.getElementById("next").onclick = function() {changebox();const welcomeBox = document.getElementById("welcome_box");
+welcomeBox.style.animation = 'none'; // Remove animation
+void welcomeBox.offsetWidth; // Trigger reflow
+welcomeBox.style.animation = 'fadeIn 1s ease forwards';j++};
 
 
 function changebox(){
 if(j==0){
     document.getElementById("par").innerHTML="Let's take a journey through the application and its features, ready?";
+    document.getElementById("welcome_box").style.animation = 'fadeIn 1s ease forwards'; // Apply fadeIn animation to welcome_box
+
 }else if(j==1){
     const container_vid = document.createElement("video");
     document.getElementById("welcome_box").appendChild(container_vid);
@@ -34,22 +39,23 @@ if(j==0){
           container_vid.setAttribute('height', '480');
           container_vid.setAttribute('controls','controls');
           const container_source = document.createElement("source");
-          container_source.setAttribute('src', 'textures/home_vid.mp4');
+          container_source.setAttribute('src', 'https://giraffe-design-tt8d.onrender.com/textures/home_vid.mp4');
           container_source.setAttribute('type', 'video/mp4');
           container_vid.appendChild(container_source);
           document.getElementById("welcome_box").style.top="-126%";
+          document.getElementById("welcome_box").style.animation = 'fadeIn 1s ease forwards';
           document.getElementById("next").style.bottom="-586px;";
           document.getElementById("next").style.left="94%";
           document.getElementById("paragraph").style.width="46%";
           document.getElementById("paragraph").style.left="2%";
 
-    document.getElementById("par").innerHTML="This is the home page. Here, you can post your designs and receive feedback from the community.";
+    document.getElementById("par").innerHTML="This is our home page. Here, you can post your designs and receive feedback from the community.";
 }else if(j==2){
 
     var rmv_vid= document.getElementById("welcome_box");
     rmv_vid.removeChild(rmv_vid.lastElementChild);
 
-    document.getElementById("par").innerHTML="You work your designs on a 3d space. You can try to hold left click and rotate through the scene, hold right click to move your point of view and go back and forth with the cursor to zoom in and out.";
+    document.getElementById("par").innerHTML="Your workspace, is a three-dimensional environment. You can try to hold left click and rotate through the scene, hold right click to move your point of view and go back and forth with the cursor to zoom in and out.";
     document.getElementById("next").style.bottom="-410px";
 
     const windo_scene = document.createElement("div");
@@ -237,7 +243,7 @@ transformControls.addEventListener( 'dragging-changed', function ( event ) {
   controls.enabled = ! event.value;
 
 } );
-    document.getElementById("par").innerHTML="You can load 3d objects on the scene. Try to click on the cube. These are your controls where you can move the object wherever you want in space. By pressing 's' you can rescale the object, 'r' to rotate it and 't' to move through x,y,z axis.";
+    document.getElementById("par").innerHTML="You can load 3d objects on the scene. Try to click on the cube. These are your controls where you can move the object wherever you want in space. By pressing shift + s, you can rescale the object, shift + r to rotate it and shift + t to move through the x,y,z axis.";
 var welcome_page_objects = [];
     const cubeSize = 2;
     const object = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
@@ -440,9 +446,9 @@ var welcome_page_objects = [];
         }
         })
 }else if(j==4){
-  document.getElementById("par").innerHTML="You can use 'z' to undo a move and 'y' to redo.";
+  document.getElementById("par").innerHTML="You can use ctrl + z to undo a move and ctrl + y to redo.";
 }else if(j==5){
-  document.getElementById("par").innerHTML="Now try to press 'c' to clone the object. If you want to delete an object from the scene press 'd'.";
+  document.getElementById("par").innerHTML="Try to press shift + c to clone your object. If you want to delete it from the scene press shift + d.";
 }else if(j==6){
   document.getElementById("par").innerHTML="This is your colour pallete, where you can color your objects. Try it!";
 
@@ -467,7 +473,7 @@ var welcome_page_objects = [];
    // colorpicker2.select();
 
 }else if(j==7){
-  document.getElementById("par").innerHTML="You can also dress up your objects by adding textures on them. This helps, so they look like a material of your choice";
+  document.getElementById("par").innerHTML="You can also dress up your objects by adding textures on them. This helps, so they will look like a material of your choice";
   var rmv_pallete= document.getElementById("welcome_box");
   rmv_pallete.removeChild(rmv_pallete.lastElementChild);
   rmv_pallete.removeChild(rmv_pallete.lastElementChild);
@@ -481,7 +487,8 @@ var welcome_page_objects = [];
 
   In_Texture.setAttribute('id', "texture-input");
   In_Texture.setAttribute('accept', "image/jpeg, image/png, image/jpg, image/gif");
-
+  In_Texture.style.top = '88.4%';
+  In_Texture.style.left = '25%';
   document.getElementById("welcome_box").appendChild(In_Texture);
 
   var divIn_Texture= document.createElement("div");
@@ -531,12 +538,22 @@ input3.addEventListener("change", (event) => {
 
 
 }else if(j==8){
-  document.getElementById("par").innerHTML="These are the very basics, hit next and explore more inside the application :)";
-}else if(j==9){
-  var a = document.getElementById("next"); 
-  a.href = "https://giraffe-design-tt8d.onrender.com/editor"
-  a.addEventListener("click", function(event) {
-    window.location.href = a.href;
-  });
-}}
+  document.getElementById("texture-input").style.top = '35%';
+  document.getElementById("texture-input").style.left = '0%';
+  document.getElementById("texture").remove();
+  document.getElementById("texture-input").remove();
+  document.getElementById("par").innerHTML="These are the very basics, hit next and explore more inside the application!";
 
+}else if(j==9){
+  function getCurrentURL() {
+    return window.location.href;
+  }
+  const usersurl = getCurrentURL();  
+  var lastSlashIndex = usersurl.lastIndexOf('/');
+
+  // Extract the URL without the last part
+  var baseURL = usersurl.substring(0, lastSlashIndex);  
+  var a = document.getElementById("next"); 
+  a.href = baseURL;    window.location.href = a.href;
+
+}}
