@@ -1,16 +1,43 @@
 import { scene } from "./scene.js";
 import { render} from "./render.js";
-import { uploaded_image,transformControls,obj } from "./controls.js";
+import { uploaded_image,transformControls,obj,imgname } from "./controls.js";
 export var objects = [];
 import { renderer } from "./renderer.js";
 import { EmojiPicker } from "./Emoji.js";
 import { VRButton } from './VRbutton.js';
 import { ARButton } from './ARbutton.js';
-//import { XRControllerModelFactory } from "https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/webxr/XRControllerModelFactory.min.js";
+import { XRControllerModelFactory } from "https://cdn.jsdelivr.net/npm/three@0.119.1/examples/jsm/webxr/XRControllerModelFactory.min.js";
 import{camera} from'./camera.js';
 import { addocean } from "./controls.js";
-import {lnt,all_saved_projects} from"./imp-exp.js";
-import { fetchDataAndInitialize,fetchbigDataAndInitialize } from "./imp-exp.js";
+import {lnt,all_saved_projects, MergedMeshes2, isMerged} from"./imp-exp.js";
+import {howmany,mergedMeshes2,isMerged2, fetchDataAndInitialize,fetchbigDataAndInitialize ,checkthewildcards2,nestedscenelength,nestedsceneobj,scnchldrn2,scnobjs2,originalIndividualMeshes,undoMerge,take,howmanymergedbtns,integerValue,integerValue2,filenameMerged,filenameMerged2,originalIndividualMeshes2,splitMergedMesh2,array_of_arrays,array_of_arrays2,cnT_gltf_merged} from "./imp-exp.js";
+import {_GLTFExporter} from "./three-gltf-exporter/index.js";
+import { GLTFLoader } from "./GLTFLoader.js";
+export var checkifthereismodel;
+export var fixoffsetwhenload2=0;
+export var exec=false;
+
+
+
+document.getElementById("image").addEventListener("click", function() {
+  if (document.getElementById("image-input").style.display === "none") {
+      document.getElementById("image-input").style.display = "inline-grid";document.getElementById("model-input").style.display = "none";
+  }else{
+    scene.remove(transformControls);if(uploaded_image!=null){checkifthereismodel_tuc();splitwhenload();scnchldrn2();scnobjs2();createImage();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"}else{document.getElementById("image-input").style.display="inline-grid";}
+  }
+});
+document.getElementById("model").addEventListener("click", function(event) {
+  if (document.getElementById("model-input").style.display === "none") {
+    exec=true;
+    document.getElementById("model-input").style.display = "inline-grid";document.getElementById("image-input").style.display="none";
+  }else{
+    document.getElementById("model-input").style.display = "inline-grid"
+    document.getElementById("image-input").style.display="none";scene.remove(transformControls);
+    exec=false;
+  }
+});
+
+
 // Get the button, and when the user clicks on it, execute myFunction
 /*
 export const canvas1 = document.querySelector('#c');
@@ -469,42 +496,76 @@ function isIterable(obj) {  //function to check if object is iterable
  return typeof obj[Symbol.iterator] === "function";
 }
 */
-////
+////////////////////////////////////////
+
+////////////////////////////////////////
+
+
+
+
 /////////////////////////////////////
-
+if (document.getElementById("bottom_box") != null){
+  document.getElementById("share").style.visibility="visible";
+  document.getElementById("share").style.top = "64%";
+  document.getElementById("share").style.left = "7.57%";
+}else{
+  if (document.getElementById("share") != null){
+  document.getElementById("share").style.visibility="visible";
+  }
+}
 /////////////////////////////////////////////////////////////////////////////////
-document.getElementById("myBtn").onclick = function() {myFunction()};
-document.getElementById("myBtn1").onclick = function() {myFunction1();};//document.getElementById("model-input").style.display="none";document.getElementById("image-input").style.display="none"
-document.getElementById("myBtn2").onclick = function() {myFunction2()};
-document.getElementById("myBtn3").onclick = function() {myFunction8()};
+document.getElementById("myBtn").onclick = function() {myFunction();document.getElementById("model-input").style.display = "none";
+document.getElementById("image-input").style.display="none";};
+document.getElementById("myBtn1").onclick = function() {myFunction1();document.getElementById("model-input").style.display = "none";
+document.getElementById("image-input").style.display="none";};//document.getElementById("model-input").style.display="none";document.getElementById("image-input").style.display="none"
+document.getElementById("myBtn2").onclick = function() {myFunction2();document.getElementById("model-input").style.display = "none";
+document.getElementById("image-input").style.display="none";};
+document.getElementById("myBtn3").onclick = function() {myFunction8();document.getElementById("model-input").style.display = "none";
+document.getElementById("image-input").style.display="none";};
 
-document.getElementById("cube").onclick = function() {createCube();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("sphere").onclick = function() {createSphere();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("tetrahedron").onclick = function() {createTetrahedron();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("cylinder").onclick = function() {createCylinder();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
-document.getElementById("image").onclick = function() {document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){createImage();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"}else{document.getElementById("image-input").style.display="inline-grid";}};
-document.getElementById("model").onclick = function() {document.getElementById("model-input").style.display="inline-grid";document.getElementById("image-input").style.display="none";scene.remove(transformControls);};
-document.getElementById("texture").onclick = function() {document.getElementById("texture-input").style.display="inline-grid";};
+document.getElementById("cube").onclick = function() {checkifthereismodel_tuc();splitwhenload();scnchldrn2();scnobjs2();createCube();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("sphere").onclick = function() {checkifthereismodel_tuc();splitwhenload();scnchldrn2();scnobjs2();createSphere();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("tetrahedron").onclick = function() {checkifthereismodel_tuc();splitwhenload();scnchldrn2();scnobjs2();createTetrahedron();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+document.getElementById("cylinder").onclick = function() {checkifthereismodel_tuc();splitwhenload();scnchldrn2();scnobjs2();createCylinder();checkthewildcards();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"};
+//document.getElementById("image").onclick = function() {document.getElementById("model-input").style.display="none";scene.remove(transformControls);if(uploaded_image!=null){checkifthereismodel_tuc();splitwhenload();scnchldrn2();scnobjs2();createImage();if(document.getElementById("clear-button").style.visibility="hidden")document.getElementById("clear-button").style.visibility="visible"}else{document.getElementById("image-input").style.display="inline-grid";}};
+//document.getElementById("model").onclick = function() {document.getElementById("model-input").style.display="inline-grid";document.getElementById("image-input").style.display="none";scene.remove(transformControls);};
+document.getElementById("texture").onclick = function() {document.getElementById("texture-input").style.display="grid";};
 
-document.getElementById("ocean").onclick = function() {addocean()};
+document.getElementById("ocean").onclick = function() {checkifthereismodel_tuc();splitwhenload();scnchldrn2();scnobjs2();addocean()};
 
 
 document.getElementById("moon").onclick = function() {darkmode()};
+if(document.getElementById("close_ex")!=null){
 document.getElementById("close_ex").onclick = function() {document.getElementById("box").style.visibility="hidden"};
-
+}
 document.getElementById("pop").onclick = function() {myFunction3()};
 document.getElementById("pop1").onclick = function() {myFunction4();elm.focus(); transformControls.detach(obj);};
+if(document.getElementById("pop2")!=null){
 document.getElementById("pop2").onclick = function() {myFunction5();elm2.focus();transformControls.detach(obj);};
-document.getElementById("pop3").onclick = function() {myFunction6();elm3.focus();transformControls.detach(obj);};
+}
+if(document.getElementById("pop3")!=null){
 
+document.getElementById("pop3").onclick = function() {myFunction6();elm3.focus();transformControls.detach(obj);};
+}
 document.getElementById("myPopup").onclick=function(){myFunction3();};
 document.getElementById("myPopup1").onclick=function(){myFunction4();};
+if(document.getElementById("myPopup2")!=null){
+
 document.getElementById("myPopup2").onclick=function(){myFunction5();};
+}
+if(document.getElementById("myPopup3")!=null){
+
 document.getElementById("myPopup3").onclick=function(){myFunction6();};
+}
+if(document.getElementById("share")!=null){
+
 document.getElementById("share").onclick=function(){transformControls.detach(obj);
   sharefunc();if (document.getElementById("box").style.visibility="hidden"){document.getElementById("box").style.visibility="visible"}};
+}
+if(document.getElementById("save_button4")!=null){
 
   document.getElementById("save_button4").onclick=function(){document.getElementById("box").style.visibility="hidden"};
+}
   document.getElementById("clear-button").onclick = function() {clearScene();};
 
 var jr=document.getElementById("join_room");
@@ -535,21 +596,42 @@ elm.addEventListener('focus', evt =>
     `input element focused, event.type: "${ evt.type }"`
   )
 );
+if(elm2!=null){
+
 elm2.addEventListener('focus', evt =>
   evt.stopImmediatePropagation()
 );
-
 // ... other handler functionality which got registered later.
 elm2.addEventListener('focus', evt =>
   console.log(
     `input element focused, event.type: "${ evt.type }"`
   )
 );
-document.getElementById("save_button").onclick=function(){myFunction4();};
-document.getElementById("save_button2").onclick=function(){myFunction5();};
-document.getElementById("save_button3").onclick=function(){myFunction6();};
+  }
+if (document.getElementById("save_button") !== null && typeof document.getElementById("save_button") !== 'undefined') {
+  document.getElementById("save_button").onclick = function() {
+      myFunction4();
+  };
+}else{
+  document.getElementById("save_button_teams").onclick = function() {
+    myFunction4();
+};
+}
+if (document.getElementById("save_button2") !== null && typeof document.getElementById("save_button2") !== 'undefined') {
 
-document.getElementById("more").onclick=function(){myFunction3();};
+document.getElementById("save_button2").onclick=function(){myFunction5();};
+}
+if (document.getElementById("save_button3") !== null && typeof document.getElementById("save_button3") !== 'undefined') {
+
+document.getElementById("save_button3").onclick=function(){myFunction6();};
+}
+if (document.getElementById("more") !== null && typeof document.getElementById("more") !== 'undefined') {
+  document.getElementById("more").onclick = function() {
+    myFunction3();  };
+}else{
+  document.getElementById("more_teams").onclick = function() {
+    myFunction3();};
+}
 
 
 //document.getElementById("myPopup1").onclick =function() {if(document.getElementsByClassName("show4").length>0){document.getElementById("myPopup1").style.visibility="visible";}};
@@ -606,8 +688,8 @@ function myFunction() {
           document.getElementById("myDropdown1").classList.toggle("show1");
           }if(document.getElementsByClassName("show").length > 0){
             document.getElementById("myDropdown").classList.toggle("show");  
-          }if( document.getElementsByClassName("show1").length > 0) {
-            document.getElementById("myDropdown1").classList.toggle("show2");
+          }if( document.getElementsByClassName("show2").length > 0) {
+            document.getElementById("myDropdown2").classList.toggle("show2");
         }
       }
       ////////load pop up////////
@@ -622,12 +704,19 @@ function myFunction() {
                   document.getElementById("myPopup3").classList.toggle("show6");
                 }if(document.getElementsByClassName("show7").length>0){
                   document.getElementById("teamstocolaborate").classList.toggle("show7");
+                }if(document.getElementsByClassName("show10").length>0){
+                  document.getElementById("team_name-error").classList.toggle("show10");
+                }if(document.getElementsByClassName("show9").length>0){
+                  document.getElementById("project_name-error").classList.toggle("show9");
                 }
       }
       ////////////////////////////
 
       function myFunction4() {
         document.getElementById("myPopup1").classList.toggle("show4");
+        if(document.getElementById("project_name-error")!=null){
+        document.getElementById("project_name-error").classList.toggle("show9");
+        }
         if(document.getElementsByClassName("show3").length>0){
           document.getElementById("myPopup").classList.toggle("show3");
         }if(document.getElementsByClassName("show5").length>0)
@@ -637,10 +726,14 @@ function myFunction() {
           document.getElementById("myPopup3").classList.toggle("show6");
         }if(document.getElementsByClassName("show7").length>0){
           document.getElementById("teamstocolaborate").classList.toggle("show7");
+        }       if(document.getElementsByClassName("show10").length>0){
+          document.getElementById("team_name-error").classList.toggle("show10");
         }
 }
 function myFunction5() {
   document.getElementById("myPopup2").classList.toggle("show5");
+  document.getElementById("team_name-error").classList.toggle("show10");
+
   if(document.getElementsByClassName("show3").length>0){
     document.getElementById("myPopup").classList.toggle("show3");
   }if(document.getElementsByClassName("show4").length>0){
@@ -649,6 +742,8 @@ function myFunction5() {
     document.getElementById("myPopup3").classList.toggle("show6");
   }if(document.getElementsByClassName("show7").length>0){
     document.getElementById("teamstocolaborate").classList.toggle("show7");
+  }if(document.getElementsByClassName("show9").length>0){
+    document.getElementById("project_name-error").classList.toggle("show9");
   }
 
 }
@@ -662,11 +757,15 @@ function myFunction6() {
     document.getElementById("myPopup2").classList.toggle("show5");
   }if(document.getElementsByClassName("show7").length>0){
     document.getElementById("teamstocolaborate").classList.toggle("show7");
+  }if(document.getElementsByClassName("show10").length>0){
+    document.getElementById("team_name-error").classList.toggle("show10");
+  }if(document.getElementsByClassName("show9").length>0){
+    document.getElementById("project_name-error").classList.toggle("show9");
   }
 
 }
 
-function myFunction7() {
+export function myFunction7() {
   document.getElementById("teamstocolaborate").classList.toggle("show7");
   if(document.getElementsByClassName("show3").length>0){
     document.getElementById("myPopup").classList.toggle("show3");
@@ -676,6 +775,10 @@ function myFunction7() {
     document.getElementById("myPopup2").classList.toggle("show5");
   }if(document.getElementsByClassName("show6").length>0){
     document.getElementById("myPopup3").classList.toggle("show6");
+  }if(document.getElementsByClassName("show10").length>0){
+    document.getElementById("team_name-error").classList.toggle("show10");
+  }if(document.getElementsByClassName("show9").length>0){
+    document.getElementById("project_name-error").classList.toggle("show9");
   }
 }
 
@@ -702,20 +805,21 @@ export var counter_img=0;
   cube.userData.name = 'cube'+ counter_cube;
   scene.remove(transformControls);
   //group.add(cube);
-  if(lnt!=null){
+  if(checkifthereismodel===false){
+  //if(lnt!=null){
     if(scene.children[scene.children.length-1]!=null){
     
       const layer = document.createElement("button");
-      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('id', scene.children.length-1+lnt+nestedscenelength);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
       document.body.appendChild(layer);
-      const node = document.getElementById(scene.children.length-1+lnt);
+      const node = document.getElementById(scene.children.length-1+lnt+nestedscenelength);
       document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+      document.getElementById(scene.children.length-1+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
-}else{
+/*}else{
   if(scene.children[scene.children.length-1]!=null){
     
     const layer = document.createElement("button");
@@ -728,6 +832,35 @@ export var counter_img=0;
     document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
   
   }
+}*/
+}else{
+  //if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
+    
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      document.getElementById("layers").appendChild(node);
+      document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
+    }
+/*}else{
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}*/
 }
 }
  function createTetrahedron()
@@ -746,35 +879,65 @@ export var counter_img=0;
   mesh.userData.editable =true;
   mesh.userData.name = 'Tetrahedron'+counter_tetrahedron;
   scene.remove(transformControls);
-  if(lnt!=null){
+  if(checkifthereismodel===false){
+
+  //if(lnt!=null){
     if(scene.children[scene.children.length-1]!=null){
     
       const layer = document.createElement("button");
-      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('id', scene.children.length-1+lnt+nestedscenelength);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
       document.body.appendChild(layer);
-      const node = document.getElementById(scene.children.length-1+lnt);
+      const node = document.getElementById(scene.children.length-1+lnt+nestedscenelength);
       document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+      document.getElementById(scene.children.length-1+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
-}else{
+/*}else{
   if(scene.children[scene.children.length-1]!=null){
     
     const layer = document.createElement("button");
-    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('id', scene.children.length-1+nestedscenelength+nestedsceneobj);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength+nestedsceneobj);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1+nestedscenelength+nestedsceneobj);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length-1+nestedscenelength+nestedsceneobj).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}*/
+}else{
+ // if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
+    
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      document.getElementById("layers").appendChild(node);
+      document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
+    }
+/*}else{
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1+howmanymergedbtns);
     layer.setAttribute('class', "layer");
     layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer);
-    const node = document.getElementById(scene.children.length-1);
+    const node = document.getElementById(scene.children.length-1+howmanymergedbtns);
     document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
+    document.getElementById(scene.children.length-1+howmanymergedbtns).innerHTML = scene.children[scene.children.length-1].userData.name;
   
   }
+}*/
 }
-}
- function createSphere()
+} function createSphere()
 {counter_sphere+=1;
   const sphereRadius = 1;
   const sphereWidthDivisions = 32;
@@ -791,35 +954,65 @@ export var counter_img=0;
   sphere.userData.name = 'sphere'+counter_sphere;
   //group.add(sphere);
   scene.remove(transformControls);
-  if(lnt!=null){
+  if(checkifthereismodel===false){
+
+  //if(lnt!=null){
     if(scene.children[scene.children.length-1]!=null){
     
       const layer = document.createElement("button");
-      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('id', scene.children.length-1+lnt+nestedscenelength);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
       document.body.appendChild(layer);
-      const node = document.getElementById(scene.children.length-1+lnt);
+      const node = document.getElementById(scene.children.length-1+lnt+nestedscenelength);
       document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+      document.getElementById(scene.children.length-1+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
-}else{
+/*}else{
   if(scene.children[scene.children.length-1]!=null){
     
     const layer = document.createElement("button");
-    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('id', scene.children.length-1+nestedscenelength+nestedsceneobj);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength+nestedsceneobj);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1+nestedscenelength+nestedsceneobj);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length-1+nestedscenelength+nestedsceneobj).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}*/
+}else{
+  //if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
+    
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      document.getElementById("layers").appendChild(node);
+      document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
+    }
+/*}else{
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1+howmanymergedbtns);
     layer.setAttribute('class', "layer");
     layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer);
-    const node = document.getElementById(scene.children.length-1);
+    const node = document.getElementById(scene.children.length-1+howmanymergedbtns);
     document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
+    document.getElementById(scene.children.length-1+howmanymergedbtns).innerHTML = scene.children[scene.children.length-1].userData.name;
   
   }
+}*/
 }
 }
-
 function createCylinder()
 {counter_cylinder+=1;
 const object = new THREE.CylinderBufferGeometry( 2, 2, 4, 64);
@@ -833,39 +1026,68 @@ scene.add(cylinder);
 cylinder.userData.editable =true;
 cylinder.userData.name = 'cylinder'+counter_cylinder;
 scene.remove(transformControls);
+if(checkifthereismodel===false){
 
 //group.add(cylinder);
-if(lnt!=null){
+//if(lnt!=null){
   if(scene.children[scene.children.length-1]!=null){
   
     const layer = document.createElement("button");
-    layer.setAttribute('id', scene.children.length-1+lnt);
+    layer.setAttribute('id', scene.children.length-1+lnt+nestedscenelength);
     layer.setAttribute('class', "layer");
-    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
     document.body.appendChild(layer);
-    const node = document.getElementById(scene.children.length-1+lnt);
+    const node = document.getElementById(scene.children.length-1+lnt+nestedscenelength);
     document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+    document.getElementById(scene.children.length-1+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
   
   }
-}else{
+/*}else{
 if(scene.children[scene.children.length-1]!=null){
   
   const layer = document.createElement("button");
-  layer.setAttribute('id', scene.children.length-1);
+  layer.setAttribute('id', scene.children.length-1+nestedscenelength+nestedsceneobj);
   layer.setAttribute('class', "layer");
-  layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+  layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength+nestedsceneobj);
   document.body.appendChild(layer);
-  const node = document.getElementById(scene.children.length-1);
+  const node = document.getElementById(scene.children.length-1+nestedscenelength+nestedsceneobj);
   document.getElementById("layers").appendChild(node);
-  document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
+  document.getElementById(scene.children.length-1+nestedscenelength+nestedsceneobj).innerHTML = scene.children[scene.children.length-1].userData.name;
 
 }
+}*/
+}else{
+ // if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
+    
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      document.getElementById("layers").appendChild(node);
+      document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
+    }
+/*}else{
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1+howmanymergedbtns);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1+howmanymergedbtns);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length-1+howmanymergedbtns).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}*/
 }
 }
-
 export function createImage(){
-
+  counter_img++;
   function makeInstance(geometry, color, rotY, url) {
     const texture = loader.load(url, render);
     const material = new THREE.MeshStandardMaterial({
@@ -883,43 +1105,71 @@ export function createImage(){
     mesh.material.map.anisotropy=16;
     scene.add(mesh);
     mesh.userData.editable =true;
-    mesh.userData.name = 'img'+counter_img;
+    mesh.userData.name = imgname+counter_img;
     mesh.rotation.y = rotY;
   }
   scene.remove(transformControls);
 
   makeInstance(geometry, 'white', 0,uploaded_image);  
-  counter_img=0;
+  if(checkifthereismodel===false){
 
-  if(lnt!=null){
+  //if(lnt!=null){
     if(scene.children[scene.children.length-1]!=null){
     
       const layer = document.createElement("button");
-      layer.setAttribute('id', scene.children.length-1+lnt);
+      layer.setAttribute('id', scene.children.length-1+lnt+nestedscenelength);
       layer.setAttribute('class', "layer");
-      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
       document.body.appendChild(layer);
-      const node = document.getElementById(scene.children.length-1+lnt);
+      const node = document.getElementById(scene.children.length-1+lnt+nestedscenelength);
       document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+      document.getElementById(scene.children.length-1+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
-}else{
+/*}else{
   if(scene.children[scene.children.length-1]!=null){
     
     const layer = document.createElement("button");
-    layer.setAttribute('id', scene.children.length-1);
+    layer.setAttribute('id', scene.children.length-1+nestedscenelength+nestedsceneobj);
+    layer.setAttribute('class', "layer");
+    layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength+nestedsceneobj);
+    document.body.appendChild(layer);
+    const node = document.getElementById(scene.children.length-1+nestedscenelength+nestedsceneobj);
+    document.getElementById("layers").appendChild(node);
+    document.getElementById(scene.children.length-1+nestedscenelength+nestedsceneobj).innerHTML = scene.children[scene.children.length-1].userData.name;
+  
+  }
+}*/
+}else{
+  //if(lnt!=null){
+    if(scene.children[scene.children.length-1]!=null){
+    
+      const layer = document.createElement("button");
+      layer.setAttribute('id', scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      layer.setAttribute('class', "layer");
+      layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
+      document.body.appendChild(layer);
+      const node = document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
+      document.getElementById("layers").appendChild(node);
+      document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength).innerHTML = scene.children[scene.children.length-1].userData.name;
+    
+    }
+/*}else{
+  if(scene.children[scene.children.length-1]!=null){
+    
+    const layer = document.createElement("button");
+    layer.setAttribute('id', scene.children.length-1+howmanymergedbtns);
     layer.setAttribute('class', "layer");
     layer.setAttribute("wildcard", scene.children[scene.children.length-1].id);
     document.body.appendChild(layer);
-    const node = document.getElementById(scene.children.length-1);
+    const node = document.getElementById(scene.children.length-1+howmanymergedbtns);
     document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
+    document.getElementById(scene.children.length-1+howmanymergedbtns).innerHTML = scene.children[scene.children.length-1].userData.name;
   
   }
+}*/
 }
-}
-function sharefunc(){
+}function sharefunc(){
   var strMime = "image/jpeg";
 
   const imgData = renderer.domElement.toDataURL(strMime);
@@ -940,27 +1190,52 @@ const elementToRemove = document.querySelectorAll('.layer');
 elementToRemove.forEach(element => {
   element.remove();
 
-});
+});scnchldrn2(); scnobjs2();
+counter_cube=0;
+counter_sphere=0;
+counter_cylinder=0;
+counter_tetrahedron=0;
+counter_img=0;
 objects.splice(0, objects.length); 
 transformControls.detach();
 document.getElementById("clear-button").style.visibility="hidden";
-localStorage.clear();     
-saveScene();
+//localStorage.clear();     
+//saveScene();
 }
 //local_Storage for scene//
-
 // Save the scene to localStorage
-function saveScene(){
-  scene.remove(transformControls);
-  const sceneData = JSON.stringify(scene);
-  localStorage.setItem('savedScene', sceneData);
-  console.log('Scene saved to localStorage');
-};
+
+// Extract the Base64-encoded data from the URI
+/*let file = new File([JSON.stringify(gltf)], "otinanai");
+var upmodel = URL.createObjectURL(file);  */
+
+
+
+    /*const gltfBlob = new Blob([JSON.stringify(gltf)], { type: 'application/json' });
+    socket_editor.emit('savesceneonreload',gltfBlob, (err) => {
+        if (err) {
+          alert(err);
+        }
+      });*/
+    // Now you can use 'gltfUrl' to download or handle the GLTF data
+ // });
+
+      
+ // const sceneData = JSON.stringify(scene);
+  //localStorage.setItem('savedScene', sceneData);
+ // console.log('Scene saved to localStorage');
+
 
 let loadobjs=[]; var ldobjs=0;
 // Retrieve the scene from localStorage
-function loadScene(){
-  const savedScene = localStorage.getItem('savedScene');
+/*function loadScene(){
+// Listen for 'storedData' event from the server upon reconnection
+socket.on('storedData', (storedData) => {
+  console.log('Received stored data from server:', storedData);
+
+});
+}*/
+ /* const savedScene = localStorage.getItem('savedScene');
   
   if (savedScene) {
     const parsedScene = new THREE.ObjectLoader().parse( JSON.parse( savedScene ) );
@@ -986,7 +1261,7 @@ function loadScene(){
     idz[ids]=dds;
     scene.add(parsedScene.children[k]);
     objects.push( scene.children[scene.children.length-1] );
-*/
+
 for(var f=5;f<=scene.children.length-1;f++){
     if(all_saved_projects!=null){
     if(scene.children[scene.children.length-1]!=null){
@@ -1025,12 +1300,14 @@ if(objects.length>0) document.getElementById("clear-button").style.visibility="v
   else {
     console.log('No saved scene found');
   }
-};
+};*/
 
 // Automatically save the scene when the page is about to unload
-window.addEventListener('beforeunload', saveScene);
+//setInterval(saveScene, 20000);
 
-window.onload = function () {
+//window.addEventListener('beforeunload', saveScene);
+
+/*window.onload = function () {
   fetchDataAndInitialize()
   .then(function () {
     // Call your window load function after the data fetching is complete
@@ -1042,7 +1319,7 @@ window.onload = function () {
   .catch(function (error) {
     console.error('Error initializing:', error);
   });
-};
+};*/
 // Load the scene when the page is loaded
 
 var counter_wild=0;
@@ -1050,7 +1327,7 @@ var counter_wild2=0;
 var counter_wilds=0;
 
 ////////check the wildcards////////////
-function checkthewildcards(){
+export function checkthewildcards(){
 //const dynamicAttribute = 'wildcard';
 //const attributeValue = mesh.id; 
 
@@ -1059,8 +1336,18 @@ const elementsWithAttribute = document.querySelectorAll('[wildcard]');
 
 // Change the IDs of each element
 elementsWithAttribute.forEach(element => {
-  if(element.attributes[2].nodeValue==="199"){
+  if(element.attributes[2].nodeValue==="199"&&counter_wild===0){
     counter_wild++;
+  }else if(element.attributes[2].nodeValue==="199"&&counter_wild===1){
+    const nodevalue_wild= element.attributes[2].nodeValue;
+  const textContent_wild= element.attributes[2].textContent;
+  const value_wild= element.attributes[2].value;
+  const x = parseInt(value_wild, 10);
+  const changed_wild=x+counter_wild
+
+  element.attributes[2].nodeValue=nodevalue_wild-changed_wild
+  element.attributes[2].textContent=textContent_wild-changed_wild
+  element.attributes[2].value=value_wild+changed_wild
   }else{
     if(counter_wild===0){
     const nodevalue_wild= element.attributes[2].nodeValue;
@@ -1088,9 +1375,93 @@ elementsWithAttribute.forEach(element => {
   } counter_wilds++;
 
 
-});counter_wild=0;counter_wild2=0;
-for (var n = 5; n < 5 + counter_wilds; n++) {
-  scene.children[n].userData.layerid = n + 194; // 199 + (n - 5)
+});counter_wild=0;counter_wild2=0;var counder=0;
+for (var n = 5; n < scene.children.length; n++) { if(checkifthereismodel===false){
+  if(scene.children[n].isMesh){
+  scene.children[n].userData.layerid = n + 194 + counder; // 199 + (n - 5)
+}else if(scene.children[n].type==="Scene"||scene.children[n].type.Group){
+  if(scene.children[n].children.length===1){
+    scene.children[n].userData.layerid = n + counder +  194; // 199 + (n - 5)
+  }else{
+    for(var jj=0;jj<scene.children[n].children.length;jj++){
+      scene.children[n].children[jj].userData.layerid= n +194+jj
+    }
+  }counder+=scene.children[n].children.length-1
+}
+}else{
+  if(/*integerValue!== undefined && scene.children[n].userData.layerid>integerValue || integerValue2[integerValue2.length-1]!== undefined &&  scene.children[n].userData.layerid>integerValue2[integerValue2.length-1] ||*/ scene.children[n].userData.layerid===undefined){
+  if(scene.children[n].isMesh&&scene.children[n].userData.layerid===undefined){
+    scene.children[n].userData.layerid = howmanymergedbtns+n + 194 + counder ; // 199 + (n - 5)
+    const elid=n+howmanymergedbtns+nestedscenelength+lnt;
+    const currel=document.getElementById(elid);
+    currel.setAttribute("wildcard",scene.children[n].userData.layerid);
+  }else if(scene.children[n].type==="Scene"||scene.children[n].type.Group){
+    if(scene.children[n].children.length===1&&scene.children[n].children[0].userData.layerid===undefined){
+      scene.children[n].userData.layerid = howmanymergedbtns+n + 194 + counder ; // 199 + (n - 5)
+      const elid=n+howmanymergedbtns+nestedscenelength+lnt;
+      const currel=document.getElementById(elid);
+      currel.setAttribute("wildcard",scene.children[n].userData.layerid);
+    }else if(scene.children[n].children.length>1&&scene.children[n].children[0].userData.layerid===undefined){
+      for(var jj=0;jj<scene.children[n].children.length;jj++){
+        scene.children[n].children[jj].userData.layerid=  howmanymergedbtns+n + 194 ;+jj
+        const elid=n+howmanymergedbtns+nestedscenelength+lnt;
+        const currel=document.getElementById(elid);
+        currel.setAttribute("wildcard",scene.children[n].children[jj].userData.layerid);
+      }
+    }counder+=scene.children[n].children.length-1
+  }
+}/*else{
+  if(scene.children[n].isMesh){
+    scene.children[n].userData.layerid = n + 194 ; // 199 + (n - 5)
+    const elid=n+nestedscenelength+nestedsceneobj+lnt;
+    const currel=document.getElementById(elid);
+    currel.setAttribute("wildcard",scene.children[n].userData.layerid);
+  }else if(scene.children[n].type==="Scene"||scene.children[n].type.Group){
+    if(scene.children[n].children.length===1){
+      scene.children[n].userData.layerid = n + 194 + counder ; // 199 + (n - 5)
+      const elid=n+nestedscenelength+nestedsceneobj+lnt;
+      const currel=document.getElementById(elid);
+      currel.setAttribute("wildcard",scene.children[n].userData.layerid);
+    }else{
+      for(var jj=0;jj<scene.children[n].children.length;jj++){
+        scene.children[n].children[jj].userData.layerid=  n + 194 +jj
+        const elid=n+nestedscenelength+nestedsceneobj+lnt;
+        const currel=document.getElementById(elid);
+        currel.setAttribute("wildcard",scene.children[n].children[jj].userData.layerid);
+      }
+    }counder+=scene.children[n].children.length-1
+  }
+}*/
+}
+
 }
 counter_wilds=0;
 }
+export function splitwhenload (){
+scene.traverse( function( object) {
+  if(object.name===filenameMerged2){
+  undoMerge(originalIndividualMeshes);
+}else if(filenameMerged.includes(object.name)){
+  for(var cntt=0;cntt<array_of_arrays.length;cntt++){
+    if(isMerged2[cntt]===true){
+      splitMergedMesh2(array_of_arrays2[cntt],cntt);
+    }else if(isMerged2[cntt]===false)
+    {mergedMeshes2(cntt);fixoffsetwhenload2=1;
+      splitMergedMesh2(array_of_arrays2[cntt],cntt); 
+      fixoffsetwhenload2=0;
+    }
+  }
+}
+  })
+}
+
+export function checkifthereismodel_tuc() {
+  checkifthereismodel = false; 
+      if (howmanymergedbtns>0) {
+          checkifthereismodel = true;
+          return; 
+      }
+
+  return checkifthereismodel; 
+}
+
