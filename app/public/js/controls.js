@@ -1,22 +1,23 @@
 import {camera} from "./camera.js";
 import{render} from "./render.js";
 import { canvas,renderer } from "./renderer.js";
-import { objects ,counter_cube,counter_sphere,counter_cylinder,counter_tetrahedron,counter_img} from "./3dobjects.js";
+import { objects ,counter_cube,counter_sphere,counter_cylinder,counter_tetrahedron,counter_img,checkifthereismodel_tuc,checkifthereismodel, splitwhenload} from "./3dobjects.js";
 import { scene } from "./scene.js";
 import{UndoManager}from "../js/undo-manager.js";
-import { createImage } from "./3dobjects.js";
+import { createImage,checkthewildcards } from "./3dobjects.js";
 import{Water} from "./Water.js";
 import{Sky} from "./Sky.js";
 import{GUI} from "./gui.js";
-import{check,pos,rot,scl,lnt,checkthewildcards2} from"./imp-exp.js";
+import{check,pos,rot,scl,lnt,checkthewildcards2,checkthewildcards3,nestedscenelength,isMerged,individualMeshes,individualMeshes2,integerValue,mrgbtnsids,mrgbtnswildcararray,integerValue2,howmanymergedbtns,filenameMerged2,chck,array_of_arrays, nestedsceneobj} from"./imp-exp.js";
+export var isDragging = false;
 
-
-export const raycaster = new THREE.Raycaster();
+export var raycaster = new THREE.Raycaster();
 export const mouse = new THREE.Vector2(); //x,y pos of mouseclick
 const moveMouse = new THREE.Vector2();
 function getCurrentURL () {
   return window.location.href
 }
+export var matched;
 var load_water;
 // Example
 const roomurl = getCurrentURL()
@@ -24,7 +25,7 @@ const roomurl = getCurrentURL()
 if(roomurl==='https://giraffe-design-tt8d.onrender.com'){
   load_water='textures/waternormals.jpg';
 }else{
-  var matched = roomurl.match(/([^/]*\/){3}/);
+  matched = roomurl.match(/([^/]*\/){3}/);
   console.log(matched[0]);
   load_water=`${matched[0]}`+'/textures/waternormals.jpg';
 }
@@ -51,20 +52,34 @@ controls.maxDistance = 900;
 
 controls.update();
 export var editorHistory = new UndoManager();
-
+window.addEventListener('mousemove', function(event) {
+  if(transformControls!==undefined&&transformControls.children[0].object!==undefined){
+  document.getElementById("x").value = transformControls.children[0].object.position.x;
+  document.getElementById("y").value = transformControls.children[0].object.position.y;
+  document.getElementById("z").value = transformControls.children[0].object.position.z;
+  document.getElementById("x_r").value = transformControls.children[0].object.rotation.x;
+  document.getElementById("y_r").value = transformControls.children[0].object.rotation.y;
+  document.getElementById("z_r").value = transformControls.children[0].object.rotation.z;
+  document.getElementById("x_s").value = transformControls.children[0].object.scale.x;
+  document.getElementById("y_s").value = transformControls.children[0].object.scale.y;
+  document.getElementById("z_s").value = transformControls.children[0].object.scale.z;
+  }
+  }
+);
 export var transformControls = new THREE.TransformControls( camera, view1Elem);
 
-transformControls.addEventListener( 'dragging-changed', function ( event ) {
+/*transformControls.addEventListener( 'dragging-changed', function ( event ) {
 
   controls.enabled = ! event.value;
 
-} );
+} );*/
 
 window.addEventListener('click',  function (event) {
+  if (isDragging===false) {
+
   const rect = renderer.domElement.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
-
   /*if(!togl){  
 
   mouse.x = (( x / (canvas.clientWidth/2)) *  2 - 1);
@@ -89,14 +104,41 @@ window.addEventListener('click',  function (event) {
   raycaster.setFromCamera(mouse, camera);
   const found = raycaster.intersectObjects(objects);
 
-  if(found.length>0 && found[0].object.userData.editable){
+  if(found.length>0 && found[0].object.userData.editable&&event.target.id==="view1"){
    obj = found[0].object;
   //obj.material.color.set( 'green' ); 
-  transformControls.attach(obj);
-  transformControls.setMode('translate');
-  scene.add(transformControls);
 
-  document.getElementById("uuid1").innerHTML = obj.uuid;
+  if (obj.userData.merged !== undefined){
+    transformControls.setMode('translate');
+  }
+
+  if(obj.userData.intersectionPoint===undefined){
+    transformControls.position.set(0, 0, 0);
+    transformControls.attach(obj);
+    transformControls.setMode('translate');
+    scene.add(transformControls);
+  }else{
+    if(isMerged===false){
+      const intersectionPoint = obj.userData.intersectionPoint;
+      transformControls.position.copy(intersectionPoint);
+    transformControls.attach(obj);
+    transformControls.setMode('translate');
+    scene.add(transformControls);
+    }else{
+      scene.traverse( function( object) {
+        if(object.name===filenameMerged2){
+        transformControls.attach(object);
+        const intersectionPoint = object.userData.intersectionPoint;
+        transformControls.position.copy(intersectionPoint);
+        transformControls.setMode('translate');
+      scene.add(transformControls);
+        }
+      })
+    }
+  }
+
+if(obj.name!==''&&obj.userData.name===undefined){
+  document.getElementById("uuid1").innerHTML = obj.name;}else{ document.getElementById("uuid1").innerHTML = obj.userData.name;}
   document.getElementById("x").value = obj.position.x;
   document.getElementById("y").value = obj.position.y;
   document.getElementById("z").value = obj.position.z;
@@ -115,8 +157,47 @@ if(objectdata.length>1 && objectdata[this.length]!=objectdata[this.length+1])
   objdata=getObjectData(obj);
 //  }*/
 }
+  }
   } )
+ // Create a mouse vector to store the mouse coordinates
+/*var mouse2 = new THREE.Vector2();
+var raycaster2 = new THREE.Raycaster();
 
+// Add an event listener to detect mouse movement
+document.addEventListener('mousemove', function (event) {
+
+    // Calculate normalized device coordinates
+    const rect = renderer.domElement.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    mouse2.x = ( x / canvas.clientWidth ) *  2 - 1;
+    mouse2.y = ( y / canvas.clientHeight) * - 2 + 1;
+raycaster2.setFromCamera(mouse2, camera);
+
+// Calculate objects intersecting the picking ray
+var intersects = raycaster2.intersectObjects(objects);
+
+// If there are intersections, do something with them
+if (intersects.length > 0) {
+    // Get the intersected object
+    var intersectedObject = intersects[0].object;
+           intersectedObject.material.emissive.r = 1;
+           intersectedObject.material.emissive.g=0.5;
+           intersectedObject.material.emissive.b=0;
+// Set the opacity
+intersectedObject.material.opacity = 0.5; // Set to the desired level of transparency
+intersectedObject.material.transparent = true; // Enable transparency
+} else {
+    // If no intersections, reset the color of all objects
+    objects.forEach(function(object) {
+        object.material.emissive.r = 0;
+        object.material.emissive.g=0;
+        object.material.emissive.b=0;
+        object.material.opacity = 1;
+
+    });
+}
+  });*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -170,16 +251,6 @@ transformControls.addEventListener( 'mouseDown', function(e) {
        console.log(oldObjData);
         objectdata.push(oldObjData);
 
-       document.getElementById("uuid1").innerHTML = transformControls.children[0].object.uuid;
-       document.getElementById("x").value = transformControls.children[0].object.position.x;
-       document.getElementById("y").value = transformControls.children[0].object.position.y;
-       document.getElementById("z").value = transformControls.children[0].object.position.z;
-       document.getElementById("x_r").value = transformControls.children[0].object.rotation.x;
-       document.getElementById("y_r").value = transformControls.children[0].object.rotation.y;
-       document.getElementById("z_r").value = transformControls.children[0].object.rotation.z;
-       document.getElementById("x_s").value = transformControls.children[0].object.scale.x;
-       document.getElementById("y_s").value = transformControls.children[0].object.scale.y;
-       document.getElementById("z_s").value = transformControls.children[0].object.scale.z;
  } );
  transformControls.addEventListener( 'mouseUp', function(e) {
         newObjData = getObjectData(obj);
@@ -188,11 +259,24 @@ transformControls.addEventListener( 'mouseDown', function(e) {
 
  } );
 
- transformControls.addEventListener( 'dragging-changed', function ( e ) {
-        if(e.value === false) { // End dragging
-          addHistory(oldObjData, newObjData); // Store undo/redo  
-          console.log("4")  
-        }
+ transformControls.addEventListener( 'dragging-changed', function ( e ) {  
+  controls.enabled = ! e.value;
+
+          console.log("Dragging changed:", e.value);
+          if (e.value === false) { // End dragging
+            addHistory(oldObjData, newObjData); // Store undo/redo  
+            console.log("4")  
+              
+              setTimeout(function () {
+                  console.log("Raycaster enabled after delay");
+                  raycaster.enabled = true; // Re-enable raycaster after a delay
+              isDragging = false;}, 100);
+          } else {
+              isDragging = true;
+              console.log("Raycaster disabled during dragging");
+              raycaster.enabled = false; // Disable raycaster while dragging
+
+          }
  } );
 
 
@@ -206,17 +290,41 @@ function getObjectData(obj) {
     };
     return data;
 }
-
 export function removeobj()
 {
+
+  checkifthereismodel_tuc();
+  splitwhenload();
+  
   const uuidToRemove = obj.uuid;
+  const arraytoremovefrom=obj.userData.catchmergebtn;
+  const layeridtochange=obj.userData.layerid;
 
 // Find the index of the object with the specified uuid
 const indexToRemove = objects.findIndex(item => item.uuid === uuidToRemove);
-
+const indexToRemove2 = individualMeshes.findIndex(item => item.uuid === uuidToRemove);
+if(arraytoremovefrom!==undefined&&array_of_arrays[arraytoremovefrom].length>0){
+var indexToRemove3 = array_of_arrays[arraytoremovefrom].findIndex(item => item.uuid === uuidToRemove);
+}
 // If the object is found, remove it
 if (indexToRemove !== -1) {
   objects.splice(indexToRemove, 1);
+}
+// If the object is found, remove it
+if (indexToRemove2 !== -1) {
+  objects.splice(indexToRemove2, 1);
+}
+// If the object is found, remove it
+/*if (indexToRemove3 !== -1) {
+  objects.splice(indexToRemove3, 1);
+}*/
+// If the object is found, remove it
+if (indexToRemove2 !== -1) {
+  individualMeshes.splice(indexToRemove2, 1);
+}
+// If the object is found, remove it
+if (indexToRemove3!==undefined&&indexToRemove3 !== -1) {
+  array_of_arrays[arraytoremovefrom].splice(indexToRemove3, 1);
 }
  // objects.remove(obj);
 // Detach TransformControls from the object
@@ -227,7 +335,10 @@ if(obj.parent.children.length===1&&obj.parent.type!=="Group"){
   for(var omg=5;omg<scene.children.length;omg++){
     if(scene.children[omg].type==='Scene'){
       const childtoremove=obj.parent;
-    scene.remove(childtoremove);
+      if(obj.parent.type==="Scene"){
+    scene.remove(childtoremove);}else{
+      scene.children[omg].remove(childtoremove);
+    }
   }
 }
   const dynamicAttribute = 'wildcard';
@@ -240,7 +351,7 @@ if(obj.parent.children.length===1&&obj.parent.type!=="Group"){
   const elementsWithAttribute = document.querySelectorAll('[wildcard]');
   
   // Change the IDs of each element
-  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid > changelayers+lnt){
     // Set the new ID, you can customize this logic based on your requirements
     element.id = element.id-1;
     if(element.attributes[2].nodeValue==="199"){
@@ -264,15 +375,59 @@ if(obj.parent.children.length===1&&obj.parent.type!=="Group"){
 
 }
   });counteraki=0;
-  for(var b=5;b<scene.children.length;b++){
-    if(scene.children[b].type==='Scene'){
-      for (var o = 0; o < scene.children[b].children.length-1; o++)
-    scene.children[b].children[o].userData.layerid = 5+ o + 194;
+  var ct=0;
+for (var b = 5; b < scene.children.length; b++) { if(checkifthereismodel===false&&chck===false){
+  if(scene.children[b].type!=="Scene"){
+  scene.children[b].userData.layerid = b + 194+ct; // 199 + (n - 5)
+}else{
+  for(var css=0; css<scene.children[b].children.length;css++){
+    if(scene.children[b].children[css].children.length>0){
+      scene.children[b].children[css].children[0].userData.layerid = css+ b + 194+ct;
+    }else{
+    scene.children[b].children[css].userData.layerid = css+ b + 194+ct; // 199 + (n - 5)  
+    }  
+  }ct+=scene.children[b].children.length-1;
+}
+}else{
+  if(integerValue!==undefined && scene.children[b].userData.layerid>integerValue|| integerValue2[arraytoremovefrom]!== undefined  && scene.children[b].userData.layerid>integerValue2[arraytoremovefrom]){
+ 
+    if(scene.children[b].type!=="Scene"){
+      scene.children[b].userData.layerid=scene.children[b].userData.layerid-1;
+    }else{
+      for(var css=0; css<scene.children[b].children.length;css++){
+        if(scene.children[b].children[css].children.length>0){
+          scene.children[b].children[css].children[0].userData.layerid = scene.children[b].children[css].children[0].userData.layerid-1;
+        }else{
+        scene.children[b].children[css].userData.layerid = scene.children[b].children[css].userData.layerid-1; // 199 + (n - 5)  
+        }  
+      }//ct+=scene.children[b].children.length-1;
+    }
+  }else{
+    if(scene.children[b].type!=="Scene"&&scene.children[b].userData.layerid>layeridtochange){
+      scene.children[b].userData.layerid = scene.children[b].userData.layerid-1; // 199 + (n - 5)
+    }    else  if(scene.children[b].type!=="Mesh"){
+      for(var cs=0; cs<scene.children[b].children.length;cs++){
+        if(scene.children[n].children[cs].children>0){
+          for(var i=0; i<scene.children[b].children[cs].children.length;i++){
+            if(scene.children[b].children[cs].children.length>0&&scene.children[b].children[cs].children[i].userData.layerid>layeridtochange){
+              scene.children[b].children[cs].children[i].userData.layerid =  scene.children[b].children[cs].children[i].userData.layerid-1;
+            }else if(scene.children[n].children[cs].children.length<=0&&scene.children[b].children[cs].children[i].userData.layerid>layeridtochange){
+              scene.children[b].children[cs].children[i].userData.layerid = scene.children[b].children[cs].children[i].userData.layerid-1; // 199 + (n - 5)  
+              }     
+          }
+        }else{
+        if(scene.children[b].children.length>0&&scene.children[b].children[cs].userData.layerid>layeridtochange){
+          scene.children[b].children[cs].userData.layerid =  scene.children[b].children[cs].userData.layerid-1;
+        }else if(scene.children[b].children.length<=0&&scene.children[b].children[cs].userData.layerid>layeridtochange){
+        scene.children[b].children[cs].userData.layerid = scene.children[b].children[cs].userData.layerid-1; // 199 + (n - 5)  
+        }  
+      }
+      }//cn+=scene.children[n].children.length-1;
+    }
   }
 }
-   {
-     // 199 + (n - 5)
-  }}else if(obj.type==="Mesh"&&obj.parent.type==="Scene"&&obj.parent.children.length>4&&obj.parent.uuid===scene.uuid){
+}
+}else if(obj.type==="Mesh"&&obj.parent.type==="Scene"&&obj.parent.children.length>4&&obj.parent.uuid===scene.uuid){
 scene.remove(obj);
 const dynamicAttribute = 'wildcard';
 const attributeValue = obj.userData.layerid; 
@@ -284,7 +439,7 @@ elementToRemove.remove();
 const elementsWithAttribute = document.querySelectorAll('[wildcard]');
 
 // Change the IDs of each element
-elementsWithAttribute.forEach(element => {if(parseInt(element.id)>=changelayers){
+elementsWithAttribute.forEach(element => {if(parseInt(element.id)>changelayers+lnt){
   // Set the new ID, you can customize this logic based on your requirements
   element.id = element.id-1;
   if(element.attributes[2].nodeValue==="199"){
@@ -307,11 +462,59 @@ counter_wilds++;
   counter_wilds++;
 
 }
-});counteraki=0;
-for (var n = 5; n < scene.children.length; n++) {
-  scene.children[n].userData.layerid = n + 194; // 199 + (n - 5)
+});counteraki=0;var cn=0;
+for (var n = 5; n < scene.children.length; n++) { if(checkifthereismodel===false&&chck===false){
+  if(scene.children[n].type!=="Scene"){
+  scene.children[n].userData.layerid = n + 194+cn; // 199 + (n - 5)
+}else{
+  for(var cs=0; cs<scene.children[n].children.length;cs++){
+    if(scene.children[n].children[cs].children.length>0){
+      scene.children[n].children[cs].children[0].userData.layerid = cs+ n + 194+cn;
+    }else{
+    scene.children[n].children[cs].userData.layerid = cs+ n + 194+cn; // 199 + (n - 5)  
+    }  
+  }cn+=scene.children[n].children.length-1;
 }
-}else if(obj.type==="Mesh"&&obj.parent.type==="Object3D"){
+}else{
+  /*if(integerValue!==undefined && scene.children[n].userData.layerid>integerValue|| integerValue2[arraytoremovefrom]!== undefined  && scene.children[n].userData.layerid>integerValue2[arraytoremovefrom] || scene.children[n].userData.layerid===undefined){
+    if(scene.children[n].type!=="Scene"){
+      scene.children[n].userData.layerid=scene.children[n].userData.layerid-1;
+    }else{
+      for(var cs=0; cs<scene.children[n].children.length;cs++){
+        if(scene.children[n].children[cs].children.length>0){
+          scene.children[n].children[cs].children[0].userData.layerid = scene.children[n].children[cs].children[0].userData.layerid-1;
+        }else{
+        scene.children[n].children[cs].userData.layerid = scene.children[n].children[cs].userData.layerid-1; // 199 + (n - 5)  
+        }  
+      }//cn+=scene.children[n].children.length-1;
+    }
+  }else{*/
+    if(scene.children[n].type!=="Scene"&&scene.children[n].userData.layerid>layeridtochange/*&&scene.children[n].geometry.groups.length<=0*/){
+      scene.children[n].userData.layerid = scene.children[n].userData.layerid-1; // 199 + (n - 5)
+    }
+    else  if(scene.children[n].type!=="Mesh"){
+      for(var cs=0; cs<scene.children[n].children.length;cs++){
+        if(scene.children[n].children[cs].children>0){
+          for(var i=0; i<scene.children[n].children[cs].children.length;i++){
+            if(scene.children[n].children[cs].children.length>0&&scene.children[n].children[cs].children[i].userData.layerid>layeridtochange){
+              scene.children[n].children[cs].children[i].userData.layerid =  scene.children[n].children[cs].children[i].userData.layerid-1;
+            }else if(scene.children[n].children[cs].children.length<=0&&scene.children[n].children[cs].children[i].userData.layerid>layeridtochange){
+              scene.children[n].children[cs].children[i].userData.layerid = scene.children[n].children[cs].children[i].userData.layerid-1; // 199 + (n - 5)  
+              }     
+          }
+        }else{
+        if(scene.children[n].children.length>0&&scene.children[n].children[cs].userData.layerid>layeridtochange){
+          scene.children[n].children[cs].userData.layerid =  scene.children[n].children[cs].userData.layerid-1;
+        }else if(scene.children[n].children.length<=0&&scene.children[n].children[cs].userData.layerid>layeridtochange){
+        scene.children[n].children[cs].userData.layerid = scene.children[n].children[cs].userData.layerid-1; // 199 + (n - 5)  
+        }  
+      }
+      }//cn+=scene.children[n].children.length-1;
+    }
+ // }
+}
+}
+}/*else if(obj.type==="Mesh"&&obj.parent.type==="Object3D"){
   for(var t=0;t<scene.children.length;t++){
     if(scene.children[t].type==='Scene'){
       const childtoremove=obj.parent;
@@ -358,9 +561,8 @@ for (var n = 5; n < scene.children.length; n++) {
     scene.children[bi].children[oo].userData.layerid = 5+ oo + 194;
 
   }
-}
-   
-}else if(obj.type==="Mesh"&&obj.parent.type==="Scene"&&obj.parent.uuid!==scene.uuid){
+}*/
+  else if(obj.type==="Mesh"&&obj.parent.type==="Scene"&&obj.parent.uuid!==scene.uuid){
   for(var ti=5;ti<scene.children.length;ti++){
     if(scene.children[ti].type==='Scene'){
       const childtoremove=obj;
@@ -377,7 +579,7 @@ for (var n = 5; n < scene.children.length; n++) {
   const elementsWithAttribute = document.querySelectorAll('[wildcard]');
   
   // Change the IDs of each element
-  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid > changelayers+lnt){
     // Set the new ID, you can customize this logic based on your requirements
     element.id = element.id-1;
     if(element.attributes[2].nodeValue==="199"){
@@ -401,16 +603,60 @@ for (var n = 5; n < scene.children.length; n++) {
 
 }
   });counteraki=0;
-  for(var ibi=0;bi<scene.children.length;ibi++){
-    if(scene.children[ibi].type==='Scene'){
-      for (var ioo = 0; ioo < scene.children[ibi].length; ioo++)
-    scene.children[ibi].children[oo].userData.layerid = 5+ ioo + 194;
-
+  var cd=0;
+  for (var n = 5; n < scene.children.length; n++) {if(checkifthereismodel===false&&chck===false){
+    if(scene.children[n].type!=="Scene"){
+    scene.children[n].userData.layerid = n + 194+cd; // 199 + (n - 5)
+  }else{
+    for(var csd=0; csd<scene.children[n].children.length;csd++){
+      if(scene.children[n].children[csd].children.length>0){
+        scene.children[n].children[csd].children[0].userData.layerid = csd+ n + 194+cd;
+      }else{
+      scene.children[n].children[csd].userData.layerid = csd+ n + 194+cd; // 199 + (n - 5)  
+      }  
+    }cd+=scene.children[n].children.length-1;
   }
+  }else{
+    if(integerValue!==undefined && scene.children[n].userData.layerid>integerValue|| integerValue2[arraytoremovefrom]!== undefined  && scene.children[n].userData.layerid>integerValue2[arraytoremovefrom]){
+      if(scene.children[n].type!=="Scene"){
+        scene.children[n].userData.layerid=scene.children[n].userData.layerid-1;
+      }else{
+        for(var cs=0; cs<scene.children[n].children.length;cs++){
+          if(scene.children[n].children[cs].children.length>0){
+            scene.children[n].children[cs].children[0].userData.layerid = scene.children[n].children[cs].children[0].userData.layerid-1;
+          }else{
+          scene.children[n].children[cs].userData.layerid = scene.children[n].children[cs].userData.layerid-1; // 199 + (n - 5)  
+          }  
+        }//cn+=scene.children[n].children.length-1;
+      }
+    }else{
+      if(scene.children[n].type!=="Scene"&&scene.children[n].userData.layerid>layeridtochange){
+        scene.children[n].userData.layerid = scene.children[n].userData.layerid-1; // 199 + (n - 5)
+      }    else  if(scene.children[n].type!=="Mesh"){
+        for(var cs=0; cs<scene.children[n].children.length;cs++){
+          if(scene.children[n].children[cs].children>0){
+            for(var i=0; i<scene.children[n].children[cs].children.length;i++){
+              if(scene.children[n].children[cs].children.length>0&&scene.children[n].children[cs].children[i].userData.layerid>layeridtochange){
+                scene.children[n].children[cs].children[i].userData.layerid =  scene.children[n].children[cs].children[i].userData.layerid-1;
+              }else if(scene.children[n].children[cs].children.length<=0&&scene.children[n].children[cs].children[i].userData.layerid>layeridtochange){
+                scene.children[n].children[cs].children[i].userData.layerid = scene.children[n].children[cs].children[i].userData.layerid-1; // 199 + (n - 5)  
+                }     
+            }
+          }else{
+          if(scene.children[n].children.length>0&&scene.children[n].children[cs].userData.layerid>layeridtochange){
+            scene.children[n].children[cs].userData.layerid =  scene.children[n].children[cs].userData.layerid-1;
+          }else if(scene.children[n].children.length<=0&&scene.children[n].children[cs].userData.layerid>layeridtochange){
+          scene.children[n].children[cs].userData.layerid = scene.children[n].children[cs].userData.layerid-1; // 199 + (n - 5)  
+          }  
+        }
+        }//cn+=scene.children[n].children.length-1;
+      }
+    }
+}
 }
 }else if(obj.type==="Mesh"&&obj.parent.type==="Group"){
 
-  for(var ef=5;ef<scene.children.length;ef++){
+  for(var ef=5;ef<scene.children.length;ef++){  
     if(scene.children[ef].type==='Group'){
       if(scene.children[ef].children.length>1){
       const childtoremove=obj;
@@ -430,7 +676,7 @@ for (var n = 5; n < scene.children.length; n++) {
   const elementsWithAttribute = document.querySelectorAll('[wildcard]');
   
   // Change the IDs of each element
-  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers+lnt){
     // Set the new ID, you can customize this logic based on your requirements
     element.id = element.id-1;
     if(element.attributes[2].nodeValue==="199"){
@@ -454,11 +700,46 @@ for (var n = 5; n < scene.children.length; n++) {
 
 }
   });counteraki=0;
-  for(var ib=0;ib<scene.children.length;ib++){
-    if(scene.children[ib].type==='Scene'){
-      for (var oy = 0; oy < scene.children[ib].length; oy++)
-      scene.children[ib].children[o].userData.layerid = 5+ oy + 194;
+  var cnn=0;
+  for (var n = 5; n < scene.children.length; n++) {  if(checkifthereismodel===false){
+    if(scene.children[n].type!=="Scene"){
+    scene.children[n].userData.layerid = n + 194+cnn; // 199 + (n - 5)
+  }else{
+    for(var csf=0; csf<scene.children[n].children.length;csf++){
+      if(scene.children[n].children[csf].children.length>0){
+        scene.children[n].children[csf].children[0].userData.layerid = csf+ n + 194+cnn;
+      }else{
+      scene.children[n].children[csf].userData.layerid = csf+ n + 194+cnn; // 199 + (n - 5)  
+      }  
+    }cnn+=scene.children[n].children.length-1;
+  }
+  }else{
+    if(integerValue!==undefined && scene.children[n].userData.layerid>integerValue|| integerValue2[arraytoremovefrom]!== undefined  && scene.children[n].userData.layerid>integerValue2[arraytoremovefrom]){
+      if(scene.children[n].type!=="Scene"){
+        scene.children[n].userData.layerid=scene.children[n].userData.layerid-1;
+      }else{
+        for(var cs=0; cs<scene.children[n].children.length;cs++){
+          if(scene.children[n].children[cs].children.length>0){
+            scene.children[n].children[cs].children[0].userData.layerid = scene.children[n].children[cs].children[0].userData.layerid-1;
+          }else{
+          scene.children[n].children[cs].userData.layerid = scene.children[n].children[cs].userData.layerid-1; // 199 + (n - 5)  
+          }  
+        }//cn+=scene.children[n].children.length-1;
+      }
+    }else{
+      if(scene.children[n].type!=="Scene"&&scene.children[n].userData.layerid>layeridtochange){
+        scene.children[n].userData.layerid = scene.children[n].userData.layerid-1; // 199 + (n - 5)
+      }else{
+        for(var cs=0; cs<scene.children[n].children.length;cs++){
+          if(scene.children[n].children[cs].children.length>0&&scene.children[n].userData.layerid>layeridtochange){
+            scene.children[n].children[cs].children[0].userData.layerid =  scene.children[n].children[cs].children[0].userData.layerid-1;
+          }else if(scene.children[n].children[cs].children.length<=0&&scene.children[n].children[cs].userData.layerid>layeridtochange){
+          scene.children[n].children[cs].userData.layerid = scene.children[n].children[cs].userData.layerid-1; // 199 + (n - 5)  
+          }  
+        }//cn+=scene.children[n].children.length-1;
+      }
     }
+  }
 }
 }else if(obj.type==="Group"){
 
@@ -479,7 +760,7 @@ for (var n = 5; n < scene.children.length; n++) {
   const elementsWithAttribute = document.querySelectorAll('[wildcard]');
   
   // Change the IDs of each element
-  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid >= changelayers){
+  elementsWithAttribute.forEach(element => {const elid=parseInt(element.id, 10); if (elid > changelayers+lnt){
     // Set the new ID, you can customize this logic based on your requirements
     element.id = element.id-1;
     if(element.attributes[2].nodeValue==="199"){
@@ -503,13 +784,58 @@ for (var n = 5; n < scene.children.length; n++) {
 
 }
   });counteraki=0;
-  for(var ib=0;ib<scene.children.length;ib++){
-    if(scene.children[ib].type==='Scene'){
-      for (var oy = 0; oy < scene.children[ib].length; oy++)
-      scene.children[ib].children[o].userData.layerid = 5+ oy + 194;
-    }
+  var cnr=0;
+  for (var n = 5; n < scene.children.length; n++) {    if(checkifthereismodel===false){
+    if(scene.children[n].type!=="Scene"){
+    scene.children[n].userData.layerid = n + 194+cnr; // 199 + (n - 5)
+  }else{
+    for(var csr=0; csr<scene.children[n].children.length;csr++){
+      if(scene.children[n].children[csr].children.length>0){
+        scene.children[n].children[csr].children[0].userData.layerid = csr+ n + 194+cnr;
+      }else{
+      scene.children[n].children[csr].userData.layerid = csr+ n + 194+cnr; // 199 + (n - 5)  
+      }  
+    }cnr+=scene.children[n].children.length-1;
+  }
+  }else{
+      if(integerValue!==undefined && scene.children[n].userData.layerid>integerValue|| integerValue2[arraytoremovefrom]!== undefined  && scene.children[n].userData.layerid>integerValue2[arraytoremovefrom] ){
+        if(scene.children[n].type!=="Scene"){
+          scene.children[n].userData.layerid=scene.children[n].userData.layerid-1;
+        }else{
+          for(var cs=0; cs<scene.children[n].children.length;cs++){
+            if(scene.children[n].children[cs].children.length>0){
+              scene.children[n].children[cs].children[0].userData.layerid = scene.children[n].children[cs].children[0].userData.layerid-1;
+            }else{
+            scene.children[n].children[cs].userData.layerid = scene.children[n].children[cs].userData.layerid-1; // 199 + (n - 5)  
+            }  
+          }//cn+=scene.children[n].children.length-1;
+        }
+      }else{
+        if(scene.children[n].type!=="Scene"&&scene.children[n].userData.layerid>layeridtochange){
+          scene.children[n].userData.layerid = scene.children[n].userData.layerid-1; // 199 + (n - 5)
+        }else{
+          for(var cs=0; cs<scene.children[n].children.length;cs++){
+            if(scene.children[n].children[cs].children.length>0&&scene.children[n].userData.layerid>layeridtochange){
+              scene.children[n].children[cs].children[0].userData.layerid =  scene.children[n].children[cs].children[0].userData.layerid-1;
+            }else if(scene.children[n].children[cs].children.length<=0&&scene.children[n].children[cs].userData.layerid>layeridtochange){
+            scene.children[n].children[cs].userData.layerid = scene.children[n].children[cs].userData.layerid-1; // 199 + (n - 5)  
+            }  
+          }//cn+=scene.children[n].children.length-1;
+        }
+      }
+    
+  }
 }
 }
+for(var i=0;i<integerValue2.length;i++){
+  if(obj.userData.layerid<integerValue2[i]){
+    integerValue2[i]=integerValue2[i]-1;
+    mrgbtnswildcararray[i]=mrgbtnswildcararray[i]-1;
+    mrgbtnsids[i]=mrgbtnsids[i]-1;
+  }
+}
+localStorage.setItem("id", JSON.stringify(mrgbtnswildcararray));
+localStorage.setItem("mrgbtnswildcararray", JSON.stringify(mrgbtnswildcararray));
 }
 
 
@@ -522,8 +848,17 @@ function addHistory(oldObjData , newObjData ) {
                 resetObject(oldObjData);
                 obj.position.copy( nowObj.position );
                 obj.scale.copy( nowObj.scale );
-               // obj.rotation._x.copy(nowObj.rotation.x);
-
+                const euler = new THREE.Euler(nowObj.rotation.x, nowObj.rotation.y, nowObj.rotation.z);
+                obj.rotation.copy(euler);
+                document.getElementById("x").value = transformControls.children[0].object.position.x;
+                document.getElementById("y").value = transformControls.children[0].object.position.y;
+                document.getElementById("z").value = transformControls.children[0].object.position.z;
+                document.getElementById("x_r").value = transformControls.children[0].object.rotation.x;
+                document.getElementById("y_r").value = transformControls.children[0].object.rotation.y;
+                document.getElementById("z_r").value = transformControls.children[0].object.rotation.z;
+                document.getElementById("x_s").value = transformControls.children[0].object.scale.x;
+                document.getElementById("y_s").value = transformControls.children[0].object.scale.y;
+                document.getElementById("z_s").value = transformControls.children[0].object.scale.z;
               }else{                
                 var check=true;         
 
@@ -538,7 +873,17 @@ function addHistory(oldObjData , newObjData ) {
                   resetObject(objdata);
                   obj.position.copy( nowObj.position );
                   obj.scale.copy( nowObj.scale );
-                  obj.rotation.copy( nowObj.rotation );
+                  const euler = new THREE.Euler(nowObj.rotation.x, nowObj.rotation.y, nowObj.rotation.z);
+                  obj.rotation.copy(euler);
+                  document.getElementById("x").value = transformControls.children[0].object.position.x;
+                  document.getElementById("y").value = transformControls.children[0].object.position.y;
+                  document.getElementById("z").value = transformControls.children[0].object.position.z;
+                  document.getElementById("x_r").value = transformControls.children[0].object.rotation.x;
+                  document.getElementById("y_r").value = transformControls.children[0].object.rotation.y;
+                  document.getElementById("z_r").value = transformControls.children[0].object.rotation.z;
+                  document.getElementById("x_s").value = transformControls.children[0].object.scale.x;
+                  document.getElementById("y_s").value = transformControls.children[0].object.scale.y;
+                  document.getElementById("z_s").value = transformControls.children[0].object.scale.z;                  
                   check=false;                
                 }
                   
@@ -551,7 +896,17 @@ function addHistory(oldObjData , newObjData ) {
                 resetObject(newObjData);
                 obj.position.copy( nowObj.position );
                 obj.scale.copy( nowObj.scale );
-                obj.rotation.copy( nowObj.rotation );  
+                const euler = new THREE.Euler(nowObj.rotation.x, nowObj.rotation.y, nowObj.rotation.z);
+                obj.rotation.copy(euler);
+                document.getElementById("x").value = transformControls.children[0].object.position.x;
+                document.getElementById("y").value = transformControls.children[0].object.position.y;
+                document.getElementById("z").value = transformControls.children[0].object.position.z;
+                document.getElementById("x_r").value = transformControls.children[0].object.rotation.x;
+                document.getElementById("y_r").value = transformControls.children[0].object.rotation.y;
+                document.getElementById("z_r").value = transformControls.children[0].object.rotation.z;
+                document.getElementById("x_s").value = transformControls.children[0].object.scale.x;
+                document.getElementById("y_s").value = transformControls.children[0].object.scale.y;
+                document.getElementById("z_s").value = transformControls.children[0].object.scale.z;
               }else{                
                 var check=true;         
 
@@ -566,8 +921,17 @@ function addHistory(oldObjData , newObjData ) {
                   resetObject(objdata);
                   obj.position.copy( nowObj.position );
                   obj.scale.copy( nowObj.scale );
-                  obj.rotation.copy( nowObj.rotation );
-
+                  const euler = new THREE.Euler(nowObj.rotation.x, nowObj.rotation.y, nowObj.rotation.z);
+                  obj.rotation.copy(euler);
+                  document.getElementById("x").value = transformControls.children[0].object.position.x;
+                  document.getElementById("y").value = transformControls.children[0].object.position.y;
+                  document.getElementById("z").value = transformControls.children[0].object.position.z;
+                  document.getElementById("x_r").value = transformControls.children[0].object.rotation.x;
+                  document.getElementById("y_r").value = transformControls.children[0].object.rotation.y;
+                  document.getElementById("z_r").value = transformControls.children[0].object.rotation.z;
+                  document.getElementById("x_s").value = transformControls.children[0].object.scale.x;
+                  document.getElementById("y_s").value = transformControls.children[0].object.scale.y;
+                  document.getElementById("z_s").value = transformControls.children[0].object.scale.z;
                   check=false;
                   }
               }
@@ -590,61 +954,93 @@ return nowObj;
 
 
 ///////////////////////////////////copy_paste/////////////////////////////////////////
-var i=0;
-export function cloning(){
-i++;
-scene.remove(transformControls);
+var i=0;var clonemeter=0;
 
+export function cloning(){
+  checkifthereismodel_tuc();
+  splitwhenload();
+i++;var chcklayer=0;
+scene.remove(transformControls);
   const objclone = obj.clone();
+  if(obj.parent.userData.objloaded===true){
+    objclone.userData.objloaded=true;
+  }
   objclone.position.copy(obj.position)
   objclone.scale.copy( obj.scale );
   objclone.rotation.copy(obj.rotation );
   objclone.castShadow=true;
   objclone.receiveShadow=true;
   objects.push(objclone);
+
+  
+  const uuidToclone = obj.uuid;
+  const arraytocloneto=obj.userData.catchmergebtn;
+  const indexToClone= individualMeshes.findIndex(item => item.uuid === uuidToclone);
+  if(arraytocloneto!==undefined){
+  var indexToClone2= array_of_arrays[arraytocloneto].findIndex(item => item.uuid === uuidToclone);
+  }
+  if (indexToClone !== -1) {
+    individualMeshes.push(objclone);
+  }
+  if (indexToClone2!==undefined&&indexToClone2 !== -1) {
+    array_of_arrays[arraytocloneto].push(objclone);
+  }
+  
   scene.add(objclone);
   objclone.userData.editable =true;
+  const elementsWithAttribute = document.querySelectorAll('[wildcard]');
   
-  if(lnt!=null){
+  elementsWithAttribute.forEach(element => {
+    chcklayer++;
+  });
+  objclone.userData.layerid=199+chcklayer;
+  if(obj.parent.type==="Object3D"){
     if(scene.children[scene.children.length-1]!=null){
     
       const layer_kiddo = document.createElement("button");
-      layer_kiddo.setAttribute('id', scene.children.length-1+lnt);
+      layer_kiddo.setAttribute('id',scene.children.length-1+chcklayer+nestedscenelength-clonemeter);
       layer_kiddo.setAttribute('class', "layer");
-      layer_kiddo.setAttribute("wildcard", scene.children[scene.children.length-1].id);
+      layer_kiddo.setAttribute("wildcard", objclone.userData.layerid);
       document.body.appendChild(layer_kiddo);
-      const node = document.getElementById(scene.children.length-1+lnt);
+      const node = document.getElementById(scene.children.length-1+chcklayer+nestedscenelength-clonemeter);
       document.getElementById("layers").appendChild(node);
-      document.getElementById(scene.children.length-1+lnt).innerHTML = scene.children[scene.children.length-1].userData.name;
+      document.getElementById(scene.children.length-1+chcklayer+nestedscenelength-clonemeter).innerHTML = scene.children[scene.children.length-1].userData.name;
     
     }
+chcklayer=0;
+clonemeter++;
 }else{
-  if(scene.children[scene.children.length-1]!=null){
+    if(scene.children[scene.children.length-1]!=null){
     
-    const layer_kiddo = document.createElement("button");
-    layer_kiddo.setAttribute('id', scene.children.length-1);
-    layer_kiddo.setAttribute('class', "layer");
-    layer_kiddo.setAttribute("wildcard", scene.children[scene.children.length-1].id);
-    document.body.appendChild(layer_kiddo);
-    const node = document.getElementById(scene.children.length-1);
-    document.getElementById("layers").appendChild(node);
-    document.getElementById(scene.children.length-1).innerHTML = scene.children[scene.children.length-1].userData.name;
-  
-  }
+      const layer_kiddo = document.createElement("button");
+      layer_kiddo.setAttribute('id',scene.children.length-1+lnt+nestedscenelength+howmanymergedbtns);
+      layer_kiddo.setAttribute('class', "layer");
+      layer_kiddo.setAttribute("wildcard", objclone.userData.layerid);
+      document.body.appendChild(layer_kiddo);
+      const node = document.getElementById(scene.children.length-1+lnt+nestedscenelength+howmanymergedbtns);
+      document.getElementById("layers").appendChild(node);
+      if(scene.children[scene.children.length-1].userData.name!==undefined){
+      document.getElementById(scene.children.length-1+lnt+nestedscenelength+howmanymergedbtns).innerHTML = scene.children[scene.children.length-1].userData.name;
+      }else{
+        document.getElementById(scene.children.length-1+lnt+nestedscenelength+howmanymergedbtns).innerHTML = scene.children[scene.children.length-1].name;
+      }
+    }
+chcklayer=0;
 }
-checkthewildcards2();
+
 }
 export var uploaded_image;
-
+export var imgname;
 const image_input = document.querySelector("#image-input");
 image_input.addEventListener("change", function() {
   const reader = new FileReader();
   reader.addEventListener("load", () => {
     uploaded_image = reader.result;
 
-    document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
+   //document.querySelector("#uploadimage").style.backgroundImage = `url(${uploaded_image})`;
     
   });
+  imgname=this.files[0].name;
   reader.readAsDataURL(this.files[0]); //read contents of the file
 ////for obj textures///////////// edw kalytera na stelnw to up adi to uploaded image
 //var up = URL.createObjectURL(this.files[0]);  
@@ -789,41 +1185,27 @@ water.name="Water";
   water.scale.z=scl[2]
 
           scene.add( water );
-  
+  pos=[];
+  rot=[];
+  scl=[];
           const waterUniforms = water.material.uniforms;
           waterUniforms[ 'size' ].value = 10;
 //check=false;
       }
-      if(lnt!=null){
 
         if(scene.children[scene.children.length-1]!=null){
           scene.remove(transformControls);
 
           const layer = document.createElement("button");
-          layer.setAttribute('id', scene.children.length-1+lnt);
+          layer.setAttribute('id', scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
           layer.setAttribute('class', "layer");
-          layer.setAttribute("name", scene.children[scene.children.length-1].id);
-
+          layer.setAttribute("wildcard", scene.children[scene.children.length-1].id+nestedscenelength);
           document.body.appendChild(layer);
-          const node = document.getElementById(scene.children.length-1+lnt);
+          const node = document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength);
           document.getElementById("layers").appendChild(node);
-          document.getElementById(scene.children.length-1+lnt).innerHTML = water.name;
+          document.getElementById(scene.children.length-1+howmanymergedbtns+lnt+nestedscenelength).innerHTML = water.name;
         }
-        }else{
-
-          if(scene.children[scene.children.length-1]!=null){
-    scene.remove(transformControls);
-            const layer = document.createElement("button");
-            layer.setAttribute('id', scene.children.length-1);
-            layer.setAttribute('class', "layer");
-            layer.setAttribute("name", scene.children[scene.children.length-1].id);
-
-            document.body.appendChild(layer);
-            const node = document.getElementById(scene.children.length-1);
-            document.getElementById("layers").appendChild(node);
-            document.getElementById(scene.children.length-1).innerHTML = water.name;
-        }
-      }
+checkthewildcards();
     }
 				// Skybox
 
@@ -904,11 +1286,11 @@ water.name="Water";
 				//
 
 ///////////////////layers//////////////////////
-
+var flag;
 var btn_layer = document.getElementById('layers');
 btn_layer.addEventListener('click', function(event) { scene.add(transformControls);
 console.log(event.target);
-if(lnt===null){
+/*if(lnt===null){
   if(event.target.id>scene.children.length-3 && scene.children[scene.children.length-2].children.length>1){
     if(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)].type==="Object3D"){
     transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)].children[0]);
@@ -931,7 +1313,19 @@ obj=scene.children[event.target.id];
   obj=scene.children[event.target.id].children[0]
 
 }}
-}else{
+}else{*//*
+ flag=true;
+for(var kk=5;kk<scene.children.length-1;kk++){
+  if(scene.children[kk].children.length>1&&event.target.id<scene.children.length-2+scene.children[kk].children.length&&scene.children[kk].children[0].parent.uuid===scene.children[kk].children[event.target.id-lnt].parent.uuid){
+    transformControls.attach(scene.children[kk].children[event.target.id-(kk)-lnt]);
+    obj=null;
+    obj=scene.children[kk].children[event.target.id-(kk)-lnt];
+    flag=false;
+
+  }
+}
+  if(flag!=="false"){
+
   if(event.target.id>scene.children.length-3 && scene.children[scene.children.length-2].children.length>1){
     if(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt].type==="Object3D"){
     transformControls.attach(scene.children[scene.children.length-2].children[event.target.id-(scene.children.length-2)-lnt].children[0]);
@@ -944,7 +1338,7 @@ obj=scene.children[event.target.id];
 
     }
   }else{
-  if(scene.children[event.target.id-lnt].type!="Scene"){
+  if(scene.children[event.target.id-lnt].type!=="Scene"){
     transformControls.attach(scene.children[event.target.id-lnt]);
     obj=null;
     obj=scene.children[event.target.id-lnt];
@@ -955,5 +1349,52 @@ obj=scene.children[event.target.id];
       obj=scene.children[event.target.id-lnt].children[0];
     }
 }
-}
+  }*/
+  var atValue = event.target.getAttribute('wildcard');
+
+  var atValueNum=parseInt(atValue, 10)
+  scene.traverse( function( object) {
+					if (atValueNum===object.userData.layerid)
+          {
+            if (object.userData.merged !== undefined){
+              transformControls.setMode('translate');
+            }
+            transformControls.attach(object);
+            obj=null;
+            obj=object;
+            if(obj.userData.intersectionPoint===undefined){
+            transformControls.position.set(0, 0, 0);
+            if(obj.name!==''&&obj.userData.name===undefined){
+              document.getElementById("uuid1").innerHTML = obj.name;}else{ document.getElementById("uuid1").innerHTML = obj.userData.name;}
+              document.getElementById("x").value = obj.position.x;
+              document.getElementById("y").value = obj.position.y;
+              document.getElementById("z").value = obj.position.z;
+              document.getElementById("x_r").value = obj.rotation.x;
+              document.getElementById("y_r").value = obj.rotation.y;
+              document.getElementById("z_r").value = obj.rotation.z;
+              document.getElementById("x_s").value = obj.scale.x;
+              document.getElementById("y_s").value = obj.scale.y;
+              document.getElementById("z_s").value = obj.scale.z;
+          }else{
+            if (object.userData.merged !== undefined){
+              transformControls.setMode('translate');
+            }
+            const intersectionPoint = obj.userData.intersectionPoint;
+            transformControls.position.copy(intersectionPoint);
+            if(obj.name!==''&&obj.userData.name===undefined){
+              document.getElementById("uuid1").innerHTML = obj.name;}else{ document.getElementById("uuid1").innerHTML = obj.userData.name;}
+              document.getElementById("x").value = obj.position.x;
+              document.getElementById("y").value = obj.position.y;
+              document.getElementById("z").value = obj.position.z;
+              document.getElementById("x_r").value = obj.rotation.x;
+              document.getElementById("y_r").value = obj.rotation.y;
+              document.getElementById("z_r").value = obj.rotation.z;
+              document.getElementById("x_s").value = obj.scale.x;
+              document.getElementById("y_s").value = obj.scale.y;
+              document.getElementById("z_s").value = obj.scale.z;
+          }
+          }
+        } );
+//}
 });
+
