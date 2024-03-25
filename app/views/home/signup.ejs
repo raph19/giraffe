@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet"href="css/main.css">  
+    <script src="https://giraffe-design-tt8d.onrender.com/js/signup.js" type="module"></script>   
     <script src="https://giraffe-design-tt8d.onrender.com/js/socket.io.js"></script> 
 
 </head>
@@ -32,26 +33,30 @@
             <form class="form-signup forms" method="POST" action="/signup"> <!-- post is send data to the server ~~ http verb -->
                 <div class="input-group">
                     <span class="input-group-addon" id="basic-addon1">@</span>
-                    <input type="text" class="form-control" placeholder="Username" name="username" aria-describedby="basic-addon1">
+                    <input type="text" id="username" class="form-control" placeholder="Username" name="username" aria-describedby="basic-addon1">
+                    <div id="username-error"></div>
                 </div>
                 <br />
                 <div class="input-group">
                     <span class="input-group-addon" id="basic-addon1">@</span>
-                    <input type="email" class="form-control" placeholder="Email address" name="email"
-                        aria-describedby="basic-addon1">
+                    <input type="email" id="mail" class="form-control" placeholder="Email address" name="email"
+                        aria-describedby="basic-addon1">                    
+                        <div id="email-error"></div>
                 </div>
                 <br />
                 <div class="input-group">
                     <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock"
                             aria-hidden="true"></span></span>
-                    <input type="password" name="password" class="form-control" placeholder="Password" aria-describedby="basic-addon1">
+                    <input type="password" id="pass" name="password" class="form-control" placeholder="Password" aria-describedby="basic-addon1">
+                    <div id="pass-error"></div>
                 </div>
                 <br />
                 <div class="input-group">
                     <span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-lock"
                             aria-hidden="true"></span></span>
-                    <input type="password" class="form-control" placeholder="Re-password"
+                    <input type="password" id="repass" class="form-control" placeholder="Re-password"
                         aria-describedby="basic-addon1" name="repassword">
+                        <div id="repass-error"></div>
                 </div>
  
                 <input type="submit" class="btn btn-default navbar-btn signup" value="Sign Up" /> <!--when we hit submit the form is gonna trigger and send data to  our route-->
