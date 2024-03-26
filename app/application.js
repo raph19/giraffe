@@ -46,7 +46,7 @@ mongoose.connect(params.DATABASECONNECTION, function (err, database) {
      server.listen(3000,function(){
         console.log("Server started on port " + app.get("port"));    //when it starts listen 
     })       
-    }
+    
  const collection = db.collection(COLLECTION_NAME);
 collection.find({}, { projection: { username: 1 } }).toArray()
 .then(usernames => {
