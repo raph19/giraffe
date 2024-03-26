@@ -6,7 +6,7 @@ import{objects,geometry,splitwhenload,checkifthereismodel,checkifthereismodel_tu
 import{scene}from"./scene.js";
 import{render}from"./render.js";
 import { GLTFLoader } from "./GLTFLoader.js";
-import {initcenter,arrayOfZeros,mrgbtnswildcararray, integerValue2,chck,howmany,uploaded,uploaded_obj,uploadedmtl,mtlLoader,loader2,gltf_model_counter_signal,obj_model_counter_signal,addids2,project_name,scnchldrn2,scnobjs2,checkthewildcards3,innerHtmlArray,lnt,elementWithInnerHTMLExists,nestedscenelength,scnchldrn,functoupdatescnchldrnlentgh_teams,individualMeshes,array_of_arrays,individualMeshes2,array_of_arrays2} from "./imp-exp.js";
+import {initcenter,arrayOfZeros,mrgbtnswildcararray, integerValue2,chck,howmany,uploaded,uploaded_obj,uploadedmtl,mtlLoader,loader2,gltf_model_counter_signal,obj_model_counter_signal,addids2,project_name,scnchldrn2,scnobjs2,checkthewildcards3,innerHtmlArray,lnt,elementWithInnerHTMLExists,nestedscenelength,scnchldrn,functoupdatescnchldrnlentgh_teams,individualMeshes,array_of_arrays,individualMeshes2,array_of_arrays2, up_text} from "./imp-exp.js";
 let user_username;
 var lastonline=[];
 var team_id;
@@ -28,7 +28,7 @@ function closePopup() {
 }
 //layer_array_room=[];
 
-let socket = io.connect('https://giraffe-design-tt8d.onrender.com', {
+let socket = io.connect('https://localhost:3000', {
   query: {
     isFirstConnection_onRoom: isFirstConnection_onRoom.toString(),         
   },
@@ -535,6 +535,24 @@ Object.keys(window).forEach(key => {
               alert(err);
             }
           });
+        }else if(event.type==='click' && event.target.id==='texture' && up_text!=null){
+          
+        const blob = new Blob([up_text], {type: 'text/plain'});
+        for (var i=0;i<objects.length;i++){
+          if(obj.uuid===objects[i].uuid){
+           var count11=i;
+            break;
+          }
+        }
+        var datas={
+            blob:blob,
+            object:count11
+        };
+            socket.emit('startGame11',datas, (err) => {
+              if (err) {
+                alert(err);
+              }
+            });
         } else if(event.type==='click' && event.target.id==='image' && uploaded_image!=null){
 
                 /*var byteArray = new Uint8Array(uploaded_image.length);
@@ -2522,3 +2540,34 @@ socket.on('broadcastedData', function (storedData) {  document.getElementById('p
 })
 document.getElementById('popupContainer').style.display = 'none';
 });
+
+socket.on('startGame11', (arg) => {
+  var url1 = arrayBufferToBase64_11(arg.blob);
+  var loader3 = new THREE.TextureLoader();
+  loader3.load(url1,
+    function (texture) {
+      // Create the material when the texture is loaded
+      objects[arg.object].material = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.DoubleSide
+      });
+    },
+    // onProgress callback currently not supported
+    undefined,
+    // onError callback
+    function (err) {
+      console.error('An error happened while loading the texture:', err);
+    }
+  );
+});
+
+// Function to convert ArrayBuffer to base64
+function arrayBufferToBase64_11(smthng) {
+  var binary = '';
+  var bytes = new Uint8Array(smthng);
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return 'data:image/png;base64,' + btoa(binary);
+}
