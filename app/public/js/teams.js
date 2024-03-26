@@ -28,7 +28,7 @@ function closePopup() {
 }
 //layer_array_room=[];
 
-let socket = io.connect('https://localhost:3000', {
+let socket = io.connect('https://giraffe-design-tt8d.onrender.com', {
   query: {
     isFirstConnection_onRoom: isFirstConnection_onRoom.toString(),         
   },
