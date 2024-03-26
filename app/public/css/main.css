@@ -495,7 +495,7 @@ color: #fff;}
   }
 
   .panel.panel-default {
-    height: 40%;
+    height: 45%;
 }
 
 .login_btn{
@@ -524,7 +524,7 @@ a {
   padding-bottom: 6px;
   padding-right: 4px;
   position: relative;
-  top: -12px;
+  top: 17px;
 }
 
 
@@ -552,11 +552,12 @@ form.form-signup {
 
 
 input.btn.btn-default.navbar-btn.signup {
-  margin-top: 34px;
+  margin-top: 25px;
   margin-bottom: 0px;    height: 100%;
   color: white;
   background-color: #00000000;
-
+position:relative;
+    top:6px;
 }
 
 input.btn.btn-default.navbar-btn.signup:hover {
@@ -581,7 +582,7 @@ input.btn.btn-default.navbar-btn.signinbtn {
   color: white;
   background-color: #00000000;
     position: relative;
-    top: -12px;
+    top: 17px;
 }
 
 input.btn.btn-default.navbar-btn.signinbtn:hover {
