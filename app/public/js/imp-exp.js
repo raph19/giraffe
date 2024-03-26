@@ -58,7 +58,7 @@ export function functoupdatescnchldrnlentgh_teams(){
 let isFirstConnection = localStorage.getItem('isFirstConnection') === 'true'; // assign isFirstConnection value from localStorage to isFirstConnection variable
 
 var user_username;
-export let socket_editor = io.connect(https://giraffe-design-tt8d.onrender.com, {
+export let socket_editor = io.connect('https://giraffe-design-tt8d.onrender.com', {
   query: {
     isFirstConnection: isFirstConnection.toString(),                          // set query parameter to the value of isFirstConnection to use it on server 
   },
