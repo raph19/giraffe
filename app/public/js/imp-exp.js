@@ -47,6 +47,8 @@ export let mrgbtnsids=[];
 var layer_array=[];
 export var initcenter=[];
 var cndr=0;
+const usersurl = getCurrentURL();
+
 export function functoupdatescnchldrnlentgh_teams(){
   if(scene.children[scene.children.length-1].children.length>1){
     var count_scene_children=scene.children[scene.children.length-1].children.length;
@@ -57,7 +59,7 @@ export function functoupdatescnchldrnlentgh_teams(){
 let isFirstConnection = localStorage.getItem('isFirstConnection') === 'true'; // assign isFirstConnection value from localStorage to isFirstConnection variable
 
 var user_username;
-export let socket_editor = io.connect('https://giraffe-design-tt8d.onrender.com', {
+export let socket_editor = io.connect(usersurl, {
   query: {
     isFirstConnection: isFirstConnection.toString(),                          // set query parameter to the value of isFirstConnection to use it on server 
   },
@@ -67,7 +69,6 @@ function getCurrentURL() {
   return window.location.href;
 }
 
-const usersurl = getCurrentURL();
 
 function extractBaseURL(url) {
   var urlObj = new URL(url);
