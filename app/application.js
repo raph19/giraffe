@@ -23,7 +23,11 @@ const { ObjectId } = require('mongodb');
 const http = require('http');
 var app = express();                                      //adding to app variable the express application
 const server = http.createServer(app); // Create an HTTP server using the express app
+let existingUsernames = []; // Array to store existing usernames
+let existingemails = []; // Array to store existing emails
 
+let existingUsernames2 = [];
+let existingemails2 = [];
 /*const https = require('https').createServer( {
  key: fs.readFileSync(path.join(__dirname,'certificates','key.pem')),
  cert:fs.readFileSync(path.join(__dirname,'certificates','certificate.pem'))
