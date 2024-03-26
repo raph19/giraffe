@@ -523,6 +523,8 @@ a {
   align-items: end;
   padding-bottom: 6px;
   padding-right: 4px;
+  position: relative;
+  top: -12px;
 }
 
 
@@ -578,6 +580,8 @@ input.form-control.login-control {
 input.btn.btn-default.navbar-btn.signinbtn {
   color: white;
   background-color: #00000000;
+    position: relative;
+    top: -12px;
 }
 
 input.btn.btn-default.navbar-btn.signinbtn:hover {
