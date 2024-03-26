@@ -606,7 +606,7 @@ input.btn.btn-default.navbar-btn.signinbtn:focus {
     width: 10.75%;
     position: absolute;
     left: 0;
-    top: 13.4%;
+    top: 15.6%;
     height: 27%;
     backdrop-filter: blur(10px);
     padding-left: 5px;
@@ -751,6 +751,8 @@ padding-left: 10px;
 #join_room {
 border: none;
 background-color: #00000000;
+    position: relative;
+    top: 27px;
 }
 
   #bottom_box{
@@ -759,9 +761,10 @@ background-color: #00000000;
     width: 10.75%;
     position: absolute;
     left: 0;
-    top: 40.3%;
+    top: 42.5%;
     height: 27%;
     backdrop-filter: blur(10px);
+          z-index: 99;
   }
   input#form {
     background-color: #29496887;
