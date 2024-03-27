@@ -487,8 +487,8 @@ var welcome_page_objects = [];
 
   In_Texture.setAttribute('id', "texture-input");
   In_Texture.setAttribute('accept', "image/jpeg, image/png, image/jpg, image/gif");
-  In_Texture.style.top = '88.4%';
-  In_Texture.style.left = '25%';
+  In_Texture.style.top = '89.4%';
+  In_Texture.style.left = '27%';
   document.getElementById("welcome_box").appendChild(In_Texture);
 
   var divIn_Texture= document.createElement("div");
