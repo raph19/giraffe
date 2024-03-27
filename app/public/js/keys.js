@@ -9,16 +9,16 @@ let togl=true;
 var newobj;
 window.addEventListener('keydown', function (event) {
 switch (event.key.toLowerCase()) {
-    case 'T':
+    case 't':
             if (event.shiftKey) {
         transformControls.setMode('translate')
         break}
-    case 'R':
+    case 'r':
         if (event.shiftKey) {
         if (obj.userData.merged === undefined)
         transformControls.setMode('rotate')
         break}
-    case 'S':
+    case 's':
         if (event.shiftKey) {
         if (obj.userData.merged === undefined)
         transformControls.setMode('scale')
@@ -42,11 +42,11 @@ switch (event.key.toLowerCase()) {
             editorHistory.redo();
             break}
 
-        case 'C': if(event.shiftKey) {
+        case 'c': if(event.shiftKey) {
          cloning();
             break}
 
-            case'D': if(event.shiftKey) {
+            case'd': if(event.shiftKey) {
             removeobj();
             break}
                 /*case'`':
