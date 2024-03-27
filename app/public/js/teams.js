@@ -509,7 +509,7 @@ Object.keys(window).forEach(key => {
   }
             
           })
-        }else if(event.type === 'keydown' && event.shiftKey && event.key === 'D') {
+        }else if(event.type === 'keydown' && event.shiftKey && (event.key === 'D' || event.key === 'd')) {
       
           for (var i=0;i<objects.length;i++){
             if(obj.uuid===objects[i].uuid){
@@ -522,7 +522,7 @@ Object.keys(window).forEach(key => {
               alert(err);
             }
           });
-        }else if(event.type === 'keydown' && event.shiftKey && event.key === 'C') {
+        }else if(event.type === 'keydown' && event.shiftKey && (event.key === 'C' || event.key === 'c')) {
       
           for (var i=0;i<objects.length;i++){
             if(obj.uuid===objects[i].uuid){
