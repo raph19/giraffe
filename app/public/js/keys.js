@@ -8,26 +8,22 @@ export function keys(){
 let togl=true;             
 var newobj;
 window.addEventListener('keydown', function (event) {
-switch (event.key) {
-    case 'T':
+switch (event.key.toLowerCase()) {
     case 't':
-            if (event.shiftKey) {
+            if (event.key.toLowerCase() === 't' && event.shiftKey) {
         transformControls.setMode('translate')
         break}
-    case 'R':
     case 'r':
-        if (event.shiftKey) {
+        if (event.key.toLowerCase() === 'r' && event.shiftKey) {
         if (obj.userData.merged === undefined)
         transformControls.setMode('rotate')
         break}
-    case 'S':
     case 's':
-        if (event.shiftKey) {
+        if (event.key.toLowerCase() === 's' && event.shiftKey) {
         if (obj.userData.merged === undefined)
         transformControls.setMode('scale')
         break}
-    case 'Z':
-        case 'z': if (event.ctrlKey) {
+        case 'z': if (event.key.toLowerCase() === 'z' && event.ctrlKey) {
             /*if(newObjData==null){
                 objects.pop(obj);
                 scene.remove(obj);
@@ -42,16 +38,13 @@ switch (event.key) {
         
             //obj.position.set()
         break}
-    case 'Y':
-        case 'y':if (event.ctrlKey) {
+        case 'y':if (event.key.toLowerCase() === 'y' && event.ctrlKey) {
             editorHistory.redo();
             break}
-        case 'C':
-        case 'c': if(event.shiftKey) {
+        case 'c': if(event.key.toLowerCase() === 'c' && event.shiftKey) {
          cloning();
             break}
-            case'D'
-            case'd': if(event.shiftKey) {
+            case'd': if(event.key.toLowerCase() === 'd' && event.shiftKey) {
             removeobj();
             break}
                 /*case'`':
