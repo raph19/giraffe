@@ -495,7 +495,7 @@ color: #fff;}
   }
 
   .panel.panel-default {
-    height: 45%;
+    height: 42%;
 }
 
 .login_btn{
@@ -523,8 +523,6 @@ a {
   align-items: end;
   padding-bottom: 6px;
   padding-right: 4px;
-  position: relative;
-  top: 17px;
 }
 
 
@@ -538,7 +536,7 @@ span#basic-addon1 {
 }
 
 .panel.panel-default.sign {
-  height: 54%;
+  height: 56%;
 }
 
 form.form-signup {
@@ -557,7 +555,7 @@ input.btn.btn-default.navbar-btn.signup {
   color: white;
   background-color: #00000000;
 position:relative;
-    top:6px;
+    top:5px;
 }
 
 input.btn.btn-default.navbar-btn.signup:hover {
@@ -581,8 +579,6 @@ input.form-control.login-control {
 input.btn.btn-default.navbar-btn.signinbtn {
   color: white;
   background-color: #00000000;
-    position: relative;
-    top: 17px;
 }
 
 input.btn.btn-default.navbar-btn.signinbtn:hover {
