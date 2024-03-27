@@ -8,7 +8,7 @@ export function keys(){
 let togl=true;             
 var newobj;
 window.addEventListener('keydown', function (event) {
-switch (event.key.toLowerCase()) {
+switch (event.key) {
     case 'T':
     case 't':
             if (event.shiftKey) {
