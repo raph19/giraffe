@@ -604,7 +604,7 @@ input.btn.btn-default.navbar-btn.signinbtn:focus {
     position: absolute;
     left: 0;
     top: 15.6%;
-    height: 27%;
+    height: 30%;
     backdrop-filter: blur(10px);
     padding-left: 5px;
 
@@ -909,7 +909,7 @@ columns: white!important;
   button#share {
     border: none;
     position: fixed;
-    top: 37.5%;
+    top: 42.5%;
     left: 7.5%;
     background: #00000000;
     z-index: 100;
