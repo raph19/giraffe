@@ -506,7 +506,7 @@ function isIterable(obj) {  //function to check if object is iterable
 /////////////////////////////////////
 if (document.getElementById("bottom_box") != null){
   document.getElementById("share").style.visibility="visible";
-  document.getElementById("share").style.top = "64%";
+  document.getElementById("share").style.top = "66.7%";
   document.getElementById("share").style.left = "7.57%";
 }else{
   if (document.getElementById("share") != null){
