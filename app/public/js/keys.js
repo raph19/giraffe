@@ -8,7 +8,7 @@ export function keys(){
 let togl=true;             
 var newobj;
 window.addEventListener('keydown', function (event) {
-switch (event.key) {
+switch (event.key.toUpperCase()) {
     case 'T':
             if (event.shiftKey) {
         transformControls.setMode('translate')
