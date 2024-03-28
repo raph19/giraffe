@@ -2046,7 +2046,7 @@ btn_save2.addEventListener('click', function(e) { if (document.getElementById('t
     document.body.appendChild(teamstocolaborateDiv);
     document.getElementById("join_room").onclick=function(){myFunction7();};
     document.getElementById("share").style.visibility = 'visible';
-    document.getElementById("share").style.top = '66.5%';
+    document.getElementById("share").style.top = '66.7%';
     document.getElementById("share").style.left = '7.57%';  }
       // Create or append buttons for each team
       var teamContainer = document.getElementById('teamstocolaborate');
