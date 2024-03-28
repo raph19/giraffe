@@ -40,8 +40,9 @@ socket.on('connect', function() {
   socket.emit('home', homeurl);
 
 }); 
-
+if(document.getElementById("moon_home")!==null){
 document.getElementById("moon_home").onclick = function() {darkmode()};
+}
 function darkmode(){
   document.body.classList.toggle("night_mode");
   if( document.getElementsByClassName("night_mode").length > 0 ) {
