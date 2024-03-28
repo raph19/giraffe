@@ -11,19 +11,19 @@ window.addEventListener('keydown', function (event) {
 switch (event.key.toUpperCase()) {
     case 'T':
             if (event.shiftKey) {
-        transformControls.setMode('translate')
-        break}
+        transformControls.setMode('translate')}
+        break;
     case 'R':
         if (event.shiftKey) {
         if (obj.userData.merged === undefined)
-        transformControls.setMode('rotate')
-        break}
+        transformControls.setMode('rotate')}
+        break;
     case 'S':
         if (event.shiftKey) {
         if (obj.userData.merged === undefined)
-        transformControls.setMode('scale')
-        break}
-        case 'z': if (event.ctrlKey) {
+        transformControls.setMode('scale')}
+        break;
+        case 'Z': if (event.ctrlKey) {
             /*if(newObjData==null){
                 objects.pop(obj);
                 scene.remove(obj);
@@ -32,21 +32,21 @@ switch (event.key.toUpperCase()) {
 
             }else{ */
              
-            editorHistory.undo();
+            editorHistory.undo();}
            
         //}
         
             //obj.position.set()
-        break}
-        case 'y':if (event.ctrlKey) {
+        break;
+        case 'Y':if (event.ctrlKey) {
             editorHistory.redo();
             break}
         case 'C': if(event.shiftKey) {
-         cloning();
-            break}
+         cloning();}
+            break;
             case'D': if(event.shiftKey) {
-            removeobj();
-            break}
+            removeobj();}
+            break;
                 /*case'`':
         if(togl){
                     document.getElementById('view1').style.width="100%";
