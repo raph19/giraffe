@@ -2,176 +2,376 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Budget Estimate Calculator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EPC Project Budget Estimator</title>
 
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 
-    <style>
-        body {
-            background: #f4f6f9;
-            font-family: Arial, sans-serif;
-            color: #333;
-        }
+<style>
+:root {
+    --navy: #173b57;
+    --blue: #246b91;
+    --teal: #249b91;
+    --background: #f3f6fa;
+    --border: #e4eaf0;
+    --text: #263746;
+    --muted: #718096;
+}
 
-        .welcome {
-            background: linear-gradient(120deg, #174b70, #278c91);
-            color: white;
-            padding: 35px 15px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        .welcome h2 {
-            margin: 0 0 10px;
-            font-weight: bold;
-        }
+body {
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
 
-        .main-container {
-            max-width: 1100px;
-            margin: auto;
-            padding: 0 15px 40px;
-        }
+.header {
+    background: linear-gradient(120deg, #14344f, #246b91);
+    color: white;
+    padding: 35px 20px;
+}
 
-        .panel-box {
-            background: white;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.07);
-        }
+.header-inner {
+    max-width: 1050px;
+    margin: auto;
+}
 
-        .panel-box h3 {
-            color: #174b70;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
+.header h1 {
+    font-size: 29px;
+    font-weight: 700;
+    margin: 0 0 9px;
+}
 
-        .form-control {
-            height: 40px;
-        }
+.header p {
+    margin: 0;
+    color: #dceaf2;
+    font-size: 14px;
+}
 
-        .btn-calculate {
-            background: #174b70;
-            color: white;
-            border: none;
-            padding: 12px 35px;
-            font-size: 16px;
-            border-radius: 4px;
-        }
+.header-label {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: rgba(255,255,255,.13);
+    padding: 6px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+}
 
-        .btn-calculate:hover {
-            background: #236b91;
-            color: white;
-        }
+.main-container {
+    max-width: 1050px;
+    margin: 30px auto;
+    padding: 0 15px 40px;
+}
 
-        .results {
-            display: none;
-        }
+.panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 26px;
+    margin-bottom: 22px;
+    box-shadow: 0 3px 12px rgba(25,55,80,.04);
+}
 
-        .summary {
-            background: #eaf3f7;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
+.section-title {
+    color: var(--navy);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 7px;
+}
 
-        .summary h2 {
-            color: #174b70;
-            font-weight: bold;
-            margin: 5px 0;
-        }
+.section-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 23px;
+}
 
-        .summary-item {
-            padding: 12px;
-            background: white;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
+.form-group {
+    margin-bottom: 20px;
+}
 
-        .summary-item strong {
-            display: block;
-            color: #174b70;
-            font-size: 18px;
-            margin-top: 7px;
-        }
+label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #405466;
+    margin-bottom: 8px;
+}
 
-        .table th {
-            background: #174b70;
-            color: white;
-        }
+.form-control {
+    height: 44px;
+    border: 1px solid #dce4eb;
+    border-radius: 6px;
+    box-shadow: none;
+    font-size: 14px;
+}
 
-        .table td, .table th {
-            vertical-align: middle !important;
-        }
+.form-control:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(36,107,145,.10);
+}
 
-        .total-row {
-            background: #eaf3f7;
-            font-weight: bold;
-        }
+.form-control::placeholder {
+    color: #a5b0ba;
+}
 
-        .note {
-            color: #777;
-            font-size: 12px;
-            margin-top: 12px;
-        }
+.button-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+}
 
-        .hidden-option {
-            display: none;
-        }
+.btn-primary-custom {
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 25px;
+    font-weight: 600;
+}
 
-        @media print {
-            .btn-calculate, #calculateButton, .no-print {
-                display: none !important;
-            }
+.btn-primary-custom:hover,
+.btn-primary-custom:focus {
+    background: var(--blue);
+    color: white;
+}
 
-            body {
-                background: white;
-            }
+.btn-secondary-custom {
+    background: white;
+    color: #536779;
+    border: 1px solid #dce4eb;
+    border-radius: 6px;
+    padding: 12px 20px;
+}
 
-            .panel-box {
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
+.btn-secondary-custom:hover {
+    background: #f4f7fa;
+}
 
-            .results {
-                display: block !important;
-            }
-        }
-    </style>
+#results {
+    display: none;
+}
+
+.result-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.status-label {
+    color: #21816d;
+    background: #e7f5f0;
+    border-radius: 20px;
+    padding: 6px 11px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 13px;
+}
+
+.summary-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 15px;
+    background: #fff;
+    min-width: 0;
+}
+
+.summary-card .card-label {
+    color: var(--muted);
+    font-size: 12px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.summary-card .card-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--navy);
+    word-break: break-word;
+}
+
+.summary-card.profit-card {
+    background: #f0f8f4;
+    border-color: #d8ede1;
+}
+
+.summary-card.profit-card .card-value {
+    color: #21805a;
+}
+
+.selling-price {
+    background: linear-gradient(110deg, #173b57, #246b91);
+    color: white;
+    border-radius: 9px;
+    padding: 25px;
+    margin-top: 16px;
+    text-align: center;
+}
+
+.selling-price .label-text {
+    font-size: 13px;
+    color: #dceaf2;
+}
+
+.selling-price .price {
+    font-size: 34px;
+    font-weight: 700;
+    margin-top: 8px;
+    word-break: break-word;
+}
+
+.selling-price .description {
+    font-size: 12px;
+    color: #dceaf2;
+    margin-top: 5px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background: #f0f4f8;
+    color: #405466;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+.table td {
+    font-size: 13px;
+    vertical-align: middle !important;
+}
+
+.table .total-row {
+    font-weight: 700;
+    background: #f0f5f8;
+    color: var(--navy);
+}
+
+.project-info {
+    background: #f6f8fb;
+    padding: 15px;
+    border-radius: 7px;
+    margin-top: 18px;
+    color: #536779;
+    font-size: 13px;
+}
+
+.assumption {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 15px;
+}
+
+.footer {
+    text-align: center;
+    color: #8a98a5;
+    font-size: 12px;
+    padding: 15px;
+}
+
+@media (max-width: 767px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .panel {
+        padding: 19px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+
+    .selling-price .price {
+        font-size: 27px;
+    }
+}
+
+@media print {
+    body {
+        background: white;
+    }
+
+    .header {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    #results {
+        display: block !important;
+    }
+
+    .panel {
+        box-shadow: none;
+        break-inside: avoid;
+    }
+
+    .selling-price {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<section class="welcome">
-    <h2>Budget Estimate Calculator</h2>
-    <p>Preliminary EPC cost estimation for Solar PV, BESS and Data Center projects</p>
-</section>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-label">Project Management & Cost Control</div>
+        <h1>EPC Project Budget Estimator</h1>
+        <p>Preliminary cost estimation and EPC selling price calculation</p>
+    </div>
+</header>
 
 <div class="main-container">
 
-    <div class="panel-box">
-        <h3>Project Information</h3>
+    <div class="panel">
+        <h3 class="section-title">Project Information</h3>
+        <p class="section-subtitle">
+            Enter your project details to generate an indicative EPC budget.
+        </p>
 
         <div class="row">
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Country</label>
-                    <select id="country" class="form-control"></select>
+                    <label for="country">Project Country *</label>
+                    <select id="country" class="form-control">
+                        <option value="">Select country</option>
+                    </select>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Project Type</label>
+                    <label for="projectType">Project Type *</label>
                     <select id="projectType" class="form-control">
+                        <option value="">Select project type</option>
                         <option value="solar">Solar PV</option>
-                        <option value="bess">BESS</option>
+                        <option value="bess">Battery Energy Storage (BESS)</option>
                         <option value="datacenter">Data Center</option>
                     </select>
                 </div>
@@ -179,271 +379,192 @@
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Project Capacity (MW)</label>
-                    <input type="number" id="capacity" class="form-control"
-                           min="0.1" step="0.1" value="10">
+                    <label for="capacity">Project Capacity (MW) *</label>
+                    <input type="number" id="capacity"
+                           class="form-control"
+                           placeholder="Enter project capacity"
+                           min="0.1" step="0.1">
                 </div>
             </div>
 
-            <div class="col-md-6 hidden-option" id="durationGroup">
+            <div class="col-md-6" id="durationGroup" style="display:none;">
                 <div class="form-group">
-                    <label>BESS Duration (Hours)</label>
+                    <label for="duration">BESS Duration *</label>
                     <select id="duration" class="form-control">
+                        <option value="">Select duration</option>
                         <option value="2">2 Hours</option>
-                        <option value="4" selected>4 Hours</option>
+                        <option value="4">4 Hours</option>
                         <option value="6">6 Hours</option>
                         <option value="8">8 Hours</option>
                     </select>
                 </div>
             </div>
 
-        </div>
-
-        <hr>
-
-        <h3>Technology Selection</h3>
-
-        <!-- Solar options -->
-        <div id="solarOptions">
-            <div class="row">
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Inverter Type</label>
-                        <select id="inverterType" class="form-control">
-                            <option value="string">String Inverter</option>
-                            <option value="central">Central Inverter</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Mounting Structure</label>
-                        <select id="structureType" class="form-control">
-                            <option value="fixed">Fixed Structure</option>
-                            <option value="tracker">Single Axis Tracker</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label>Combiner Boxes</label>
-                        <select id="combinerBoxes" class="form-control">
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- BESS options -->
-        <div id="bessOptions" class="hidden-option">
-            <div class="row">
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Battery Chemistry</label>
-                        <select id="batteryType" class="form-control">
-                            <option value="lfp">LFP</option>
-                            <option value="nmc">NMC</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Cooling System</label>
-                        <select id="coolingType" class="form-control">
-                            <option value="liquid">Liquid Cooling</option>
-                            <option value="air">Air Cooling</option>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Data Center options -->
-        <div id="dcOptions" class="hidden-option">
-            <div class="row">
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Data Center Tier</label>
-                        <select id="tierType" class="form-control">
-                            <option value="3">Tier III</option>
-                            <option value="4">Tier IV</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Cooling Technology</label>
-                        <select id="dcCooling" class="form-control">
-                            <option value="air">Air Cooling</option>
-                            <option value="liquid">Liquid Cooling</option>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <br>
-
-        <button id="calculateButton" class="btn btn-calculate"
-                onclick="calculateBudget()">
-            Calculate Budget
-        </button>
-
-    </div>
-
-    <!-- RESULTS -->
-    <div id="results" class="results">
-
-        <div class="panel-box">
-            <h3>Project Cost Summary</h3>
-
-            <div class="summary">
-                <div class="row">
-
-                    <div class="col-md-4">
-                        <div class="summary-item">
-                            Civil Works
-                            <strong id="civilTotal">€0</strong>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="summary-item">
-                            Mechanical Works
-                            <strong id="mechanicalTotal">€0</strong>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="summary-item">
-                            Electrical Works
-                            <strong id="electricalTotal">€0</strong>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="row">
-
-                    <div class="col-md-6">
-                        <div class="summary-item">
-                            Material & Equipment
-                            <strong id="materialTotal">€0</strong>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="summary-item">
-                            Combined Indicative Budget
-                            <strong id="grandTotal">€0</strong>
-                        </div>
-                    </div>
-
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="margin">Target Profit Margin (%) *</label>
+                    <input type="number" id="margin"
+                           class="form-control"
+                           placeholder="Enter target margin"
+                           min="0" max="99.9" step="0.01">
                 </div>
             </div>
 
-            <p id="projectDescription"></p>
         </div>
 
-        <div class="panel-box">
-            <h3>Material & Equipment Breakdown</h3>
+        <div class="button-row no-print">
+            <button class="btn btn-primary-custom"
+                    onclick="calculateBudget()">
+                Calculate Budget
+            </button>
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Material / Equipment</th>
-                            <th>Quantity</th>
-                            <th>Unit</th>
-                            <th>Unit Rate (€)</th>
-                            <th>Total Cost (€)</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="materialTable"></tbody>
-
-                    <tfoot>
-                        <tr class="total-row">
-                            <td colspan="4" class="text-right">
-                                Total Material & Equipment Cost
-                            </td>
-                            <td id="tableTotal">€0</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-
-            <p class="note">
-                Material rates are indicative starting assumptions and can be
-                edited in the JavaScript section of this calculator.
-            </p>
-        </div>
-
-        <div class="panel-box">
-            <h3>Cost Estimation Assumptions</h3>
-
-            <p>
-                Civil, Mechanical and Electrical figures represent separate
-                indicative works allowances. Material and equipment costs are
-                added separately to calculate the combined budget.
-            </p>
-
-            <p>
-                The country factors are broad market adjustment assumptions.
-                They are not supplier quotations or verified country-specific
-                market prices.
-            </p>
-
-            <p class="note">
-                This calculator is intended for preliminary budgeting only.
-                A project-specific BOQ, technical design, supplier quotations,
-                grid requirements, taxes, land, development costs and
-                contingency should be reviewed before approving an EPC budget.
-            </p>
-
-            <button class="btn btn-default no-print" onclick="window.print()">
-                Print Estimate
+            <button class="btn btn-secondary-custom"
+                    onclick="resetCalculator()">
+                Reset
             </button>
         </div>
 
     </div>
 
+
+    <div id="results">
+
+        <div class="panel">
+
+            <div class="result-heading">
+                <h3 class="section-title">Financial Overview</h3>
+                <span class="status-label">Estimate Generated</span>
+            </div>
+
+            <div class="summary-grid">
+
+                <div class="summary-card">
+                    <span class="card-label">Civil Works</span>
+                    <div class="card-value" id="civilCost">€0</div>
+                </div>
+
+                <div class="summary-card">
+                    <span class="card-label">Mechanical Works</span>
+                    <div class="card-value" id="mechanicalCost">€0</div>
+                </div>
+
+                <div class="summary-card">
+                    <span class="card-label">Electrical Works</span>
+                    <div class="card-value" id="electricalCost">€0</div>
+                </div>
+
+                <div class="summary-card">
+                    <span class="card-label">Additional Costs</span>
+                    <div class="card-value" id="extraCost">€0</div>
+                </div>
+
+                <div class="summary-card">
+                    <span class="card-label">Total EPC Cost</span>
+                    <div class="card-value" id="totalCost">€0</div>
+                </div>
+
+                <div class="summary-card">
+                    <span class="card-label">Profit Margin</span>
+                    <div class="card-value" id="marginResult">0%</div>
+                </div>
+
+                <div class="summary-card profit-card">
+                    <span class="card-label">Estimated Profit</span>
+                    <div class="card-value" id="profit">€0</div>
+                </div>
+
+                <div class="summary-card">
+                    <span class="card-label">Cost per MW</span>
+                    <div class="card-value" id="costPerMW">€0</div>
+                </div>
+
+            </div>
+
+            <div class="selling-price">
+                <div class="label-text">EPC Selling Price to Customer</div>
+                <div class="price" id="sellingPrice">€0</div>
+                <div class="description">
+                    Total estimated contract value
+                </div>
+            </div>
+
+            <div class="project-info" id="projectDetails"></div>
+
+        </div>
+
+
+        <div class="panel">
+
+            <h3 class="section-title">EPC Cost Breakdown</h3>
+            <p class="section-subtitle">
+                Estimated cost allocation by project work category.
+            </p>
+
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Cost Category</th>
+                            <th>Estimated Cost per MW</th>
+                            <th>Total Estimated Cost</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="breakdownTable"></tbody>
+                </table>
+            </div>
+
+            <div class="assumption">
+                <strong>Estimation notes</strong><br>
+                The calculation uses indicative base EPC cost assumptions
+                and country adjustment factors. Results are preliminary
+                estimates and should be validated against project-specific
+                BOQs, supplier quotations, site conditions and grid
+                connection requirements.
+                <br><br>
+                The profit margin is calculated as a percentage of the
+                EPC selling price, not as a markup on cost.
+            </div>
+
+            <div class="button-row no-print">
+                <button class="btn btn-primary-custom"
+                        onclick="window.print()">
+                    Print / Save as PDF
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        EPC Project Budget Estimator | Preliminary Planning Tool
+    </div>
+
 </div>
+
 
 <script>
 
-// --------------------------------------------------
-// COUNTRY LIST
-// --------------------------------------------------
+// ---------------------------------------------
+// COUNTRIES
+// ---------------------------------------------
 
 const countryCodes = `
 AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ
 BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT
 BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR
 CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER
-ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL
-GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU
-ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH
-KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU
-LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR
-MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP
-NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW
-PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK
-SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ
-TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA
-VC VE VG VI VN VU WF WS YE YT ZA ZM ZW
+ES ET FI FJ FK FO FR GA GB GD GE GF GG GH GI GL GM GN
+GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN
+IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KR KW
+KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME
+MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY
+MZ NA NC NE NG NI NL NO NP NR NU NZ OM PA PE PF PG
+PH PK PL PR PT PW PY QA RO RS RU RW SA SB SC SD SE
+SG SI SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF
+TG TH TJ TL TM TN TO TR TT TW TZ UA UG US UY UZ VA
+VC VE VG VI VN VU WF WS YE ZA ZM ZW
 `.trim().split(/\s+/);
 
 const countryNames = new Intl.DisplayNames(['en'], {
@@ -454,95 +575,89 @@ const countrySelect = document.getElementById('country');
 
 countryCodes
     .map(code => ({
-        code,
+        code: code,
         name: countryNames.of(code)
     }))
-    .filter(country => country.name && country.name !== country.code)
+    .filter(item => item.name && item.name !== item.code)
     .sort((a, b) => a.name.localeCompare(b.name))
-    .forEach(country => {
+    .forEach(item => {
         const option = document.createElement('option');
-        option.value = country.code;
-        option.textContent = country.name;
+        option.value = item.code;
+        option.textContent = item.name;
         countrySelect.appendChild(option);
     });
 
-countrySelect.value = 'IE';
 
-
-// --------------------------------------------------
-// COUNTRY MARKET FACTORS
-// --------------------------------------------------
+// ---------------------------------------------
+// COUNTRY ADJUSTMENT FACTORS
+// ---------------------------------------------
 
 const countryFactors = {
-    IE: { civil: 1.12, mechanical: 1.12, electrical: 1.12 },
-    GB: { civil: 1.13, mechanical: 1.13, electrical: 1.13 },
-    DE: { civil: 1.08, mechanical: 1.08, electrical: 1.08 },
-    FR: { civil: 1.05, mechanical: 1.05, electrical: 1.05 },
-    NL: { civil: 1.07, mechanical: 1.07, electrical: 1.07 },
-    BE: { civil: 1.06, mechanical: 1.06, electrical: 1.06 },
-    ES: { civil: 0.94, mechanical: 0.94, electrical: 0.94 },
-    PT: { civil: 0.91, mechanical: 0.91, electrical: 0.91 },
-    IT: { civil: 1.00, mechanical: 1.00, electrical: 1.00 },
-    GR: { civil: 0.88, mechanical: 0.88, electrical: 0.88 },
-    PL: { civil: 0.84, mechanical: 0.84, electrical: 0.84 },
-    RO: { civil: 0.76, mechanical: 0.76, electrical: 0.76 },
-    BG: { civil: 0.72, mechanical: 0.72, electrical: 0.72 },
-    SE: { civil: 1.12, mechanical: 1.12, electrical: 1.12 },
-    NO: { civil: 1.25, mechanical: 1.25, electrical: 1.25 },
-    DK: { civil: 1.14, mechanical: 1.14, electrical: 1.14 },
-    FI: { civil: 1.08, mechanical: 1.08, electrical: 1.08 },
-    US: { civil: 1.18, mechanical: 1.18, electrical: 1.18 },
-    CA: { civil: 1.15, mechanical: 1.15, electrical: 1.15 },
-    AU: { civil: 1.16, mechanical: 1.16, electrical: 1.16 },
-    JP: { civil: 1.20, mechanical: 1.20, electrical: 1.20 },
-    IN: { civil: 0.65, mechanical: 0.65, electrical: 0.65 },
-    CN: { civil: 0.72, mechanical: 0.72, electrical: 0.72 },
-    BR: { civil: 0.83, mechanical: 0.83, electrical: 0.83 },
-    ZA: { civil: 0.78, mechanical: 0.78, electrical: 0.78 },
-    SA: { civil: 0.96, mechanical: 0.96, electrical: 0.96 },
-    AE: { civil: 1.04, mechanical: 1.04, electrical: 1.04 },
-    TR: { civil: 0.68, mechanical: 0.68, electrical: 0.68 }
+    IE: 1.12,
+    DE: 1.08,
+    FR: 1.05,
+    NL: 1.07,
+    BE: 1.06,
+    ES: 0.94,
+    PT: 0.91,
+    IT: 1.00,
+    GR: 0.88,
+    GB: 1.13,
+    US: 1.18,
+    CA: 1.15,
+    AU: 1.16,
+    JP: 1.20,
+    KR: 1.10,
+    IN: 0.65,
+    CN: 0.72,
+    BR: 0.83,
+    ZA: 0.78,
+    SA: 0.96,
+    AE: 1.04,
+    PL: 0.84,
+    RO: 0.76,
+    BG: 0.72,
+    TR: 0.68,
+    SE: 1.12,
+    NO: 1.25,
+    DK: 1.14,
+    FI: 1.08
 };
 
-function getCountryFactors() {
-    return countryFactors[countrySelect.value] || {
-        civil: 1,
-        mechanical: 1,
-        electrical: 1
-    };
-}
 
-
-// --------------------------------------------------
-// BASE WORK RATES (€ PER MW)
-// --------------------------------------------------
+// ---------------------------------------------
+// BASE EPC RATES PER MW (€)
+// ---------------------------------------------
 
 const projectRates = {
     solar: {
         civil: 110000,
         mechanical: 90000,
-        electrical: 160000
+        electrical: 160000,
+        extra: 0
     },
 
     bess: {
         civil: 70000,
         mechanical: 120000,
-        electrical: 180000
+        electrical: 180000,
+        extra: 180000
     },
 
     datacenter: {
         civil: 1200000,
         mechanical: 2400000,
-        electrical: 3800000
+        electrical: 3800000,
+        extra: 0
     }
 };
 
 
-// --------------------------------------------------
-// HELPER FUNCTIONS
-// --------------------------------------------------
+// ---------------------------------------------
+// FORMAT CURRENCY
+// ---------------------------------------------
 
-function money(value) {
+function euro(value) {
     return new Intl.NumberFormat('en-IE', {
         style: 'currency',
         currency: 'EUR',
@@ -550,380 +665,169 @@ function money(value) {
     }).format(value);
 }
 
-function addMaterial(list, name, quantity, unit, rate) {
-    if (quantity <= 0) return;
 
-    list.push({
-        name: name,
-        quantity: quantity,
-        unit: unit,
-        rate: rate,
-        total: quantity * rate
-    });
-}
+// ---------------------------------------------
+// PROJECT TYPE SELECTION
+// ---------------------------------------------
 
-function displayMaterials(materials) {
-    const tbody = document.getElementById('materialTable');
-    tbody.innerHTML = '';
-
-    let total = 0;
-
-    materials.forEach(item => {
-        total += item.total;
-
-        const row = document.createElement('tr');
-
-        [
-            item.name,
-            item.quantity.toLocaleString('en-IE', {
-                maximumFractionDigits: 2
-            }),
-            item.unit,
-            money(item.rate),
-            money(item.total)
-        ].forEach(value => {
-            const cell = document.createElement('td');
-            cell.textContent = value;
-            row.appendChild(cell);
-        });
-
-        tbody.appendChild(row);
-    });
-
-    document.getElementById('tableTotal').textContent = money(total);
-
-    return total;
-}
-
-
-// --------------------------------------------------
-// SHOW / HIDE TECHNOLOGY OPTIONS
-// --------------------------------------------------
-
-document.getElementById('projectType').addEventListener('change', function() {
-
-    const type = this.value;
-
-    document.getElementById('solarOptions').style.display =
-        type === 'solar' ? 'block' : 'none';
-
-    document.getElementById('bessOptions').style.display =
-        type === 'bess' ? 'block' : 'none';
-
-    document.getElementById('dcOptions').style.display =
-        type === 'datacenter' ? 'block' : 'none';
+document.getElementById('projectType')
+.addEventListener('change', function() {
 
     document.getElementById('durationGroup').style.display =
-        type === 'bess' ? 'block' : 'none';
+        this.value === 'bess' ? 'block' : 'none';
 
+    document.getElementById('results').style.display = 'none';
 });
 
 
-// --------------------------------------------------
-// MAIN CALCULATION
-// --------------------------------------------------
+// ---------------------------------------------
+// CALCULATE BUDGET
+// ---------------------------------------------
 
 function calculateBudget() {
 
-    const capacity = parseFloat(document.getElementById('capacity').value);
+    const country = countrySelect.value;
     const type = document.getElementById('projectType').value;
+    const capacity = Number(document.getElementById('capacity').value);
+    const margin = Number(document.getElementById('margin').value);
+    const duration = document.getElementById('duration').value;
 
-    if (!capacity || capacity <= 0) {
+    // Validation
+    if (!country || !type ||
+        document.getElementById('capacity').value === '' ||
+        document.getElementById('margin').value === '') {
+
+        alert('Please complete all required fields.');
+        return;
+    }
+
+    if (!Number.isFinite(capacity) || capacity <= 0) {
         alert('Please enter a valid project capacity.');
         return;
     }
 
-    const factors = getCountryFactors();
+    if (!Number.isFinite(margin) || margin < 0 || margin >= 100) {
+        alert('Please enter a profit margin between 0 and 99.9%.');
+        return;
+    }
+
+    if (type === 'bess' && !duration) {
+        alert('Please select BESS duration.');
+        return;
+    }
+
+    const factor = countryFactors[country] || 1.00;
     const rates = projectRates[type];
 
-    // Works estimates
-    const civilCost =
-        capacity * rates.civil * factors.civil;
+    // Cost per MW
+    const civilPerMW = rates.civil * factor;
+    const mechanicalPerMW = rates.mechanical * factor;
+    const electricalPerMW = rates.electrical * factor;
+    const extraPerMW = rates.extra * factor;
 
-    const mechanicalCost =
-        capacity * rates.mechanical * factors.mechanical;
+    // Total category costs
+    const civil = civilPerMW * capacity;
+    const mechanical = mechanicalPerMW * capacity;
+    const electrical = electricalPerMW * capacity;
+    const extra = extraPerMW * capacity;
 
-    const electricalCost =
-        capacity * rates.electrical * factors.electrical;
+    // Total EPC cost
+    const totalCost = civil + mechanical + electrical + extra;
 
-    // Material market factor
-    const materialFactor =
-        (factors.civil + factors.mechanical + factors.electrical) / 3;
+    // Selling price based on profit margin
+    const sellingPrice = totalCost / (1 - margin / 100);
+    const profit = sellingPrice - totalCost;
 
-    const materials = [];
+    // Display summary
+    document.getElementById('civilCost').textContent = euro(civil);
+    document.getElementById('mechanicalCost').textContent = euro(mechanical);
+    document.getElementById('electricalCost').textContent = euro(electrical);
+    document.getElementById('extraCost').textContent = euro(extra);
+    document.getElementById('totalCost').textContent = euro(totalCost);
 
-    // --------------------------------------------------
-    // SOLAR PV
-    // --------------------------------------------------
+    document.getElementById('marginResult').textContent =
+        margin.toFixed(2) + '%';
 
-    if (type === 'solar') {
+    document.getElementById('profit').textContent = euro(profit);
 
-        const inverterType =
-            document.getElementById('inverterType').value;
+    document.getElementById('costPerMW').textContent =
+        euro(totalCost / capacity);
 
-        const structureType =
-            document.getElementById('structureType').value;
+    document.getElementById('sellingPrice').textContent =
+        euro(sellingPrice);
 
-        const combinerBoxes =
-            document.getElementById('combinerBoxes').value;
+    // Project details
+    const countryName = countryNames.of(country);
 
-        const modules = capacity * 1820;
+    const projectName = document.getElementById('projectType')
+        .selectedOptions[0].text;
 
-        addMaterial(
-            materials,
-            'PV Modules',
-            modules,
-            'pcs',
-            90 * materialFactor
-        );
+    document.getElementById('projectDetails').textContent =
+        'Project: ' + projectName +
+        ' | Country: ' + countryName +
+        ' | Capacity: ' + capacity + ' MW' +
+        (type === 'bess' ? ' | Duration: ' + duration + ' Hours' : '');
 
-        addMaterial(
-            materials,
-            inverterType === 'string'
-                ? 'String Inverters'
-                : 'Central Inverters',
-            capacity,
-            'MW',
-            (inverterType === 'string' ? 55000 : 35000) * materialFactor
-        );
+    // Cost breakdown table
+    const rows = [
+        ['Civil Works', civilPerMW, civil],
+        ['Mechanical Works', mechanicalPerMW, mechanical],
+        ['Electrical Works', electricalPerMW, electrical],
+        ['Additional Costs', extraPerMW, extra],
+        ['TOTAL EPC COST', totalCost / capacity, totalCost]
+    ];
 
-        addMaterial(
-            materials,
-            structureType === 'fixed'
-                ? 'Fixed Mounting Structure'
-                : 'Single Axis Tracker',
-            modules,
-            'module positions',
-            (structureType === 'fixed' ? 35 : 65) * materialFactor
-        );
+    const tbody = document.getElementById('breakdownTable');
+    tbody.innerHTML = '';
 
-        if (combinerBoxes === 'yes') {
-            addMaterial(
-                materials,
-                'DC Combiner Boxes',
-                capacity * 10,
-                'units',
-                1200 * materialFactor
-            );
+    rows.forEach((item, index) => {
+
+        const tr = document.createElement('tr');
+
+        if (index === rows.length - 1) {
+            tr.className = 'total-row';
         }
 
-        addMaterial(materials, 'DC Cables', capacity * 3000,
-            'm', 2.5 * materialFactor);
+        item.forEach((value, cellIndex) => {
 
-        addMaterial(materials, 'AC Cables', capacity * 600,
-            'm', 8 * materialFactor);
+            const td = document.createElement('td');
 
-        addMaterial(materials, 'DC Connectors', capacity * 3640,
-            'pcs', 2 * materialFactor);
+            td.textContent = cellIndex === 0
+                ? value
+                : euro(value);
 
-        addMaterial(materials, 'MV Transformers', capacity / 5,
-            'units', 45000 * materialFactor);
+            tr.appendChild(td);
+        });
 
-        addMaterial(materials, 'MV Switchgear', capacity / 5,
-            'units', 18000 * materialFactor);
-
-        addMaterial(materials, 'Monitoring System', capacity,
-            'MW', 15000 * materialFactor);
-
-        addMaterial(materials, 'Access Roads', capacity * 350,
-            'm', 35 * materialFactor);
-
-        addMaterial(materials, 'Fencing', capacity * 180,
-            'm', 25 * materialFactor);
-
-        addMaterial(materials, 'Foundations', modules,
-            'pcs', 12 * materialFactor);
-
-        addMaterial(materials, 'Drainage', capacity * 250,
-            'm', 30 * materialFactor);
-    }
-
-
-    // --------------------------------------------------
-    // BESS
-    // --------------------------------------------------
-
-    if (type === 'bess') {
-
-        const duration =
-            parseFloat(document.getElementById('duration').value);
-
-        const batteryType =
-            document.getElementById('batteryType').value;
-
-        const coolingType =
-            document.getElementById('coolingType').value;
-
-        const energy = capacity * duration;
-
-        const batteryRate =
-            batteryType === 'lfp' ? 110000 : 125000;
-
-        addMaterial(
-            materials,
-            batteryType.toUpperCase() + ' Battery Containers (5 MWh)',
-            energy / 5,
-            'units',
-            batteryRate * materialFactor
-        );
-
-        addMaterial(materials, 'Battery Racks',
-            energy * 40, 'units', 450 * materialFactor);
-
-        addMaterial(materials, 'Battery Modules',
-            energy * 800, 'pcs', 100 * materialFactor);
-
-        addMaterial(materials, 'Power Conversion System (PCS)',
-            capacity, 'MW', 70000 * materialFactor);
-
-        addMaterial(materials, 'PCS Units (2.5 MW)',
-            capacity / 2.5, 'units', 25000 * materialFactor);
-
-        addMaterial(materials, 'MV Transformers',
-            capacity / 5, 'units', 45000 * materialFactor);
-
-        addMaterial(materials, 'MV Switchgear',
-            capacity / 5, 'units', 18000 * materialFactor);
-
-        addMaterial(materials, 'HV Cables',
-            capacity * 250, 'm', 12 * materialFactor);
-
-        addMaterial(materials, 'DC Cables',
-            energy * 150, 'm', 3 * materialFactor);
-
-        addMaterial(materials, 'Energy Management System (EMS)',
-            1, 'system', 35000 * materialFactor);
-
-        addMaterial(materials, 'Fire Suppression Systems',
-            energy / 5, 'systems', 18000 * materialFactor);
-
-        addMaterial(materials, coolingType === 'liquid'
-            ? 'Liquid Cooling Systems'
-            : 'Air Cooling Systems',
-            energy / 5, 'systems',
-            (coolingType === 'liquid' ? 22000 : 14000) * materialFactor
-        );
-
-        addMaterial(materials, 'Foundations',
-            energy * 12, 'm³', 120 * materialFactor);
-
-        addMaterial(materials, 'Access Roads',
-            capacity * 100, 'm', 35 * materialFactor);
-
-        addMaterial(materials, 'Drainage',
-            capacity * 80, 'm', 30 * materialFactor);
-    }
-
-
-    // --------------------------------------------------
-    // DATA CENTER
-    // --------------------------------------------------
-
-    if (type === 'datacenter') {
-
-        const tier =
-            document.getElementById('tierType').value;
-
-        const cooling =
-            document.getElementById('dcCooling').value;
-
-        const tierFactor = tier === '4' ? 1.25 : 1;
-
-        addMaterial(materials, 'Server Racks',
-            capacity * 80, 'units', 15000 * materialFactor);
-
-        addMaterial(materials, 'UPS Systems',
-            capacity, 'MW', 100000 * materialFactor * tierFactor);
-
-        addMaterial(materials, 'UPS Modules (1 MW)',
-            capacity, 'units', 45000 * materialFactor);
-
-        addMaterial(materials, 'Backup Generators (2 MW)',
-            capacity / 2, 'units', 180000 * materialFactor);
-
-        addMaterial(materials, 'MV Transformers',
-            capacity / 5, 'units', 90000 * materialFactor);
-
-        addMaterial(materials, 'MV Switchgear',
-            capacity / 2, 'units', 35000 * materialFactor);
-
-        addMaterial(materials, 'LV Switchboards',
-            capacity * 4, 'units', 18000 * materialFactor);
-
-        addMaterial(materials, 'Cooling Capacity',
-            capacity * 1.2, 'MW thermal',
-            180000 * materialFactor *
-            (cooling === 'liquid' ? 1.2 : 1)
-        );
-
-        addMaterial(materials, 'CRAH / CRAC Units',
-            capacity * 12, 'units', 12000 * materialFactor);
-
-        addMaterial(materials, 'Cooling Pumps',
-            capacity * 4, 'units', 8000 * materialFactor);
-
-        addMaterial(materials, 'Chillers',
-            capacity * 1.2 / 3, 'units', 75000 * materialFactor);
-
-        addMaterial(materials, 'Fire Protection Systems',
-            capacity * 2, 'systems', 12000 * materialFactor);
-
-        addMaterial(materials, 'Power Cables',
-            capacity * 1800, 'm', 12 * materialFactor);
-
-        addMaterial(materials, 'Fibre Optic Cables',
-            capacity * 2500, 'm', 2 * materialFactor);
-
-        addMaterial(materials, 'Cable Trays',
-            capacity * 900, 'm', 15 * materialFactor);
-
-        addMaterial(materials, 'Concrete',
-            capacity * 350, 'm³', 180 * materialFactor);
-
-        addMaterial(materials, 'Structural Steel',
-            capacity * 120, 'tonnes', 2200 * materialFactor);
-
-        addMaterial(materials, 'Raised Floor',
-            capacity * 250, 'm²', 90 * materialFactor);
-    }
-
-
-    // --------------------------------------------------
-    // DISPLAY RESULTS
-    // --------------------------------------------------
-
-    const materialCost = displayMaterials(materials);
-
-    const grandTotal =
-        civilCost + mechanicalCost + electricalCost + materialCost;
-
-    document.getElementById('civilTotal').textContent =
-        money(civilCost);
-
-    document.getElementById('mechanicalTotal').textContent =
-        money(mechanicalCost);
-
-    document.getElementById('electricalTotal').textContent =
-        money(electricalCost);
-
-    document.getElementById('materialTotal').textContent =
-        money(materialCost);
-
-    document.getElementById('grandTotal').textContent =
-        money(grandTotal);
-
-    const countryName =
-        countryNames.of(countrySelect.value);
-
-    document.getElementById('projectDescription').textContent =
-        countryName + ' | ' +
-        capacity + ' MW | ' +
-        (type === 'solar' ? 'Solar PV' :
-         type === 'bess' ? 'BESS' : 'Data Center');
+        tbody.appendChild(tr);
+    });
 
     document.getElementById('results').style.display = 'block';
 
     document.getElementById('results').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+
+// ---------------------------------------------
+// RESET
+// ---------------------------------------------
+
+function resetCalculator() {
+
+    document.getElementById('country').value = '';
+    document.getElementById('projectType').value = '';
+    document.getElementById('capacity').value = '';
+    document.getElementById('margin').value = '';
+    document.getElementById('duration').value = '';
+
+    document.getElementById('durationGroup').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+
+    window.scrollTo({
+        top: 0,
         behavior: 'smooth'
     });
 }
