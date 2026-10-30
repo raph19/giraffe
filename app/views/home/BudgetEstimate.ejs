@@ -1,19 +1,678 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Budget Estimate Calculation</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title>Budget Estimate Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<link rel="stylesheet"
+href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f3f6fa;
+    font-family: Arial, sans-serif;
+    color: #263445;
+}
+
+.welcome {
+    background: linear-gradient(120deg, #102c46, #176b87);
+    color: white;
+    padding: 35px 25px;
+    text-align: center;
+}
+
+.welcome h1 {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #d5e6ef;
+    font-size: 15px;
+}
+
+.main-container {
+    max-width: 1150px;
+    margin: 35px auto;
+    padding: 0 20px;
+}
+
+.panel-custom {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 15px rgba(0,0,0,.06);
+}
+
+.panel-custom h3 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-weight: bold;
+    color: #174b68;
+    border-bottom: 2px solid #edf1f5;
+    padding-bottom: 15px;
+}
+
+label {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    height: 43px;
+    border-radius: 6px;
+    border: 1px solid #d8e0e8;
+    box-shadow: none;
+}
+
+.form-control:focus {
+    border-color: #1683a5;
+    box-shadow: 0 0 5px rgba(22,131,165,.2);
+}
+
+.btn-calculate {
+    background: #087b9b;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 13px 35px;
+    border-radius: 6px;
+    font-size: 15px;
+    margin-top: 15px;
+}
+
+.btn-calculate:hover {
+    background: #075e78;
+    color: white;
+}
+
+.result-card {
+    background: linear-gradient(120deg, #123d58, #087b9b);
+    color: white;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+.result-card h4 {
+    color: #d6eaf2;
+}
+
+.result-card h2 {
+    font-size: 34px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background: #edf3f7;
+}
+
+.table th, .table td {
+    padding: 13px !important;
+    vertical-align: middle !important;
+}
+
+.total-row {
+    font-weight: bold;
+    background: #e8f3f7;
+}
+
+.hidden-results {
+    display: none;
+}
+
+.note {
+    color: #758493;
+    font-size: 12px;
+    margin-top: 12px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #84919e;
+}
+</style>
 </head>
+
 <body>
 
-    <section id="welcome">
-<div class="welcome">
-    Welcome to Budget Estimate Calculator Feature
+<section id="welcome">
+    <div class="welcome">
+        <h1>Budget Estimate Calculator</h1>
+        <p>Preliminary EPC Project Cost Estimation Tool</p>
+    </div>
+</section>
+
+<div class="main-container">
+
+    <!-- PROJECT INPUTS -->
+
+    <div class="panel-custom">
+
+        <h3>Project Information</h3>
+
+        <div class="row">
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Country / Market</label>
+                    <select id="country" class="form-control">
+                        <option value="">Select Country</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Project Type</label>
+                    <select id="projectType" class="form-control"
+                    onchange="updateCapacityLabel()">
+                        <option value="">Select Project</option>
+                        <option value="solar">Solar PV Project</option>
+                        <option value="bess">BESS</option>
+                        <option value="datacenter">Data Center</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label id="capacityLabel">Project Capacity (MW)</label>
+                    <input type="number" id="capacity"
+                    class="form-control" min="0.01" step="any"
+                    placeholder="Enter capacity">
+                </div>
+            </div>
+
+            <div class="col-md-6" id="durationGroup"
+            style="display:none;">
+                <div class="form-group">
+                    <label>BESS Duration (Hours)</label>
+                    <input type="number" id="duration"
+                    class="form-control" value="2" min="1">
+                </div>
+            </div>
+
+        </div>
+
+        <button class="btn btn-calculate"
+        onclick="calculateBudget()">
+            Calculate Budget
+        </button>
+
+        <p class="note">
+            All estimates are preliminary and based on configurable
+            reference assumptions.
+        </p>
+
+    </div>
+
+    <!-- RESULTS -->
+
+    <div id="results" class="hidden-results">
+
+        <div class="result-card">
+            <h4>Total Estimated Project Budget</h4>
+            <h2 id="totalBudget">€0</h2>
+            <p id="projectSummary"></p>
+            <p id="marketSummary"></p>
+        </div>
+
+        <!-- COST BREAKDOWN -->
+
+        <div class="panel-custom">
+            <h3>Cost Breakdown</h3>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Work Category</th>
+                        <th>Base Cost (€)</th>
+                        <th>Market Factor</th>
+                        <th>Estimated Cost (€)</th>
+                    </tr>
+                </thead>
+
+                <tbody id="costTable"></tbody>
+
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="3">TOTAL PROJECT COST</td>
+                        <td id="costTotal">€0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- MATERIAL QUANTITIES -->
+
+        <div class="panel-custom">
+            <h3>Material Quantities</h3>
+
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Material / Equipment</th>
+                            <th>Quantity</th>
+                            <th>Unit</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="materialTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <button class="btn btn-calculate"
+        onclick="window.print()">
+            Export / Print Estimate
+        </button>
+
+    </div>
+
 </div>
-    </section>
+
+<footer>
+    Budget Estimate Calculator | Preliminary EPC Estimation
+</footer>
+
+
+<script>
+
+// =====================================
+// 1. ALL COUNTRIES
+// =====================================
+
+const countryCodes = `
+AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ
+BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT
+BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR
+CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER
+ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL
+GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID
+IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM
+KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY
+MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT
+MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU
+NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA
+RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM
+SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL
+TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE
+VG VI VN VU WF WS YE YT ZA ZM ZW
+`;
+
+const countrySelect = document.getElementById("country");
+
+const displayNames = new Intl.DisplayNames(["en"], {
+    type: "region"
+});
+
+countryCodes.trim().split(/\s+/).sort().forEach(code => {
+    const option = document.createElement("option");
+    option.value = code;
+    option.textContent = displayNames.of(code);
+    countrySelect.appendChild(option);
+});
+
+
+// =====================================
+// 2. COUNTRY MARKET FACTORS
+// =====================================
+
+// Illustrative factors relative to the EUR base rates.
+// These are NOT verified market quotations.
+
+const countryRates = {
+    IE: 1.12,
+    DE: 1.08,
+    FR: 1.05,
+    NL: 1.07,
+    BE: 1.06,
+    ES: 0.94,
+    PT: 0.91,
+    IT: 1.00,
+    GR: 0.88,
+    GB: 1.13,
+    US: 1.18,
+    CA: 1.15,
+    AU: 1.16,
+    JP: 1.20,
+    KR: 1.10,
+    IN: 0.65,
+    CN: 0.72,
+    BR: 0.83,
+    ZA: 0.78,
+    SA: 0.96,
+    AE: 1.04,
+    PL: 0.84,
+    RO: 0.76,
+    BG: 0.72,
+    TR: 0.68,
+    SE: 1.12,
+    NO: 1.25,
+    DK: 1.14,
+    FI: 1.08
+};
+
+// Countries without an individual rate use this fallback.
+const defaultMarketFactor = 1.00;
+
+
+// =====================================
+// 3. PROJECT CONFIGURATION
+// =====================================
+
+// Base costs in EUR per MW.
+// Illustrative assumptions, not supplier quotations.
+
+const projectRates = {
+
+    solar: {
+        civil: 110000,
+        mechanical: 90000,
+        electrical: 160000,
+        extra: 0
+    },
+
+    bess: {
+        civil: 70000,
+        mechanical: 120000,
+        electrical: 180000,
+        extra: 180000
+    },
+
+    datacenter: {
+        civil: 1200000,
+        mechanical: 2400000,
+        electrical: 3800000,
+        extra: 0
+    }
+};
+
+
+// =====================================
+// 4. UPDATE CAPACITY LABEL
+// =====================================
+
+function updateCapacityLabel() {
+
+    const type = document.getElementById("projectType").value;
+
+    const label = document.getElementById("capacityLabel");
+
+    const duration = document.getElementById("durationGroup");
+
+    if (type === "solar") {
+        label.textContent = "Solar PV Capacity (MWp)";
+        duration.style.display = "none";
+    }
+
+    else if (type === "bess") {
+        label.textContent = "BESS Power Capacity (MW)";
+        duration.style.display = "block";
+    }
+
+    else if (type === "datacenter") {
+        label.textContent = "IT Load Capacity (MW)";
+        duration.style.display = "none";
+    }
+}
+
+
+// =====================================
+// 5. NUMBER FORMATTING
+// =====================================
+
+function formatNumber(value) {
+
+    return new Intl.NumberFormat("en-IE", {
+        maximumFractionDigits: 2
+    }).format(value);
+}
+
+function formatMoney(value) {
+
+    return new Intl.NumberFormat("en-IE", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+    }).format(value);
+}
+
+
+// =====================================
+// 6. MATERIAL QUANTITIES
+// =====================================
+
+function getMaterials(type, capacity, duration) {
+
+    let materials = [];
+
+    if (type === "solar") {
+
+        materials = [
+            ["Solar PV Modules", capacity * 1820, "pcs"],
+            ["String Inverters", capacity, "MW"],
+            ["Mounting Structures", capacity * 1820, "sets"],
+            ["DC Cables", capacity * 3000, "m"],
+            ["AC Cables", capacity * 600, "m"],
+            ["DC Connectors", capacity * 3640, "pcs"],
+            ["MV Transformers", capacity / 5, "units"],
+            ["MV Switchgear", capacity / 5, "units"],
+            ["Combiner Boxes", capacity * 10, "units"],
+            ["Monitoring System", capacity, "MW"],
+            ["Access Roads", capacity * 350, "m"],
+            ["Fencing", capacity * 180, "m"],
+            ["Foundations", capacity * 1820, "pcs"],
+            ["Drainage System", capacity * 250, "m"]
+        ];
+
+    }
+
+    else if (type === "bess") {
+
+        const energy = capacity * duration;
+
+        materials = [
+            ["Battery Energy Capacity", energy, "MWh"],
+            ["Battery Containers (5 MWh)", energy / 5, "units"],
+            ["Battery Racks (approx.)", energy * 40, "units"],
+            ["Battery Modules (approx.)", energy * 800, "units"],
+            ["Power Conversion System", capacity, "MW"],
+            ["PCS Units (2.5 MW)", capacity / 2.5, "units"],
+            ["MV Transformers", capacity / 5, "units"],
+            ["MV Switchgear", capacity / 5, "units"],
+            ["HV Cables", capacity * 250, "m"],
+            ["DC Cables", energy * 150, "m"],
+            ["EMS System", 1, "system"],
+            ["Fire Suppression System", energy / 5, "systems"],
+            ["HVAC Systems", energy / 5, "systems"],
+            ["Concrete Foundations", energy * 12, "m³"],
+            ["Access Roads", capacity * 100, "m"],
+            ["Drainage System", capacity * 80, "m"]
+        ];
+
+    }
+
+    else if (type === "datacenter") {
+
+        materials = [
+            ["Server Racks", capacity * 80, "units"],
+            ["UPS Systems", capacity, "MW"],
+            ["UPS Modules (1 MW)", capacity, "units"],
+            ["Generators (2 MW)", capacity / 2, "units"],
+            ["MV Transformers (5 MW)", capacity / 5, "units"],
+            ["MV Switchgear", capacity / 2, "units"],
+            ["LV Switchboards", capacity * 4, "units"],
+            ["Cooling Capacity", capacity * 1.2, "MW thermal"],
+            ["CRAH / CRAC Units", capacity * 12, "units"],
+            ["Cooling Pumps", capacity * 4, "units"],
+            ["Chillers", capacity * 1.2 / 3, "units"],
+            ["Fire Suppression Systems", capacity * 2, "systems"],
+            ["Power Cables", capacity * 1800, "m"],
+            ["Fiber Optic Cables", capacity * 2500, "m"],
+            ["Cable Trays", capacity * 900, "m"],
+            ["Concrete", capacity * 350, "m³"],
+            ["Steel Structure", capacity * 120, "tonnes"],
+            ["Raised Floor", capacity * 250, "m²"]
+        ];
+
+    }
+
+    return materials;
+}
+
+
+// =====================================
+// 7. MAIN CALCULATION
+// =====================================
+
+function calculateBudget() {
+
+    const country = document.getElementById("country").value;
+
+    const type = document.getElementById("projectType").value;
+
+    const capacity = Number(
+        document.getElementById("capacity").value
+    );
+
+    const duration = Number(
+        document.getElementById("duration").value
+    ) || 2;
+
+    if (!country || !type || !Number.isFinite(capacity) ||
+        capacity <= 0) {
+
+        alert("Please select a country, project type and valid capacity.");
+        return;
+    }
+
+    if (type === "bess" && duration <= 0) {
+        alert("Please enter a valid BESS duration.");
+        return;
+    }
+
+    const factor = countryRates[country] ?? defaultMarketFactor;
+
+    const rates = projectRates[type];
+
+    const baseCivil = capacity * rates.civil;
+
+    const baseMechanical = capacity * rates.mechanical;
+
+    const baseElectrical = capacity * rates.electrical;
+
+    // BESS battery equipment is estimated separately.
+    const extra = type === "bess"
+        ? capacity * duration * rates.extra
+        : 0;
+
+    const civil = baseCivil * factor;
+
+    const mechanical = baseMechanical * factor;
+
+    const electrical = baseElectrical * factor;
+
+    const equipment = extra * factor;
+
+    const total = civil + mechanical + electrical + equipment;
+
+    // Display cost breakdown
+
+    const costTable = document.getElementById("costTable");
+
+    costTable.innerHTML = "";
+
+    const costs = [
+        ["Civil Works", baseCivil],
+        ["Mechanical Works", baseMechanical],
+        ["Electrical Works", baseElectrical]
+    ];
+
+    if (type === "bess") {
+        costs.push(["Battery Equipment", extra]);
+    }
+
+    costs.forEach(item => {
+
+        const finalCost = item[1] * factor;
+
+        costTable.innerHTML += `
+            <tr>
+                <td>${item[0]}</td>
+                <td>${formatMoney(item[1])}</td>
+                <td>${factor.toFixed(2)}</td>
+                <td>${formatMoney(finalCost)}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("costTotal").textContent =
+        formatMoney(total);
+
+    document.getElementById("totalBudget").textContent =
+        formatMoney(total);
+
+    // Project information
+
+    const projectNames = {
+        solar: "Solar PV Project",
+        bess: "Battery Energy Storage System",
+        datacenter: "Data Center"
+    };
+
+    document.getElementById("projectSummary").textContent =
+        projectNames[type] + " | " + formatNumber(capacity) + " MW";
+
+    document.getElementById("marketSummary").textContent =
+        "Market: " + displayNames.of(country) +
+        " | Market Factor: " + factor.toFixed(2) +
+        (type === "bess" ? " | Duration: " + duration + " hours" : "");
+
+    // Material quantities
+
+    const materials = getMaterials(type, capacity, duration);
+
+    const materialTable = document.getElementById("materialTable");
+
+    materialTable.innerHTML = "";
+
+    materials.forEach(item => {
+
+        materialTable.innerHTML += `
+            <tr>
+                <td>${item[0]}</td>
+                <td>${formatNumber(item[1])}</td>
+                <td>${item[2]}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("results").style.display = "block";
+
+    document.getElementById("results").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+</script>
 
 </body>
 </html>
