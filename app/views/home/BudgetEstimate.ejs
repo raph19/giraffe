@@ -3,16 +3,13 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Budget Estimate Calculator</title>
+    <title>Budget Estimate Calculation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-
-    <!-- Excel export library -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <style>
+<style>
 * {
     box-sizing: border-box;
 }
@@ -149,7 +146,7 @@ footer {
     padding: 25px;
     color: #84919e;
 }
-    </style>
+</style>
 </head>
 
 <body>
@@ -163,7 +160,7 @@ footer {
 
 <div class="main-container">
 
-    <!-- PROJECT INPUTS -->
+    <!-- PROJECT INFORMATION -->
 
     <div class="panel-custom">
 
@@ -184,7 +181,7 @@ footer {
                 <div class="form-group">
                     <label>Project Type</label>
                     <select id="projectType" class="form-control"
-                    onchange="updateProjectOptions()">
+                        onchange="updateProjectOptions()">
                         <option value="">Select Project</option>
                         <option value="solar">Solar PV Project</option>
                         <option value="bess">BESS</option>
@@ -197,8 +194,8 @@ footer {
                 <div class="form-group">
                     <label id="capacityLabel">Project Capacity (MW)</label>
                     <input type="number" id="capacity"
-                    class="form-control" min="0.01" step="any"
-                    placeholder="Enter capacity">
+                        class="form-control" min="0.01" step="any"
+                        placeholder="Enter capacity">
                 </div>
             </div>
 
@@ -209,8 +206,26 @@ footer {
                     <label>PV Module Technology</label>
                     <select id="solarTechnology" class="form-control">
                         <option value="">Select Technology</option>
-                        <option value="monofacial">Monofacial</option>
-                        <option value="bifacial">Bifacial</option>
+                        <option value="topcon_mono">N-type TOPCon Monofacial</option>
+                        <option value="topcon_bifacial">N-type TOPCon Bifacial</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6" id="modulePowerGroup" style="display:none;">
+                <div class="form-group">
+                    <label>PV Module Power (Wp)</label>
+                    <select id="modulePower" class="form-control">
+                        <option value="">Select Module Power</option>
+                        <option value="450">450 Wp</option>
+                        <option value="500">500 Wp</option>
+                        <option value="550">550 Wp</option>
+                        <option value="575">575 Wp</option>
+                        <option value="600">600 Wp</option>
+                        <option value="610">610 Wp</option>
+                        <option value="620">620 Wp</option>
+                        <option value="630">630 Wp</option>
+                        <option value="650">650 Wp</option>
                     </select>
                 </div>
             </div>
@@ -220,9 +235,18 @@ footer {
                     <label>Mounting System</label>
                     <select id="mountingType" class="form-control">
                         <option value="">Select Mounting System</option>
-                        <option value="fixed">Fixed Tilt</option>
-                        <option value="tracker">Single Axis Tracker</option>
+                        <option value="Fixed Tilt">Fixed Tilt</option>
+                        <option value="Single Axis Tracker">Single Axis Tracker</option>
                     </select>
+                </div>
+            </div>
+
+            <div class="col-md-6" id="stringsGroup" style="display:none;">
+                <div class="form-group">
+                    <label>Number of PV Strings</label>
+                    <input type="number" id="stringCount"
+                        class="form-control" min="1" step="1"
+                        placeholder="Enter number of strings">
                 </div>
             </div>
 
@@ -232,8 +256,8 @@ footer {
                 <div class="form-group">
                     <label>BESS Duration (Hours)</label>
                     <input type="number" id="duration"
-                    class="form-control" min="1" step="any"
-                    placeholder="Enter duration">
+                        class="form-control" min="1" step="any"
+                        placeholder="Enter duration">
                 </div>
             </div>
 
@@ -275,20 +299,17 @@ footer {
 
         </div>
 
-        <button class="btn btn-calculate"
-        onclick="calculateBudget()">
+        <button class="btn btn-calculate" onclick="calculateBudget()">
             Calculate Budget
         </button>
 
-        <button class="btn btn-calculate"
-        onclick="resetCalculator()">
+        <button class="btn btn-calculate" onclick="resetCalculator()">
             Reset
         </button>
 
         <p class="note">
-            All estimates are preliminary and based on configurable
-            reference assumptions. Material prices are indicative
-            and are not added separately to the EPC cost.
+            Preliminary estimates based on indicative reference assumptions.
+            EPC costs include equipment procurement, materials and installation.
         </p>
 
     </div>
@@ -307,13 +328,15 @@ footer {
         </div>
 
 
-        <!-- COST BREAKDOWN -->
+        <!-- EPC COST BREAKDOWN -->
 
         <div class="panel-custom">
+
             <h3>EPC Cost Breakdown</h3>
 
             <div class="table-responsive">
                 <table class="table table-bordered">
+
                     <thead>
                         <tr>
                             <th>Work Category</th>
@@ -331,18 +354,28 @@ footer {
                             <td id="costTotal">€0</td>
                         </tr>
                     </tfoot>
+
                 </table>
             </div>
+
+            <p class="note">
+                EPC cost includes engineering, equipment procurement,
+                construction, installation and commissioning under the
+                assumed turnkey project scope.
+            </p>
+
         </div>
 
 
         <!-- MATERIAL REFERENCE -->
 
         <div class="panel-custom">
+
             <h3>Material / Equipment Reference</h3>
 
             <div class="table-responsive">
                 <table class="table table-bordered">
+
                     <thead>
                         <tr>
                             <th>Material / Equipment</th>
@@ -361,18 +394,18 @@ footer {
                             <td id="materialTotal">€0</td>
                         </tr>
                     </tfoot>
+
                 </table>
             </div>
 
             <p class="note">
-                Material reference values are indicative only.
-                They are displayed separately and are NOT added to the
-                EPC cost breakdown, in order to avoid double counting.
+                Material reference values are displayed separately.
+                They are already represented within the EPC cost assumptions
+                and are NOT added again to the EPC total.
             </p>
+
         </div>
 
-
-        <!-- EXPORT BUTTONS -->
 
         <button class="btn btn-calculate" onclick="exportExcel()">
             Download Excel
@@ -400,13 +433,12 @@ footer {
 const countryCodes = `
 AD AE AF AG AL AM AO AR AT AU AZ
 BA BB BD BE BG BH BR BY CA CH CL CN
-CO CR CY CZ DE DK DO DZ EC EE EG ES
+CO CR CY CZ DE DK DO DZ EC EE ES
 FI FR GB GE GH GR HK HR HU ID IE IL
 IN IS IT JP KE KR KW KZ LB LI LT LU
 LV MA MC MD ME MK MT MX MY NG NL NO
 NZ OM PA PE PH PK PL PT QA RO RS RU
-SA SE SG SI SK TH TR TW UA US UY VN
-ZA
+SA SE SG SI SK TH TR TW UA US UY VN ZA
 `;
 
 const countrySelect = document.getElementById("country");
@@ -426,9 +458,6 @@ countryCodes.trim().split(/\s+/).sort().forEach(code => {
 // =====================================
 // 2. COUNTRY MARKET FACTORS
 // =====================================
-
-// Illustrative factors relative to EUR base rates.
-// These are NOT verified market quotations.
 
 const countryRates = {
     IE: 1.12,
@@ -466,11 +495,11 @@ const defaultMarketFactor = 1.00;
 
 
 // =====================================
-// 3. PROJECT EPC RATES
+// 3. EPC RATES
 // =====================================
 
-// Base costs in EUR per MW.
-// Illustrative assumptions, not supplier quotations.
+// Illustrative base costs in EUR per MW.
+// Procurement is included in these EPC assumptions.
 
 const projectRates = {
 
@@ -497,7 +526,29 @@ const projectRates = {
 
 
 // =====================================
-// 4. UPDATE PROJECT OPTIONS
+// 4. PV MODULE PRICING
+// =====================================
+
+// Indicative reference prices in EUR/Wp.
+// These are editable assumptions, not supplier quotations.
+
+const moduleOptions = {
+
+    topcon_mono: {
+        name: "N-type TOPCon Monofacial",
+        pricePerWp: 0.120
+    },
+
+    topcon_bifacial: {
+        name: "N-type TOPCon Bifacial",
+        pricePerWp: 0.114
+    }
+
+};
+
+
+// =====================================
+// 5. UPDATE PROJECT OPTIONS
 // =====================================
 
 function updateProjectOptions() {
@@ -506,7 +557,9 @@ function updateProjectOptions() {
 
     const groups = [
         "solarOptions",
+        "modulePowerGroup",
         "mountingGroup",
+        "stringsGroup",
         "durationGroup",
         "chemistryGroup",
         "tierGroup",
@@ -524,7 +577,9 @@ function updateProjectOptions() {
         label.textContent = "Solar PV Capacity (MWp)";
 
         document.getElementById("solarOptions").style.display = "block";
+        document.getElementById("modulePowerGroup").style.display = "block";
         document.getElementById("mountingGroup").style.display = "block";
+        document.getElementById("stringsGroup").style.display = "block";
 
     }
 
@@ -556,7 +611,7 @@ function updateProjectOptions() {
 
 
 // =====================================
-// 5. FORMATTING
+// 6. FORMATTING
 // =====================================
 
 function formatNumber(value) {
@@ -579,48 +634,141 @@ function formatMoney(value) {
 
 
 // =====================================
-// 6. MATERIAL REFERENCE DATA
+// 7. MATERIAL REFERENCE DATA
 // =====================================
 
-// Quantity assumptions are scaled to project capacity.
-// Unit prices are illustrative reference values.
-// Material reference totals are NOT added to EPC costs.
-
-function getMaterials(type, capacity, duration) {
+function getMaterials(type, capacity, duration, options = {}) {
 
     let materials = [];
 
     if (type === "solar") {
 
+        const moduleOption = moduleOptions[options.moduleTechnology];
+
+        const modulePower = options.modulePower;
+
+        // Number of modules required for the selected MWp capacity.
+        // Rounded up to the next complete module.
+
+        const totalModules = Math.ceil(
+            capacity * 1000000 / modulePower
+        );
+
+        const strings = options.stringCount;
+
+        const modulesPerString = totalModules / strings;
+
+        // Price per module = module Wp x indicative EUR/Wp.
+
+        const modulePrice =
+            moduleOption.pricePerWp * modulePower;
+
         materials = [
 
-            ["Solar PV Modules", capacity * 1820, "pcs", 75],
+            [
+                "PV Modules - " + moduleOption.name + " (" + modulePower + " Wp)",
+                totalModules,
+                "pcs",
+                modulePrice
+            ],
 
-            ["String Inverters", capacity, "units", 18000],
+            [
+                "PV Strings",
+                strings,
+                "strings",
+                0
+            ],
 
-            ["Mounting Structures", capacity * 1820, "sets", 32],
+            [
+                "Average Modules per String",
+                modulesPerString,
+                "modules/string",
+                0
+            ],
 
-            ["DC Cables", capacity * 3000, "m", 1.40],
+            [
+                "String Inverters",
+                capacity,
+                "units (approx.)",
+                18000
+            ],
 
-            ["AC Cables", capacity * 600, "m", 8.50],
+            [
+                "Mounting Structures",
+                totalModules,
+                "sets",
+                32
+            ],
 
-            ["DC Connectors", capacity * 3640, "pcs", 2.50],
+            [
+                "DC Cables",
+                capacity * 3000,
+                "m",
+                1.40
+            ],
 
-            ["MV Transformers", capacity / 5, "units", 65000],
+            [
+                "AC Cables",
+                capacity * 600,
+                "m",
+                8.50
+            ],
 
-            ["MV Switchgear", capacity / 5, "units", 28000],
+            [
+                "DC Connectors",
+                totalModules * 2,
+                "pcs",
+                2.50
+            ],
 
-            ["Combiner Boxes", capacity * 10, "units", 1200],
+            [
+                "MV Transformers",
+                capacity / 5,
+                "units",
+                65000
+            ],
 
-            ["Monitoring System", capacity, "systems", 2500],
+            [
+                "MV Switchgear",
+                capacity / 5,
+                "units",
+                28000
+            ],
 
-            ["Access Roads", capacity * 350, "m", 45],
+            [
+                "Monitoring System",
+                capacity,
+                "MW",
+                2500
+            ],
 
-            ["Fencing", capacity * 180, "m", 22],
+            [
+                "Access Roads",
+                capacity * 350,
+                "m",
+                45
+            ],
 
-            ["Foundations", capacity * 1820, "pcs", 35],
+            [
+                "Fencing",
+                capacity * 180,
+                "m",
+                22
+            ],
 
-            ["Drainage System", capacity * 250, "m", 18]
+            [
+                "Foundations",
+                totalModules,
+                "pcs",
+                35
+            ],
+
+            [
+                "Drainage System",
+                capacity * 250,
+                "m",
+                18
+            ]
 
         ];
 
@@ -630,6 +778,7 @@ function getMaterials(type, capacity, duration) {
     else if (type === "bess") {
 
         const energy = capacity * duration;
+
         const containers = energy / 5;
 
         materials = [
@@ -723,7 +872,7 @@ function getMaterials(type, capacity, duration) {
 
 
 // =====================================
-// 7. MAIN CALCULATION
+// 8. MAIN CALCULATION
 // =====================================
 
 let lastCalculation = null;
@@ -755,22 +904,46 @@ function calculateBudget() {
     }
 
 
-    // Validate project-specific options
+    // SOLAR INPUTS
+
+    let moduleTechnology = "";
+    let modulePower = 0;
+    let stringCount = 0;
+    let mountingType = "";
 
     if (type === "solar") {
 
+        moduleTechnology =
+            document.getElementById("solarTechnology").value;
+
+        modulePower = Number(
+            document.getElementById("modulePower").value
+        );
+
+        mountingType =
+            document.getElementById("mountingType").value;
+
+        stringCount = Number(
+            document.getElementById("stringCount").value
+        );
+
         if (
-            !document.getElementById("solarTechnology").value ||
-            !document.getElementById("mountingType").value
+            !moduleTechnology ||
+            !modulePower ||
+            !mountingType ||
+            !Number.isInteger(stringCount) ||
+            stringCount <= 0
         ) {
 
-            alert("Please select PV module technology and mounting system.");
+            alert("Please select module technology, module power, mounting system and enter a valid number of strings.");
             return;
 
         }
 
     }
 
+
+    // BESS VALIDATION
 
     if (type === "bess") {
 
@@ -788,6 +961,8 @@ function calculateBudget() {
     }
 
 
+    // DATA CENTER VALIDATION
+
     if (type === "datacenter") {
 
         if (
@@ -803,9 +978,14 @@ function calculateBudget() {
     }
 
 
+    // MARKET FACTOR
+
     const factor = countryRates[country] ?? defaultMarketFactor;
 
     const rates = projectRates[type];
+
+
+    // BASE EPC COSTS
 
     const baseCivil = capacity * rates.civil;
 
@@ -814,43 +994,43 @@ function calculateBudget() {
     const baseElectrical = capacity * rates.electrical;
 
 
-    // BESS battery equipment is estimated per MWh.
+    // BESS BATTERY EQUIPMENT PROCUREMENT
 
     const batteryEquipment = type === "bess"
         ? capacity * duration * rates.batteryPerMWh
         : 0;
 
 
-    const civil = baseCivil * factor;
+    // TOTAL EPC COST
+    // Procurement is included in the EPC assumptions.
 
-    const mechanical = baseMechanical * factor;
-
-    const electrical = baseElectrical * factor;
-
-    const equipment = batteryEquipment * factor;
-
-    const total = civil + mechanical + electrical + equipment;
+    const total =
+        (baseCivil + baseMechanical + baseElectrical + batteryEquipment)
+        * factor;
 
     const costPerMW = total / capacity;
 
 
     // =====================================
-    // DISPLAY COST BREAKDOWN
+    // COST BREAKDOWN
     // =====================================
 
     const costs = [
 
-        ["Civil Works", baseCivil],
+        ["Civil Works & Infrastructure", baseCivil],
 
-        ["Mechanical Works", baseMechanical],
+        ["Mechanical Works & Equipment Procurement", baseMechanical],
 
-        ["Electrical Works", baseElectrical]
+        ["Electrical Works & Equipment Procurement", baseElectrical]
 
     ];
 
     if (type === "bess") {
 
-        costs.push(["Battery Equipment", batteryEquipment]);
+        costs.push([
+            "Battery Equipment Procurement",
+            batteryEquipment
+        ]);
 
     }
 
@@ -886,7 +1066,7 @@ function calculateBudget() {
 
 
     // =====================================
-    // PROJECT INFORMATION
+    // PROJECT SUMMARY
     // =====================================
 
     const projectNames = {
@@ -904,10 +1084,10 @@ function calculateBudget() {
     if (type === "solar") {
 
         projectDetails +=
-            " | " +
-            document.getElementById("solarTechnology").value +
-            " | " +
-            document.getElementById("mountingType").value;
+            " | " + moduleOptions[moduleTechnology].name +
+            " | " + modulePower + " Wp modules" +
+            " | " + mountingType +
+            " | " + formatNumber(stringCount) + " strings";
 
     }
 
@@ -942,10 +1122,19 @@ function calculateBudget() {
 
 
     // =====================================
-    // MATERIAL QUANTITIES AND REFERENCE COST
+    // MATERIAL REFERENCE
     // =====================================
 
-    const materials = getMaterials(type, capacity, duration);
+    const materials = getMaterials(
+        type,
+        capacity,
+        duration,
+        {
+            moduleTechnology,
+            modulePower,
+            stringCount
+        }
+    );
 
     const materialTable = document.getElementById("materialTable");
 
@@ -976,7 +1165,9 @@ function calculateBudget() {
         formatMoney(materialTotal);
 
 
-    // Save data for Excel export
+    // =====================================
+    // SAVE CALCULATION FOR EXCEL
+    // =====================================
 
     lastCalculation = {
 
@@ -986,6 +1177,12 @@ function calculateBudget() {
         projectDetails,
         capacity,
         duration: type === "bess" ? duration : "",
+        modulePower: type === "solar" ? modulePower : "",
+        moduleTechnology: type === "solar"
+            ? moduleOptions[moduleTechnology].name
+            : "",
+        stringCount: type === "solar" ? stringCount : "",
+        mountingType: type === "solar" ? mountingType : "",
         factor,
         costs,
         total,
@@ -1006,7 +1203,7 @@ function calculateBudget() {
 
 
 // =====================================
-// 8. EXCEL EXPORT
+// 9. EXCEL EXPORT
 // =====================================
 
 function exportExcel() {
@@ -1020,7 +1217,7 @@ function exportExcel() {
 
     if (typeof XLSX === "undefined") {
 
-        alert("Excel export requires an internet connection. Please reload the page and try again.");
+        alert("Excel export requires an internet connection.");
         return;
 
     }
@@ -1028,7 +1225,7 @@ function exportExcel() {
     const data = lastCalculation;
 
 
-    // SHEET 1: EPC SUMMARY
+    // EPC SUMMARY SHEET
 
     const summaryRows = [
 
@@ -1043,6 +1240,14 @@ function exportExcel() {
         ["Project Type", data.projectDetails],
 
         ["Capacity (MW)", data.capacity],
+
+        ["PV Module Technology", data.moduleTechnology],
+
+        ["PV Module Power (Wp)", data.modulePower],
+
+        ["Number of PV Strings", data.stringCount],
+
+        ["Mounting System", data.mountingType],
 
         ["BESS Duration (Hours)", data.duration],
 
@@ -1100,7 +1305,13 @@ function exportExcel() {
 
     summaryRows.push([
 
-        "Note: Material reference values are shown separately and are not added to EPC cost."
+        "Procurement is included in the EPC cost assumptions."
+
+    ]);
+
+    summaryRows.push([
+
+        "Material reference values are displayed separately and are not added again."
 
     ]);
 
@@ -1108,7 +1319,7 @@ function exportExcel() {
     const summarySheet = XLSX.utils.aoa_to_sheet(summaryRows);
 
 
-    // SHEET 2: MATERIAL REFERENCE
+    // MATERIAL REFERENCE SHEET
 
     const materialRows = [
 
@@ -1200,7 +1411,7 @@ function exportExcel() {
 
 
 // =====================================
-// 9. RESET CALCULATOR
+// 10. RESET
 // =====================================
 
 function resetCalculator() {
@@ -1213,7 +1424,11 @@ function resetCalculator() {
 
     document.getElementById("duration").value = "";
 
+    document.getElementById("stringCount").value = "";
+
     document.getElementById("solarTechnology").value = "";
+
+    document.getElementById("modulePower").value = "";
 
     document.getElementById("mountingType").value = "";
 
