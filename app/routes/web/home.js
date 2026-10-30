@@ -10,6 +10,9 @@ var mongoose = require('mongoose');
 const archiver = require('archiver');
 const { ObjectId } = require('mongodb');
 
+router.get("/"{
+    res.render("home/BudgetEstimate");
+ });
 function isValidEmail(email) {
   // Regular expression pattern for validating email addresses
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -153,10 +156,10 @@ const fullURL = 'https://giraffe-design-tt8d.onrender.com' + req.session.uniqueU
   }
  });
 
- router.get("/", function(req, res){
-    res.render("home/BudgetEstimate");
- });
  
+/* router.get("/", function(req, res){
+    res.render("home/login");
+ });*/
  router.get("/login", function(req, res){
     res.render("home/login");
  });
