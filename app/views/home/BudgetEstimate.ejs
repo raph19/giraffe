@@ -1,13 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Budget Estimate Calculation</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Budget Estimate Calculator</title>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
 * {
@@ -22,9 +21,10 @@ body {
 }
 
 .welcome {
+    position: relative;
     background: linear-gradient(120deg, #102c46, #176b87);
     color: white;
-    padding: 35px 25px;
+    padding: 55px 25px 35px;
     text-align: center;
 }
 
@@ -37,6 +37,36 @@ body {
 .welcome p {
     color: #d5e6ef;
     font-size: 15px;
+}
+
+.language-selector {
+    position: absolute;
+    top: 18px;
+    right: 25px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,.13);
+    padding: 7px 12px;
+    border-radius: 7px;
+}
+
+.language-selector span {
+    font-size: 20px;
+}
+
+.language-selector select {
+    background: transparent;
+    color: white;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.language-selector option {
+    background: white;
+    color: #263445;
 }
 
 .main-container {
@@ -90,7 +120,8 @@ label {
     margin-top: 15px;
 }
 
-.btn-calculate:hover {
+.btn-calculate:hover,
+.btn-calculate:focus {
     background: #075e78;
     color: white;
 }
@@ -121,7 +152,8 @@ label {
     background: #edf3f7;
 }
 
-.table th, .table td {
+.table th,
+.table td {
     padding: 13px !important;
     vertical-align: middle !important;
 }
@@ -139,6 +171,7 @@ label {
     color: #758493;
     font-size: 12px;
     margin-top: 12px;
+    line-height: 1.6;
 }
 
 footer {
@@ -147,12 +180,55 @@ footer {
     color: #84919e;
 }
 
-/* Additional mobile responsiveness */
+/* ASSUMPTIONS */
+
+.assumptions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.assumption-card {
+    background: #f5f8fb;
+    border: 1px solid #e4ebf1;
+    border-left: 4px solid #087b9b;
+    border-radius: 8px;
+    padding: 15px 17px;
+    min-width: 0;
+}
+
+.assumption-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.assumption-label {
+    color: #758493;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin-bottom: 7px;
+}
+
+.assumption-value {
+    color: #174b68;
+    font-size: 18px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.assumption-description {
+    color: #84919e;
+    font-size: 12px;
+    margin-top: 5px;
+    line-height: 1.5;
+}
+
+/* MOBILE */
 
 @media (max-width: 767px) {
-
     .welcome {
-        padding: 25px 15px;
+        padding: 70px 15px 25px;
     }
 
     .welcome h1 {
@@ -161,6 +237,20 @@ footer {
 
     .welcome p {
         font-size: 13px;
+    }
+
+    .language-selector {
+        top: 12px;
+        right: 12px;
+        padding: 5px 8px;
+    }
+
+    .language-selector span {
+        font-size: 17px;
+    }
+
+    .language-selector select {
+        font-size: 12px;
     }
 
     .main-container {
@@ -207,9 +297,17 @@ footer {
         min-width: 650px;
     }
 
-    .table th,
-    .table td {
-        padding: 10px !important;
+    .assumptions-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .assumption-card.full-width {
+        grid-column: auto;
+    }
+
+    .assumption-card {
+        padding: 13px;
     }
 
     footer {
@@ -218,7 +316,6 @@ footer {
 }
 
 @media (max-width: 380px) {
-
     .welcome h1 {
         font-size: 21px;
     }
@@ -232,10 +329,39 @@ footer {
     }
 }
 
-@media print {
+/* RTL */
 
-    .btn-calculate {
-        display: none;
+html[dir="rtl"] body {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] .language-selector {
+    right: auto;
+    left: 25px;
+}
+
+html[dir="rtl"] .assumption-card {
+    border-left: 1px solid #e4ebf1;
+    border-right: 4px solid #087b9b;
+}
+
+html[dir="rtl"] .table th,
+html[dir="rtl"] .table td {
+    text-align: right;
+}
+
+@media (max-width: 767px) {
+    html[dir="rtl"] .language-selector {
+        left: 12px;
+        right: auto;
+    }
+}
+
+@media print {
+    .btn-calculate,
+    .language-selector {
+        display: none !important;
     }
 
     body {
@@ -252,10 +378,22 @@ footer {
 
 <body>
 
-<section id="welcome">
+<section>
     <div class="welcome">
-        <h1>Budget Estimate Calculator</h1>
-        <p>Preliminary EPC Project Cost Estimation Tool</p>
+
+        <div class="language-selector">
+            <span>🌐</span>
+            <select id="languageSelect" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="el">Ελληνικά</option>
+                <option value="ar">العربية</option>
+                <option value="de">Deutsch</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+
+        <h1 data-i18n="title">Budget Estimate Calculator</h1>
+        <p data-i18n="subtitle">Preliminary EPC Project Cost Estimation Tool</p>
     </div>
 </section>
 
@@ -265,48 +403,47 @@ footer {
 
     <div class="panel-custom">
 
-        <h3>Project Information</h3>
+        <h3 data-i18n="projectInfo">Project Information</h3>
 
         <div class="row">
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Country / Market</label>
+                    <label data-i18n="country">Country / Market</label>
                     <select id="country" class="form-control">
-                        <option value="">Select Country</option>
+                        <option value="" data-i18n="selectCountry">Select Country</option>
                     </select>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Project Type</label>
+                    <label data-i18n="projectType">Project Type</label>
                     <select id="projectType" class="form-control"
-                        onchange="updateProjectOptions()">
-                        <option value="">Select Project</option>
-                        <option value="solar">Solar PV Project</option>
+                            onchange="updateProjectOptions()">
+                        <option value="" data-i18n="selectProject">Select Project</option>
+                        <option value="solar" data-i18n="solar">Solar PV Project</option>
                         <option value="bess">BESS</option>
-                        <option value="datacenter">Data Center</option>
+                        <option value="datacenter" data-i18n="datacenter">Data Center</option>
                     </select>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="form-group">
-                    <label id="capacityLabel">Project Capacity (MW)</label>
-                    <input type="number" id="capacity"
-                        class="form-control" min="0.01" step="any"
-                        placeholder="Enter capacity">
+                    <label id="capacityLabel" data-i18n="capacity">Project Capacity (MW)</label>
+                    <input type="number" id="capacity" class="form-control"
+                           min="0.01" step="any" placeholder="Enter capacity">
                 </div>
             </div>
 
-            <!-- SOLAR OPTIONS -->
+            <!-- SOLAR -->
 
             <div class="col-md-6" id="solarOptions" style="display:none;">
                 <div class="form-group">
-                    <label>PV Module Technology</label>
+                    <label data-i18n="technology">PV Module Technology</label>
                     <select id="solarTechnology" class="form-control">
-                        <option value="">Select Technology</option>
+                        <option value="" data-i18n="selectTechnology">Select Technology</option>
                         <option value="topcon_mono">N-type TOPCon Monofacial</option>
                         <option value="topcon_bifacial">N-type TOPCon Bifacial</option>
                         <option value="perc">PERC Monofacial</option>
@@ -316,80 +453,75 @@ footer {
 
             <div class="col-md-6" id="modulePowerGroup" style="display:none;">
                 <div class="form-group">
-                    <label>PV Module Power (Wp)</label>
-                    <input type="number" id="modulePower"
-                        class="form-control" min="1" step="any"
-                        placeholder="Enter module power in Wp">
+                    <label data-i18n="modulePower">PV Module Power (Wp)</label>
+                    <input type="number" id="modulePower" class="form-control"
+                           min="1" step="any" placeholder="Enter module power">
                 </div>
             </div>
 
             <div class="col-md-6" id="mountingGroup" style="display:none;">
                 <div class="form-group">
-                    <label>Mounting System</label>
+                    <label data-i18n="mounting">Mounting System</label>
                     <select id="mountingType" class="form-control">
-                        <option value="">Select Mounting System</option>
-                        <option value="fixed">Fixed Tilt</option>
-                        <option value="tracker">Single Axis Tracker</option>
+                        <option value="" data-i18n="selectMounting">Select Mounting System</option>
+                        <option value="fixed" data-i18n="fixed">Fixed Tilt</option>
+                        <option value="tracker" data-i18n="tracker">Single Axis Tracker</option>
                     </select>
                 </div>
             </div>
 
             <div class="col-md-6" id="invertersGroup" style="display:none;">
                 <div class="form-group">
-                    <label>Number of String Inverters</label>
-                    <input type="number" id="inverterCount"
-                        class="form-control" min="1" step="1"
-                        placeholder="Enter inverter quantity">
+                    <label data-i18n="inverters">Number of String Inverters</label>
+                    <input type="number" id="inverterCount" class="form-control"
+                           min="1" step="1" placeholder="Enter inverter quantity">
                 </div>
             </div>
 
             <div class="col-md-6" id="substationsGroup" style="display:none;">
                 <div class="form-group">
-                    <label>Number of MV Substations</label>
-                    <input type="number" id="substationCount"
-                        class="form-control" min="1" step="1"
-                        placeholder="Enter MV substation quantity">
+                    <label data-i18n="substations">Number of MV Substations</label>
+                    <input type="number" id="substationCount" class="form-control"
+                           min="1" step="1" placeholder="Enter MV substation quantity">
                 </div>
             </div>
 
             <div class="col-md-6" id="modulesPerStringGroup" style="display:none;">
                 <div class="form-group">
-                    <label>Modules per String</label>
-                    <input type="number" id="modulesPerString"
-                        class="form-control" min="1" step="1"
-                        placeholder="Enter modules per string">
+                    <label data-i18n="modulesPerString">Modules per String</label>
+                    <input type="number" id="modulesPerString" class="form-control"
+                           min="1" step="1" placeholder="Enter modules per string">
                 </div>
             </div>
 
-            <!-- BESS OPTIONS -->
+            <!-- BESS -->
 
             <div class="col-md-6" id="durationGroup" style="display:none;">
                 <div class="form-group">
-                    <label>BESS Duration (Hours)</label>
-                    <input type="number" id="duration"
-                        class="form-control" min="1" step="any"
-                        placeholder="Enter duration">
+                    <label data-i18n="duration">BESS Duration (Hours)</label>
+                    <input type="number" id="duration" class="form-control"
+                           min="1" step="any" placeholder="Enter duration">
                 </div>
             </div>
 
             <div class="col-md-6" id="chemistryGroup" style="display:none;">
                 <div class="form-group">
-                    <label>Battery Chemistry</label>
+                    <label data-i18n="chemistry">Battery Chemistry</label>
                     <select id="batteryChemistry" class="form-control">
-                        <option value="">Select Chemistry</option>
+                        <option value="" data-i18n="selectChemistry">Select Chemistry</option>
                         <option value="LFP">LFP</option>
                         <option value="NMC">NMC</option>
                     </select>
                 </div>
             </div>
 
-            <!-- DATA CENTER OPTIONS -->
+            <!-- DATA CENTER -->
 
             <div class="col-md-6" id="tierGroup" style="display:none;">
                 <div class="form-group">
-                    <label>Data Center Tier</label>
+                    <label data-i18n="tier">Data Center Tier</label>
                     <select id="dataCenterTier" class="form-control">
-                        <option value="">Select Tier</option>
+                        <option value="" data-i18n="selectTier">Select Tier</option>
                         <option value="Tier II">Tier II</option>
                         <option value="Tier III">Tier III</option>
                         <option value="Tier IV">Tier IV</option>
@@ -399,28 +531,27 @@ footer {
 
             <div class="col-md-6" id="coolingGroup" style="display:none;">
                 <div class="form-group">
-                    <label>Cooling System</label>
+                    <label data-i18n="cooling">Cooling System</label>
                     <select id="coolingType" class="form-control">
-                        <option value="">Select Cooling</option>
-                        <option value="Air Cooling">Air Cooling</option>
-                        <option value="Liquid Cooling">Liquid Cooling</option>
+                        <option value="" data-i18n="selectCooling">Select Cooling</option>
+                        <option value="air" data-i18n="airCooling">Air Cooling</option>
+                        <option value="liquid" data-i18n="liquidCooling">Liquid Cooling</option>
                     </select>
                 </div>
             </div>
 
         </div>
 
-        <button class="btn btn-calculate" onclick="calculateBudget()">
+        <button class="btn btn-calculate" onclick="calculateBudget()" data-i18n="calculate">
             Calculate Budget
         </button>
 
-        <button class="btn btn-calculate" onclick="resetCalculator()">
+        <button class="btn btn-calculate" onclick="resetCalculator()" data-i18n="reset">
             Reset
         </button>
 
-        <p class="note">
-            Preliminary estimates based on indicative procurement and EPC
-            assumptions. Material reference values are included in the EPC total.
+        <p class="note" data-i18n="introNote">
+            Preliminary estimates based on indicative procurement and EPC assumptions.
         </p>
 
         <div id="errorMessage" style="display:none;color:#b52b27;margin-top:12px;"></div>
@@ -433,7 +564,7 @@ footer {
     <div id="results" class="hidden-results">
 
         <div class="result-card">
-            <h4>Total Estimated EPC Cost</h4>
+            <h4 data-i18n="totalEpc">Total Estimated EPC Cost</h4>
             <h2 id="totalBudget">€0</h2>
             <p id="projectSummary"></p>
             <p id="marketSummary"></p>
@@ -441,96 +572,90 @@ footer {
         </div>
 
 
-        <!-- EPC COST BREAKDOWN -->
+        <!-- EPC BREAKDOWN -->
 
         <div class="panel-custom">
 
-            <h3>EPC Cost Breakdown</h3>
+            <h3 data-i18n="epcBreakdown">EPC Cost Breakdown</h3>
 
             <div class="table-responsive">
                 <table class="table table-bordered">
-
                     <thead>
                         <tr>
-                            <th>Work Category</th>
-                            <th>Estimated Cost (€)</th>
-                            <th>Share (%)</th>
+                            <th data-i18n="workCategory">Work Category</th>
+                            <th data-i18n="estimatedCost">Estimated Cost (€)</th>
+                            <th data-i18n="share">Share (%)</th>
                         </tr>
                     </thead>
-
                     <tbody id="costTable"></tbody>
-
                     <tfoot>
                         <tr class="total-row">
-                            <td>TOTAL EPC COST</td>
+                            <td data-i18n="totalEpcCost">TOTAL EPC COST</td>
                             <td id="costTotal">€0</td>
                             <td>100%</td>
                         </tr>
                     </tfoot>
-
                 </table>
             </div>
 
-            <p class="note">
-                Total EPC Cost includes procurement, materials, engineering,
-                civil works, electrical installation, project management,
-                commissioning and contingency.
+            <p class="note" data-i18n="epcNote">
+                The EPC total includes procurement, materials, engineering, civil works,
+                electrical installation, project management, commissioning and contingency.
             </p>
 
         </div>
 
 
-        <!-- MATERIAL REFERENCE -->
+        <!-- MATERIALS -->
 
         <div class="panel-custom">
 
-            <h3>Material / Equipment Reference</h3>
+            <h3 data-i18n="materialReference">Material / Equipment Reference</h3>
 
             <div class="table-responsive">
                 <table class="table table-bordered">
-
                     <thead>
                         <tr>
-                            <th>Material / Equipment</th>
-                            <th>Estimated Quantity</th>
-                            <th>Unit</th>
-                            <th>Unit Price (€)</th>
-                            <th>Reference Total (€)</th>
+                            <th data-i18n="material">Material / Equipment</th>
+                            <th data-i18n="quantity">Estimated Quantity</th>
+                            <th data-i18n="unit">Unit</th>
+                            <th data-i18n="unitPrice">Unit Price (€)</th>
+                            <th data-i18n="referenceTotal">Reference Total (€)</th>
                         </tr>
                     </thead>
-
                     <tbody id="materialTable"></tbody>
-
                     <tfoot>
                         <tr class="total-row">
-                            <td colspan="4">TOTAL MATERIAL REFERENCE VALUE</td>
+                            <td colspan="4" data-i18n="totalMaterial">
+                                TOTAL MATERIAL REFERENCE VALUE
+                            </td>
                             <td id="materialTotal">€0</td>
                         </tr>
                     </tfoot>
-
                 </table>
             </div>
 
-            <p class="note">
-                Material reference values are included within the EPC cost
-                assumptions. They are displayed separately for cost transparency
-                and are NOT added again to the EPC total.
+            <p class="note" data-i18n="materialNote">
+                Material reference values are included within the EPC cost assumptions.
+                They are not added again to the EPC total.
             </p>
 
         </div>
 
 
-        <div class="panel-custom">
-            <h3>Estimation Assumptions</h3>
-            <div id="assumptions"></div>
+        <!-- ASSUMPTIONS -->
+
+        <div class="panel-custom assumptions-panel">
+            <h3 data-i18n="assumptions">Project Assumptions & Cost Parameters</h3>
+            <div id="assumptions" class="assumptions-grid"></div>
         </div>
 
 
-        <button class="btn btn-calculate" onclick="exportExcel()">
+        <button class="btn btn-calculate" onclick="exportExcel()" data-i18n="excel">
             Download Excel
         </button>
 
-        <button class="btn btn-calculate" onclick="window.print()">
+        <button class="btn btn-calculate" onclick="window.print()" data-i18n="print">
             Print / Save as PDF
         </button>
 
@@ -538,16 +663,650 @@ footer {
 
 </div>
 
-<footer>
+<footer data-i18n="footer">
     Budget Estimate Calculator | Preliminary EPC Estimation
 </footer>
 
 
 <script>
 
-// =====================================
-// 1. COUNTRIES
-// =====================================
+// =============================================
+// TRANSLATIONS
+// =============================================
+
+const translations = {
+
+en: {
+    title: "Budget Estimate Calculator",
+    subtitle: "Preliminary EPC Project Cost Estimation Tool",
+    projectInfo: "Project Information",
+    country: "Country / Market",
+    selectCountry: "Select Country",
+    projectType: "Project Type",
+    selectProject: "Select Project",
+    solar: "Solar PV Project",
+    datacenter: "Data Center",
+    capacity: "Project Capacity (MW)",
+    technology: "PV Module Technology",
+    selectTechnology: "Select Technology",
+    modulePower: "PV Module Power (Wp)",
+    mounting: "Mounting System",
+    selectMounting: "Select Mounting System",
+    fixed: "Fixed Tilt",
+    tracker: "Single Axis Tracker",
+    inverters: "Number of String Inverters",
+    substations: "Number of MV Substations",
+    modulesPerString: "Modules per String",
+    duration: "BESS Duration (Hours)",
+    chemistry: "Battery Chemistry",
+    selectChemistry: "Select Chemistry",
+    tier: "Data Center Tier",
+    selectTier: "Select Tier",
+    cooling: "Cooling System",
+    selectCooling: "Select Cooling",
+    airCooling: "Air Cooling",
+    liquidCooling: "Liquid Cooling",
+    calculate: "Calculate Budget",
+    reset: "Reset",
+    introNote: "Preliminary estimates based on indicative procurement and EPC assumptions.",
+    totalEpc: "Total Estimated EPC Cost",
+    epcBreakdown: "EPC Cost Breakdown",
+    workCategory: "Work Category",
+    estimatedCost: "Estimated Cost (€)",
+    share: "Share (%)",
+    totalEpcCost: "TOTAL EPC COST",
+    epcNote: "The EPC total includes procurement, materials, engineering, civil works, electrical installation, project management, commissioning and contingency.",
+    materialReference: "Material / Equipment Reference",
+    material: "Material / Equipment",
+    quantity: "Estimated Quantity",
+    unit: "Unit",
+    unitPrice: "Unit Price (€)",
+    referenceTotal: "Reference Total (€)",
+    totalMaterial: "TOTAL MATERIAL REFERENCE VALUE",
+    materialNote: "Material reference values are included within the EPC cost assumptions. They are not added again to the EPC total.",
+    assumptions: "Project Assumptions & Cost Parameters",
+    excel: "Download Excel",
+    print: "Print / Save as PDF",
+    footer: "Budget Estimate Calculator | Preliminary EPC Estimation",
+    enterCapacity: "Enter capacity",
+    enterModulePower: "Enter module power",
+    enterInverters: "Enter inverter quantity",
+    enterSubstations: "Enter MV substation quantity",
+    enterModulesPerString: "Enter modules per string",
+    selectMounting: "Select mounting system",
+    selectCountryError: "Please select a country, project type and enter a valid capacity.",
+    solarError: "Please complete all Solar PV configuration fields.",
+    bessError: "Please enter BESS duration and select battery chemistry.",
+    dcError: "Please select Data Center Tier and Cooling System.",
+    directCost: "Direct EPC Cost",
+    contingency: "Contingency Allowance",
+    contingencyDesc: "5% risk allowance",
+    beforeContingency: "Before contingency",
+    totalBudget: "Total EPC Budget",
+    totalBudgetDesc: "Includes EPC costs and contingency. Materials are not added again.",
+    marketFactor: "Market Factor",
+    marketFactorDesc: "Country cost adjustment factor",
+    countrySelected: "Selected project location",
+    technologyLabel: "PV Technology",
+    moduleQuantity: "Calculated Module Quantity",
+    actualCapacity: "Actual DC Capacity",
+    numberStrings: "Calculated Strings",
+    stringConfig: "String Configuration",
+    numberInverters: "Number of Inverters",
+    numberSubstations: "Number of MV Substations",
+    mountingType: "Mounting System",
+    costPerWp: "EPC Cost per Wp",
+    durationLabel: "BESS Duration",
+    energyCapacity: "Energy Capacity",
+    batteryChemistry: "Battery Chemistry",
+    dataTier: "Data Center Tier",
+    coolingSystem: "Cooling System",
+    solarModules: "PV Modules",
+    pvStrings: "PV Strings",
+    inverterEquipment: "String Inverters",
+    mountingStructures: "Mounting Structures",
+    dcCables: "DC Cables",
+    acCables: "AC LV Cables",
+    mvCables: "MV Cables",
+    connectors: "DC Connectors",
+    mvSubstations: "MV Substations",
+    scada: "SCADA / Monitoring",
+    accessRoads: "Access Roads",
+    fencing: "Fencing",
+    foundations: "Foundations",
+    drainage: "Drainage System",
+    civil: "Civil Works",
+    mechanical: "Mechanical Works",
+    electrical: "Electrical Works",
+    installation: "Installation Labour",
+    engineering: "Engineering and Project Management",
+    scadaCommissioning: "SCADA / Monitoring / Commissioning",
+    other: "Other EPC Costs",
+    pvModulesCost: "PV Modules",
+    contingencyRow: "Contingency (5%)",
+    stringUnits: "strings",
+    modulesUnit: "modules/string",
+    pcs: "pcs",
+    units: "units",
+    meters: "m",
+    allowance: "allowance",
+    mWp: "MWp",
+    mW: "MW",
+    mWh: "MWh",
+    systems: "systems",
+    modulePositions: "module positions",
+    riskNote: "Cable lengths and civil quantities are preliminary allowances and require confirmation through detailed design.",
+    stringsNote: "Modules are divided into strings. Any remaining modules may form a shorter string; confirm final string allocation in detailed engineering.",
+    marketNote: "Indicative market adjustment. Not a live supplier quotation.",
+    selectLanguage: "Select Language"
+},
+
+el: {
+    title: "Υπολογιστής Προϋπολογισμού",
+    subtitle: "Εργαλείο προκαταρκτικής εκτίμησης κόστους EPC",
+    projectInfo: "Στοιχεία Έργου",
+    country: "Χώρα / Αγορά",
+    selectCountry: "Επιλογή Χώρας",
+    projectType: "Τύπος Έργου",
+    selectProject: "Επιλογή Έργου",
+    solar: "Φωτοβολταϊκό Έργο",
+    datacenter: "Κέντρο Δεδομένων",
+    capacity: "Ισχύς Έργου (MW)",
+    technology: "Τεχνολογία Φωτοβολταϊκών Πλαισίων",
+    selectTechnology: "Επιλογή Τεχνολογίας",
+    modulePower: "Ισχύς Φωτοβολταϊκού Πλαισίου (Wp)",
+    mounting: "Σύστημα Στήριξης",
+    selectMounting: "Επιλογή Συστήματος Στήριξης",
+    fixed: "Σταθερή Βάση",
+    tracker: "Μονοαξονικό Σύστημα Παρακολούθησης",
+    inverters: "Αριθμός String Inverters",
+    substations: "Αριθμός Υποσταθμών Μέσης Τάσης",
+    modulesPerString: "Πλαίσια ανά String",
+    duration: "Διάρκεια BESS (Ώρες)",
+    chemistry: "Χημεία Μπαταρίας",
+    selectChemistry: "Επιλογή Χημείας",
+    tier: "Κατηγορία Data Center",
+    selectTier: "Επιλογή Κατηγορίας",
+    cooling: "Σύστημα Ψύξης",
+    selectCooling: "Επιλογή Ψύξης",
+    airCooling: "Ψύξη με Αέρα",
+    liquidCooling: "Υγρόψυξη",
+    calculate: "Υπολογισμός Προϋπολογισμού",
+    reset: "Επαναφορά",
+    introNote: "Προκαταρκτικές εκτιμήσεις βάσει ενδεικτικών παραδοχών προμήθειας και EPC.",
+    totalEpc: "Συνολικό Εκτιμώμενο Κόστος EPC",
+    epcBreakdown: "Ανάλυση Κόστους EPC",
+    workCategory: "Κατηγορία Εργασιών",
+    estimatedCost: "Εκτιμώμενο Κόστος (€)",
+    share: "Ποσοστό (%)",
+    totalEpcCost: "ΣΥΝΟΛΙΚΟ ΚΟΣΤΟΣ EPC",
+    epcNote: "Το συνολικό EPC περιλαμβάνει προμήθειες, υλικά, μελέτες, πολιτικά έργα, ηλεκτρολογική εγκατάσταση, διαχείριση έργου, θέση σε λειτουργία και contingency.",
+    materialReference: "Αναφορά Υλικών / Εξοπλισμού",
+    material: "Υλικό / Εξοπλισμός",
+    quantity: "Εκτιμώμενη Ποσότητα",
+    unit: "Μονάδα",
+    unitPrice: "Τιμή Μονάδας (€)",
+    referenceTotal: "Συνολική Αξία Αναφοράς (€)",
+    totalMaterial: "ΣΥΝΟΛΙΚΗ ΑΞΙΑ ΥΛΙΚΩΝ ΑΝΑΦΟΡΑΣ",
+    materialNote: "Οι ενδεικτικές αξίες των υλικών περιλαμβάνονται στις παραδοχές κόστους EPC. Δεν προστίθενται ξανά στο συνολικό EPC.",
+    assumptions: "Παραδοχές Έργου & Παράμετροι Κόστους",
+    excel: "Λήψη Excel",
+    print: "Εκτύπωση / Αποθήκευση PDF",
+    footer: "Υπολογιστής Προϋπολογισμού | Προκαταρκτική Εκτίμηση EPC",
+    enterCapacity: "Εισαγωγή ισχύος",
+    enterModulePower: "Εισαγωγή ισχύος πλαισίου",
+    enterInverters: "Εισαγωγή αριθμού inverter",
+    enterSubstations: "Εισαγωγή αριθμού υποσταθμών",
+    enterModulesPerString: "Εισαγωγή πλαισίων ανά string",
+    selectMounting: "Επιλογή συστήματος στήριξης",
+    selectCountryError: "Επίλεξε χώρα, τύπο έργου και εισήγαγε έγκυρη ισχύ.",
+    solarError: "Συμπλήρωσε όλα τα πεδία διαμόρφωσης του φωτοβολταϊκού έργου.",
+    bessError: "Εισήγαγε διάρκεια BESS και επίλεξε χημεία μπαταρίας.",
+    dcError: "Επίλεξε κατηγορία Data Center και σύστημα ψύξης.",
+    directCost: "Άμεσο Κόστος EPC",
+    contingency: "Πρόβλεψη Απρόβλεπτων Δαπανών",
+    contingencyDesc: "Πρόβλεψη κινδύνου 5%",
+    beforeContingency: "Πριν από το contingency",
+    totalBudget: "Συνολικός Προϋπολογισμός EPC",
+    totalBudgetDesc: "Περιλαμβάνει το κόστος EPC και το contingency. Τα υλικά δεν προστίθενται ξανά.",
+    marketFactor: "Συντελεστής Αγοράς",
+    marketFactorDesc: "Συντελεστής προσαρμογής κόστους χώρας",
+    countrySelected: "Επιλεγμένη τοποθεσία έργου",
+    technologyLabel: "Τεχνολογία Φωτοβολταϊκών",
+    moduleQuantity: "Υπολογισμένος Αριθμός Πλαισίων",
+    actualCapacity: "Πραγματική DC Ισχύς",
+    numberStrings: "Υπολογισμένος Αριθμός Strings",
+    stringConfig: "Διαμόρφωση Strings",
+    numberInverters: "Αριθμός Inverters",
+    numberSubstations: "Αριθμός Υποσταθμών Μέσης Τάσης",
+    mountingType: "Σύστημα Στήριξης",
+    costPerWp: "Κόστος EPC ανά Wp",
+    durationLabel: "Διάρκεια BESS",
+    energyCapacity: "Ενεργειακή Χωρητικότητα",
+    batteryChemistry: "Χημεία Μπαταρίας",
+    dataTier: "Κατηγορία Data Center",
+    coolingSystem: "Σύστημα Ψύξης",
+    solarModules: "Φωτοβολταϊκά Πλαίσια",
+    pvStrings: "PV Strings",
+    inverterEquipment: "String Inverters",
+    mountingStructures: "Κατασκευές Στήριξης",
+    dcCables: "Καλώδια DC",
+    acCables: "Καλώδια AC Χαμηλής Τάσης",
+    mvCables: "Καλώδια Μέσης Τάσης",
+    connectors: "Σύνδεσμοι DC",
+    mvSubstations: "Υποσταθμοί Μέσης Τάσης",
+    scada: "SCADA / Παρακολούθηση",
+    accessRoads: "Δρόμοι Πρόσβασης",
+    fencing: "Περίφραξη",
+    foundations: "Θεμελιώσεις",
+    drainage: "Σύστημα Αποστράγγισης",
+    civil: "Πολιτικά Έργα",
+    mechanical: "Μηχανολογικές Εργασίες",
+    electrical: "Ηλεκτρολογικές Εργασίες",
+    installation: "Εργασίες Εγκατάστασης",
+    engineering: "Μελέτες και Διαχείριση Έργου",
+    scadaCommissioning: "SCADA / Παρακολούθηση / Θέση σε Λειτουργία",
+    other: "Λοιπά Κόστη EPC",
+    pvModulesCost: "Φωτοβολταϊκά Πλαίσια",
+    contingencyRow: "Contingency (5%)",
+    stringUnits: "strings",
+    modulesUnit: "πλαίσια/string",
+    pcs: "τεμ.",
+    units: "μονάδες",
+    meters: "m",
+    allowance: "ενδεικτική ποσότητα",
+    mWp: "MWp",
+    mW: "MW",
+    mWh: "MWh",
+    systems: "συστήματα",
+    modulePositions: "θέσεις πλαισίων",
+    riskNote: "Τα μήκη καλωδίων και οι ποσότητες πολιτικών έργων είναι προκαταρκτικές εκτιμήσεις και απαιτούν επιβεβαίωση από τη λεπτομερή μελέτη.",
+    stringsNote: "Τα πλαίσια κατανέμονται σε strings. Τυχόν υπόλοιπα μπορεί να σχηματίσουν μικρότερο string· απαιτείται επιβεβαίωση στη λεπτομερή μελέτη.",
+    marketNote: "Ενδεικτική προσαρμογή αγοράς. Δεν αποτελεί ζωντανή προσφορά προμηθευτή.",
+    selectLanguage: "Επιλογή Γλώσσας"
+},
+
+de: {
+    title: "Budget-Kalkulator",
+    subtitle: "Vorläufiges Tool zur Schätzung der EPC-Projektkosten",
+    projectInfo: "Projektinformationen",
+    country: "Land / Markt",
+    selectCountry: "Land auswählen",
+    projectType: "Projekttyp",
+    selectProject: "Projekt auswählen",
+    solar: "Solar-PV-Projekt",
+    datacenter: "Rechenzentrum",
+    capacity: "Projektleistung (MW)",
+    technology: "PV-Modultechnologie",
+    selectTechnology: "Technologie auswählen",
+    modulePower: "PV-Modulleistung (Wp)",
+    mounting: "Montagesystem",
+    selectMounting: "Montagesystem auswählen",
+    fixed: "Feste Neigung",
+    tracker: "Einachsiges Trackersystem",
+    inverters: "Anzahl String-Wechselrichter",
+    substations: "Anzahl Mittelspannungsstationen",
+    modulesPerString: "Module pro String",
+    duration: "BESS-Dauer (Stunden)",
+    chemistry: "Batteriechemie",
+    selectChemistry: "Chemie auswählen",
+    tier: "Rechenzentrum-Tier",
+    selectTier: "Tier auswählen",
+    cooling: "Kühlsystem",
+    selectCooling: "Kühlung auswählen",
+    airCooling: "Luftkühlung",
+    liquidCooling: "Flüssigkeitskühlung",
+    calculate: "Budget berechnen",
+    reset: "Zurücksetzen",
+    introNote: "Vorläufige Schätzungen auf Grundlage indikativer Beschaffungs- und EPC-Annahmen.",
+    totalEpc: "Geschätzte EPC-Gesamtkosten",
+    epcBreakdown: "EPC-Kostenaufschlüsselung",
+    workCategory: "Arbeitskategorie",
+    estimatedCost: "Geschätzte Kosten (€)",
+    share: "Anteil (%)",
+    totalEpcCost: "EPC-GESAMTKOSTEN",
+    epcNote: "Die EPC-Gesamtkosten umfassen Beschaffung, Materialien, Engineering, Tiefbau, Elektroinstallation, Projektmanagement, Inbetriebnahme und Contingency.",
+    materialReference: "Material- / Ausrüstungsreferenz",
+    material: "Material / Ausrüstung",
+    quantity: "Geschätzte Menge",
+    unit: "Einheit",
+    unitPrice: "Stückpreis (€)",
+    referenceTotal: "Referenz-Gesamtwert (€)",
+    totalMaterial: "GESAMTER MATERIALREFERENZWERT",
+    materialNote: "Die Materialreferenzwerte sind in den EPC-Kostenannahmen enthalten. Sie werden nicht erneut zu den EPC-Gesamtkosten addiert.",
+    assumptions: "Projektannahmen und Kostenparameter",
+    excel: "Excel herunterladen",
+    print: "Drucken / Als PDF speichern",
+    footer: "Budget-Kalkulator | Vorläufige EPC-Schätzung",
+    enterCapacity: "Leistung eingeben",
+    enterModulePower: "Modulleistung eingeben",
+    enterInverters: "Anzahl der Wechselrichter eingeben",
+    enterSubstations: "Anzahl der Mittelspannungsstationen eingeben",
+    enterModulesPerString: "Module pro String eingeben",
+    selectMounting: "Montagesystem auswählen",
+    selectCountryError: "Bitte Land und Projekttyp auswählen und eine gültige Leistung eingeben.",
+    solarError: "Bitte alle Solar-PV-Konfigurationsfelder ausfüllen.",
+    bessError: "Bitte BESS-Dauer eingeben und Batteriechemie auswählen.",
+    dcError: "Bitte Rechenzentrum-Tier und Kühlsystem auswählen.",
+    directCost: "Direkte EPC-Kosten",
+    contingency: "Risikoreserve",
+    contingencyDesc: "5 % Risikoreserve",
+    beforeContingency: "Vor Risikoreserve",
+    totalBudget: "EPC-Gesamtbudget",
+    totalBudgetDesc: "Enthält EPC-Kosten und Risikoreserve. Materialien werden nicht erneut addiert.",
+    marketFactor: "Marktfaktor",
+    marketFactorDesc: "Länderspezifischer Kostenanpassungsfaktor",
+    countrySelected: "Ausgewählter Projektstandort",
+    technologyLabel: "PV-Technologie",
+    moduleQuantity: "Berechnete Modulanzahl",
+    actualCapacity: "Tatsächliche DC-Leistung",
+    numberStrings: "Berechnete Strings",
+    stringConfig: "String-Konfiguration",
+    numberInverters: "Anzahl Wechselrichter",
+    numberSubstations: "Anzahl Mittelspannungsstationen",
+    mountingType: "Montagesystem",
+    costPerWp: "EPC-Kosten pro Wp",
+    durationLabel: "BESS-Dauer",
+    energyCapacity: "Energiekapazität",
+    batteryChemistry: "Batteriechemie",
+    dataTier: "Rechenzentrum-Tier",
+    coolingSystem: "Kühlsystem",
+    solarModules: "PV-Module",
+    pvStrings: "PV-Strings",
+    inverterEquipment: "String-Wechselrichter",
+    mountingStructures: "Montagestrukturen",
+    dcCables: "DC-Kabel",
+    acCables: "AC-Niederspannungskabel",
+    mvCables: "Mittelspannungskabel",
+    connectors: "DC-Steckverbinder",
+    mvSubstations: "Mittelspannungsstationen",
+    scada: "SCADA / Überwachung",
+    accessRoads: "Zufahrtsstraßen",
+    fencing: "Zaun",
+    foundations: "Fundamente",
+    drainage: "Entwässerungssystem",
+    civil: "Tiefbauarbeiten",
+    mechanical: "Mechanische Arbeiten",
+    electrical: "Elektroarbeiten",
+    installation: "Montagearbeiten",
+    engineering: "Engineering und Projektmanagement",
+    scadaCommissioning: "SCADA / Überwachung / Inbetriebnahme",
+    other: "Sonstige EPC-Kosten",
+    pvModulesCost: "PV-Module",
+    contingencyRow: "Risikoreserve (5 %)",
+    stringUnits: "Strings",
+    modulesUnit: "Module/String",
+    pcs: "Stück",
+    units: "Einheiten",
+    meters: "m",
+    allowance: "Ansatz",
+    mWp: "MWp",
+    mW: "MW",
+    mWh: "MWh",
+    systems: "Systeme",
+    modulePositions: "Modulpositionen",
+    riskNote: "Kabellängen und Tiefbaumengen sind vorläufige Ansätze und müssen durch die Detailplanung bestätigt werden.",
+    stringsNote: "Die Module werden auf Strings verteilt. Verbleibende Module können einen kürzeren String bilden; die endgültige Verteilung muss in der Detailplanung geprüft werden.",
+    marketNote: "Indikativer Marktanpassungsfaktor. Kein aktuelles Lieferantenangebot.",
+    selectLanguage: "Sprache auswählen"
+},
+
+fr: {
+    title: "Calculateur de Budget",
+    subtitle: "Outil préliminaire d'estimation des coûts EPC",
+    projectInfo: "Informations sur le Projet",
+    country: "Pays / Marché",
+    selectCountry: "Sélectionner un pays",
+    projectType: "Type de Projet",
+    selectProject: "Sélectionner un projet",
+    solar: "Projet solaire photovoltaïque",
+    datacenter: "Centre de données",
+    capacity: "Puissance du projet (MW)",
+    technology: "Technologie des modules PV",
+    selectTechnology: "Sélectionner la technologie",
+    modulePower: "Puissance du module PV (Wp)",
+    mounting: "Système de montage",
+    selectMounting: "Sélectionner le système",
+    fixed: "Structure fixe",
+    tracker: "Suiveur à axe unique",
+    inverters: "Nombre d'onduleurs string",
+    substations: "Nombre de postes MT",
+    modulesPerString: "Modules par string",
+    duration: "Durée BESS (heures)",
+    chemistry: "Chimie de la batterie",
+    selectChemistry: "Sélectionner la chimie",
+    tier: "Niveau du centre de données",
+    selectTier: "Sélectionner le niveau",
+    cooling: "Système de refroidissement",
+    selectCooling: "Sélectionner le refroidissement",
+    airCooling: "Refroidissement par air",
+    liquidCooling: "Refroidissement liquide",
+    calculate: "Calculer le Budget",
+    reset: "Réinitialiser",
+    introNote: "Estimations préliminaires basées sur des hypothèses indicatives d'approvisionnement et EPC.",
+    totalEpc: "Coût EPC Total Estimé",
+    epcBreakdown: "Ventilation des Coûts EPC",
+    workCategory: "Catégorie de travaux",
+    estimatedCost: "Coût estimé (€)",
+    share: "Part (%)",
+    totalEpcCost: "COÛT EPC TOTAL",
+    epcNote: "Le coût EPC total comprend les achats, les matériaux, l'ingénierie, les travaux de génie civil, l'installation électrique, la gestion de projet, la mise en service et la provision pour risques.",
+    materialReference: "Référence des Matériaux / Équipements",
+    material: "Matériel / Équipement",
+    quantity: "Quantité estimée",
+    unit: "Unité",
+    unitPrice: "Prix unitaire (€)",
+    referenceTotal: "Valeur totale de référence (€)",
+    totalMaterial: "VALEUR TOTALE DE RÉFÉRENCE DES MATÉRIAUX",
+    materialNote: "Les valeurs de référence des matériaux sont incluses dans les hypothèses de coûts EPC. Elles ne sont pas ajoutées une seconde fois au coût EPC total.",
+    assumptions: "Hypothèses du Projet et Paramètres de Coût",
+    excel: "Télécharger Excel",
+    print: "Imprimer / Enregistrer en PDF",
+    footer: "Calculateur de Budget | Estimation EPC Préliminaire",
+    enterCapacity: "Saisir la puissance",
+    enterModulePower: "Saisir la puissance du module",
+    enterInverters: "Saisir le nombre d'onduleurs",
+    enterSubstations: "Saisir le nombre de postes MT",
+    enterModulesPerString: "Saisir les modules par string",
+    selectMounting: "Sélectionner le système de montage",
+    selectCountryError: "Veuillez sélectionner un pays, un type de projet et saisir une puissance valide.",
+    solarError: "Veuillez compléter tous les champs de configuration solaire PV.",
+    bessError: "Veuillez saisir la durée BESS et sélectionner la chimie de la batterie.",
+    dcError: "Veuillez sélectionner le niveau du centre de données et le système de refroidissement.",
+    directCost: "Coût EPC Direct",
+    contingency: "Provision pour Imprévus",
+    contingencyDesc: "Provision pour risques de 5 %",
+    beforeContingency: "Avant provision pour imprévus",
+    totalBudget: "Budget EPC Total",
+    totalBudgetDesc: "Comprend les coûts EPC et la provision pour imprévus. Les matériaux ne sont pas ajoutés une seconde fois.",
+    marketFactor: "Facteur de Marché",
+    marketFactorDesc: "Facteur d'ajustement des coûts par pays",
+    countrySelected: "Emplacement du projet sélectionné",
+    technologyLabel: "Technologie PV",
+    moduleQuantity: "Nombre de modules calculé",
+    actualCapacity: "Puissance DC réelle",
+    numberStrings: "Nombre de strings calculé",
+    stringConfig: "Configuration des strings",
+    numberInverters: "Nombre d'onduleurs",
+    numberSubstations: "Nombre de postes MT",
+    mountingType: "Système de montage",
+    costPerWp: "Coût EPC par Wp",
+    durationLabel: "Durée BESS",
+    energyCapacity: "Capacité énergétique",
+    batteryChemistry: "Chimie de la batterie",
+    dataTier: "Niveau du centre de données",
+    coolingSystem: "Système de refroidissement",
+    solarModules: "Modules PV",
+    pvStrings: "Strings PV",
+    inverterEquipment: "Onduleurs string",
+    mountingStructures: "Structures de montage",
+    dcCables: "Câbles DC",
+    acCables: "Câbles AC basse tension",
+    mvCables: "Câbles moyenne tension",
+    connectors: "Connecteurs DC",
+    mvSubstations: "Postes moyenne tension",
+    scada: "SCADA / Supervision",
+    accessRoads: "Routes d'accès",
+    fencing: "Clôture",
+    foundations: "Fondations",
+    drainage: "Système de drainage",
+    civil: "Travaux de génie civil",
+    mechanical: "Travaux mécaniques",
+    electrical: "Travaux électriques",
+    installation: "Main-d'œuvre d'installation",
+    engineering: "Ingénierie et gestion de projet",
+    scadaCommissioning: "SCADA / Supervision / Mise en service",
+    other: "Autres coûts EPC",
+    pvModulesCost: "Modules PV",
+    contingencyRow: "Provision pour imprévus (5 %)",
+    stringUnits: "strings",
+    modulesUnit: "modules/string",
+    pcs: "pièces",
+    units: "unités",
+    meters: "m",
+    allowance: "estimation",
+    mWp: "MWp",
+    mW: "MW",
+    mWh: "MWh",
+    systems: "systèmes",
+    modulePositions: "positions de modules",
+    riskNote: "Les longueurs de câbles et les quantités de génie civil sont des estimations préliminaires à confirmer par l'ingénierie détaillée.",
+    stringsNote: "Les modules sont répartis en strings. Les modules restants peuvent former un string plus court ; la répartition finale doit être vérifiée lors de l'ingénierie détaillée.",
+    marketNote: "Facteur d'ajustement indicatif du marché. Il ne s'agit pas d'une offre fournisseur en temps réel.",
+    selectLanguage: "Choisir la langue"
+},
+
+ar: {
+    title: "حاسبة تقدير الميزانية",
+    subtitle: "أداة أولية لتقدير تكاليف المشروع بنظام EPC",
+    projectInfo: "معلومات المشروع",
+    country: "الدولة / السوق",
+    selectCountry: "اختر الدولة",
+    projectType: "نوع المشروع",
+    selectProject: "اختر المشروع",
+    solar: "مشروع طاقة شمسية",
+    datacenter: "مركز بيانات",
+    capacity: "قدرة المشروع (MW)",
+    technology: "تقنية الألواح الشمسية",
+    selectTechnology: "اختر التقنية",
+    modulePower: "قدرة اللوح الشمسي (Wp)",
+    mounting: "نظام التركيب",
+    selectMounting: "اختر نظام التركيب",
+    fixed: "تركيب ثابت",
+    tracker: "نظام تتبع أحادي المحور",
+    inverters: "عدد عواكس السلاسل",
+    substations: "عدد محطات الجهد المتوسط",
+    modulesPerString: "عدد الألواح في كل سلسلة",
+    duration: "مدة نظام BESS (ساعات)",
+    chemistry: "كيمياء البطارية",
+    selectChemistry: "اختر نوع الكيمياء",
+    tier: "تصنيف مركز البيانات",
+    selectTier: "اختر التصنيف",
+    cooling: "نظام التبريد",
+    selectCooling: "اختر نظام التبريد",
+    airCooling: "تبريد بالهواء",
+    liquidCooling: "تبريد سائل",
+    calculate: "احسب الميزانية",
+    reset: "إعادة تعيين",
+    introNote: "تقديرات أولية تستند إلى افتراضات إرشادية للمشتريات وتكاليف EPC.",
+    totalEpc: "إجمالي تكلفة EPC المقدرة",
+    epcBreakdown: "تفصيل تكاليف EPC",
+    workCategory: "فئة الأعمال",
+    estimatedCost: "التكلفة المقدرة (€)",
+    share: "النسبة (%)",
+    totalEpcCost: "إجمالي تكلفة EPC",
+    epcNote: "يشمل إجمالي EPC المشتريات والمواد والهندسة والأعمال المدنية والتركيبات الكهربائية وإدارة المشروع والتشغيل والاحتياطي للمخاطر.",
+    materialReference: "مرجع المواد والمعدات",
+    material: "المواد / المعدات",
+    quantity: "الكمية المقدرة",
+    unit: "الوحدة",
+    unitPrice: "سعر الوحدة (€)",
+    referenceTotal: "إجمالي القيمة المرجعية (€)",
+    totalMaterial: "إجمالي القيمة المرجعية للمواد",
+    materialNote: "قيم المواد المرجعية مدرجة ضمن افتراضات تكلفة EPC ولا تتم إضافتها مرة أخرى إلى إجمالي EPC.",
+    assumptions: "افتراضات المشروع ومعايير التكلفة",
+    excel: "تنزيل Excel",
+    print: "طباعة / حفظ PDF",
+    footer: "حاسبة الميزانية | تقدير EPC أولي",
+    enterCapacity: "أدخل القدرة",
+    enterModulePower: "أدخل قدرة اللوح",
+    enterInverters: "أدخل عدد العواكس",
+    enterSubstations: "أدخل عدد محطات الجهد المتوسط",
+    enterModulesPerString: "أدخل عدد الألواح لكل سلسلة",
+    selectMounting: "اختر نظام التركيب",
+    selectCountryError: "يرجى اختيار الدولة ونوع المشروع وإدخال قدرة صحيحة.",
+    solarError: "يرجى استكمال جميع حقول إعداد مشروع الطاقة الشمسية.",
+    bessError: "يرجى إدخال مدة BESS واختيار كيمياء البطارية.",
+    dcError: "يرجى اختيار تصنيف مركز البيانات ونظام التبريد.",
+    directCost: "تكلفة EPC المباشرة",
+    contingency: "مخصص التكاليف غير المتوقعة",
+    contingencyDesc: "احتياطي مخاطر بنسبة 5%",
+    beforeContingency: "قبل الاحتياطي",
+    totalBudget: "إجمالي ميزانية EPC",
+    totalBudgetDesc: "يشمل تكاليف EPC والاحتياطي. لا تتم إضافة المواد مرة أخرى.",
+    marketFactor: "معامل السوق",
+    marketFactorDesc: "معامل تعديل التكلفة حسب الدولة",
+    countrySelected: "موقع المشروع المحدد",
+    technologyLabel: "تقنية الألواح الشمسية",
+    moduleQuantity: "العدد المحسوب للألواح",
+    actualCapacity: "قدرة التيار المستمر الفعلية",
+    numberStrings: "عدد السلاسل المحسوب",
+    stringConfig: "تكوين السلاسل",
+    numberInverters: "عدد العواكس",
+    numberSubstations: "عدد محطات الجهد المتوسط",
+    mountingType: "نظام التركيب",
+    costPerWp: "تكلفة EPC لكل Wp",
+    durationLabel: "مدة BESS",
+    energyCapacity: "السعة الطاقية",
+    batteryChemistry: "كيمياء البطارية",
+    dataTier: "تصنيف مركز البيانات",
+    coolingSystem: "نظام التبريد",
+    solarModules: "الألواح الشمسية",
+    pvStrings: "سلاسل PV",
+    inverterEquipment: "عواكس السلاسل",
+    mountingStructures: "هياكل التركيب",
+    dcCables: "كابلات DC",
+    acCables: "كابلات AC منخفضة الجهد",
+    mvCables: "كابلات الجهد المتوسط",
+    connectors: "موصلات DC",
+    mvSubstations: "محطات الجهد المتوسط",
+    scada: "SCADA / المراقبة",
+    accessRoads: "طرق الوصول",
+    fencing: "السياج",
+    foundations: "الأساسات",
+    drainage: "نظام تصريف المياه",
+    civil: "الأعمال المدنية",
+    mechanical: "الأعمال الميكانيكية",
+    electrical: "الأعمال الكهربائية",
+    installation: "أعمال التركيب",
+    engineering: "الهندسة وإدارة المشروع",
+    scadaCommissioning: "SCADA / المراقبة / التشغيل",
+    other: "تكاليف EPC أخرى",
+    pvModulesCost: "الألواح الشمسية",
+    contingencyRow: "الاحتياطي (5%)",
+    stringUnits: "سلاسل",
+    modulesUnit: "ألواح/سلسلة",
+    pcs: "قطعة",
+    units: "وحدات",
+    meters: "م",
+    allowance: "تقديري",
+    mWp: "MWp",
+    mW: "MW",
+    mWh: "MWh",
+    systems: "أنظمة",
+    modulePositions: "مواضع الألواح",
+    riskNote: "أطوال الكابلات وكميات الأعمال المدنية تقديرات أولية ويجب تأكيدها من خلال التصميم التفصيلي.",
+    stringsNote: "يتم توزيع الألواح على السلاسل. قد تشكل الألواح المتبقية سلسلة أقصر، ويجب التحقق من التوزيع النهائي في التصميم التفصيلي.",
+    marketNote: "معامل تعديل سوقي إرشادي وليس عرض سعر مباشر من المورد.",
+    selectLanguage: "اختر اللغة"
+}
+
+};
+
+
+// =============================================
+// COUNTRY LIST AND MARKET FACTORS
+// =============================================
 
 const countryCodes = `
 AD AE AF AG AL AM AO AR AT AU AZ
@@ -559,6 +1318,40 @@ LV MA MC MD ME MK MT MX MY NG NL NO
 NZ OM PA PE PH PK PL PT QA RO RS RU
 SA SE SG SI SK TH TR TW UA US UY VN ZA
 `;
+
+const countryRates = {
+    IE: 1.00,
+    DE: 1.02,
+    FR: 1.00,
+    NL: 1.03,
+    BE: 1.02,
+    ES: 0.88,
+    PT: 0.86,
+    IT: 0.96,
+    GR: 0.83,
+    GB: 1.06,
+    US: 1.08,
+    CA: 1.10,
+    AU: 1.08,
+    JP: 1.15,
+    KR: 1.02,
+    IN: 0.55,
+    CN: 0.62,
+    BR: 0.75,
+    ZA: 0.70,
+    SA: 0.90,
+    AE: 0.93,
+    PL: 0.78,
+    RO: 0.70,
+    BG: 0.68,
+    TR: 0.65,
+    SE: 1.05,
+    NO: 1.13,
+    DK: 1.07,
+    FI: 1.03
+};
+
+const defaultMarketFactor = 1.00;
 
 const countrySelect = document.getElementById("country");
 
@@ -574,153 +1367,123 @@ countryCodes.trim().split(/\s+/).sort().forEach(code => {
 });
 
 
-// =====================================
-// 2. COUNTRY MARKET FACTORS
-// =====================================
+// =============================================
+// COST ASSUMPTIONS
+// =============================================
 
-// Indicative relative market factors.
-// These are budgetary assumptions, not live quotations.
+// Solar EPC baseline: EUR per MWp.
+// Includes procurement, installation, engineering and EPC delivery.
+// The material table below is a reference breakdown, not an extra cost.
 
-const countryRates = {
-    IE: 1.12,
-    DE: 1.08,
-    FR: 1.05,
-    NL: 1.07,
-    BE: 1.06,
-    ES: 0.94,
-    PT: 0.91,
-    IT: 1.00,
-    GR: 0.88,
-    GB: 1.13,
-    US: 1.18,
-    CA: 1.15,
-    AU: 1.16,
-    JP: 1.20,
-    KR: 1.10,
-    IN: 0.65,
-    CN: 0.72,
-    BR: 0.83,
-    ZA: 0.78,
-    SA: 0.96,
-    AE: 1.04,
-    PL: 0.84,
-    RO: 0.76,
-    BG: 0.72,
-    TR: 0.68,
-    SE: 1.12,
-    NO: 1.25,
-    DK: 1.14,
-    FI: 1.08
+const solarBaseRate = 414800;
+
+// EPC cost allocations. Shares must total 100%.
+
+const solarShares = {
+    civil: 0.15,
+    mechanical: 0.18,
+    electrical: 0.16,
+    modules: 0.22,
+    inverters: 0.08,
+    substations: 0.10,
+    engineering: 0.06,
+    commissioning: 0.05
 };
 
-const defaultMarketFactor = 1.00;
+// BESS indicative EPC rate per MW of power capacity.
+// Battery energy cost is included based on duration.
+
+const bessPowerRate = 220000;
+const bessEnergyRate = 180000;
+
+// Data centre indicative rate per MW IT load.
+
+const dataCenterBaseRate = 9000000;
+
+const contingencyRate = 0.05;
 
 
-// =====================================
-// 3. EPC BASE RATES
-// =====================================
-
-// EUR per MWp for Solar PV.
-// Rates are indicative budgetary allowances.
-
-const solarRates = {
-    civil: 42000,
-    mechanical: 48000,
-    electrical: 45000,
-    installation: 38000,
-    engineering: 18000,
-    scada: 8000,
-    other: 12000
-};
-
-// BESS rates
-
-const bessRates = {
-    civil: 70000,
-    mechanical: 120000,
-    electrical: 180000,
-    installation: 35000,
-    engineering: 20000,
-    scada: 10000,
-    other: 15000,
-    batteryPerMWh: 180000
-};
-
-// Data centre rates
-
-const dataCenterRates = {
-    civil: 1200000,
-    mechanical: 2400000,
-    electrical: 3800000,
-    installation: 700000,
-    engineering: 400000,
-    scada: 200000,
-    other: 300000
-};
-
-
-// =====================================
-// 4. MODULE PRICES
-// =====================================
-
-// Indicative bulk procurement reference prices in EUR/Wp.
+// =============================================
+// MATERIAL PRICES
+// =============================================
 
 const moduleOptions = {
     topcon_mono: {
         name: "N-type TOPCon Monofacial",
         pricePerWp: 0.105
     },
-
     topcon_bifacial: {
         name: "N-type TOPCon Bifacial",
         pricePerWp: 0.108
     },
-
     perc: {
         name: "PERC Monofacial",
         pricePerWp: 0.095
     }
 };
 
-
-// =====================================
-// 5. OTHER MATERIAL PRICES
-// =====================================
-
 const materialRates = {
-
     inverter: 18000,
-
     fixedStructurePerModule: 32,
-
     trackerStructurePerModule: 48,
-
     dcCable: 1.40,
-
     acCable: 8.50,
-
     mvCable: 35,
-
     dcConnector: 2.50,
-
     mvSubstation: 260000,
-
     accessRoad: 45,
-
     fencing: 22,
-
     foundation: 35,
-
     drainage: 18,
-
     scadaPerMW: 2500
-
 };
 
 
-// =====================================
-// 6. UPDATE PROJECT OPTIONS
-// =====================================
+// =============================================
+// TRANSLATION HELPER
+// =============================================
+
+let currentLanguage = "en";
+
+function t(key) {
+    return translations[currentLanguage][key] ||
+           translations.en[key] ||
+           key;
+}
+
+function changeLanguage(language) {
+    currentLanguage = language;
+
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+
+    document.getElementById("languageSelect").value = language;
+
+    document.querySelectorAll("[data-i18n]").forEach(element => {
+        const key = element.getAttribute("data-i18n");
+
+        if (translations[language][key]) {
+            element.textContent = translations[language][key];
+        }
+    });
+
+    document.getElementById("capacity").placeholder = t("enterCapacity");
+    document.getElementById("modulePower").placeholder = t("enterModulePower");
+    document.getElementById("inverterCount").placeholder = t("enterInverters");
+    document.getElementById("substationCount").placeholder = t("enterSubstations");
+    document.getElementById("modulesPerString").placeholder = t("enterModulesPerString");
+
+    updateProjectOptions();
+
+    if (lastCalculation) {
+        renderResults(lastCalculation);
+    }
+}
+
+
+// =============================================
+// PROJECT OPTIONS
+// =============================================
 
 function updateProjectOptions() {
 
@@ -746,8 +1509,7 @@ function updateProjectOptions() {
     const label = document.getElementById("capacityLabel");
 
     if (type === "solar") {
-
-        label.textContent = "Solar PV Capacity (MWp)";
+        label.textContent = t("capacity").replace("(MW)", "(MWp)");
 
         [
             "solarOptions",
@@ -761,73 +1523,58 @@ function updateProjectOptions() {
         });
 
     } else if (type === "bess") {
-
-        label.textContent = "BESS Power Capacity (MW)";
+        label.textContent = t("capacity");
 
         document.getElementById("durationGroup").style.display = "block";
         document.getElementById("chemistryGroup").style.display = "block";
 
     } else if (type === "datacenter") {
-
-        label.textContent = "IT Load Capacity (MW)";
+        label.textContent = t("capacity");
 
         document.getElementById("tierGroup").style.display = "block";
         document.getElementById("coolingGroup").style.display = "block";
 
     } else {
-
-        label.textContent = "Project Capacity (MW)";
-
+        label.textContent = t("capacity");
     }
-
 }
 
 
-// =====================================
-// 7. FORMAT FUNCTIONS
-// =====================================
+// =============================================
+// FORMAT HELPERS
+// =============================================
 
 function formatMoney(value) {
-
     return new Intl.NumberFormat("en-IE", {
         style: "currency",
         currency: "EUR",
         maximumFractionDigits: 0
     }).format(value);
-
 }
 
 function formatNumber(value, decimals = 2) {
-
     return new Intl.NumberFormat("en-IE", {
         minimumFractionDigits: 0,
         maximumFractionDigits: decimals
     }).format(value);
-
 }
 
 function showError(message) {
-
     const error = document.getElementById("errorMessage");
-
     error.textContent = message;
     error.style.display = "block";
-
 }
 
 function clearError() {
-
     const error = document.getElementById("errorMessage");
-
     error.textContent = "";
     error.style.display = "none";
-
 }
 
 
-// =====================================
-// 8. SOLAR MATERIAL CALCULATION
-// =====================================
+// =============================================
+// SOLAR MATERIAL REFERENCE
+// =============================================
 
 function getSolarMaterials(data) {
 
@@ -852,313 +1599,279 @@ function getSolarMaterials(data) {
             ? materialRates.trackerStructurePerModule
             : materialRates.fixedStructurePerModule;
 
-    // Budgetary cable-length allowances.
-    // Actual quantities must be confirmed by detailed design.
+    // Indicative cable and civil quantities.
+    // Confirm actual lengths and quantities during detailed design.
 
     const dcCableLength = capacity * 3000;
-
     const acCableLength = capacity * 600;
-
     const mvCableLength = capacity * 150;
 
     const materials = [
 
         {
-            name: "PV Modules - " + moduleOptions[moduleTechnology].name,
+            name: t("solarModules"),
             quantity: modules,
-            unit: "pcs",
-            unitPrice: modulePrice,
+            unit: t("pcs"),
+            unitPrice: modulePrice * factor,
             total: modules * modulePrice * factor
         },
 
         {
-            name: "PV Strings",
+            name: t("pvStrings"),
             quantity: strings,
-            unit: "strings",
+            unit: t("stringUnits"),
             unitPrice: 0,
             total: 0
         },
 
         {
-            name: "Modules per String",
-            quantity: modulesPerString,
-            unit: "modules/string",
-            unitPrice: 0,
-            total: 0
-        },
-
-        {
-            name: "String Inverters",
+            name: t("inverterEquipment"),
             quantity: inverterCount,
-            unit: "units",
+            unit: t("units"),
             unitPrice: materialRates.inverter * factor,
             total: inverterCount * materialRates.inverter * factor
         },
 
         {
-            name: "Mounting Structures",
+            name: t("mountingStructures"),
             quantity: modules,
-            unit: "module positions",
+            unit: t("modulePositions"),
             unitPrice: mountingPrice * factor,
             total: modules * mountingPrice * factor
         },
 
         {
-            name: "DC Cables",
+            name: t("dcCables"),
             quantity: dcCableLength,
-            unit: "m",
+            unit: t("meters"),
             unitPrice: materialRates.dcCable * factor,
             total: dcCableLength * materialRates.dcCable * factor
         },
 
         {
-            name: "AC LV Cables",
+            name: t("acCables"),
             quantity: acCableLength,
-            unit: "m",
+            unit: t("meters"),
             unitPrice: materialRates.acCable * factor,
             total: acCableLength * materialRates.acCable * factor
         },
 
         {
-            name: "MV Cables",
+            name: t("mvCables"),
             quantity: mvCableLength,
-            unit: "m",
+            unit: t("meters"),
             unitPrice: materialRates.mvCable * factor,
             total: mvCableLength * materialRates.mvCable * factor
         },
 
         {
-            name: "DC Connectors",
+            name: t("connectors"),
             quantity: modules * 2,
-            unit: "pcs",
+            unit: t("pcs"),
             unitPrice: materialRates.dcConnector * factor,
             total: modules * 2 * materialRates.dcConnector * factor
         },
 
         {
-            name: "MV Substations",
+            name: t("mvSubstations"),
             quantity: substationCount,
-            unit: "units",
+            unit: t("units"),
             unitPrice: materialRates.mvSubstation * factor,
             total: substationCount * materialRates.mvSubstation * factor
         },
 
         {
-            name: "SCADA / Monitoring",
+            name: t("scada"),
             quantity: capacity,
-            unit: "MWp allowance",
+            unit: t("mWp"),
             unitPrice: materialRates.scadaPerMW * factor,
             total: capacity * materialRates.scadaPerMW * factor
         },
 
         {
-            name: "Access Roads",
+            name: t("accessRoads"),
             quantity: capacity * 350,
-            unit: "m allowance",
+            unit: t("meters"),
             unitPrice: materialRates.accessRoad * factor,
             total: capacity * 350 * materialRates.accessRoad * factor
         },
 
         {
-            name: "Fencing",
+            name: t("fencing"),
             quantity: capacity * 180,
-            unit: "m allowance",
+            unit: t("meters"),
             unitPrice: materialRates.fencing * factor,
             total: capacity * 180 * materialRates.fencing * factor
         },
 
         {
-            name: "Foundations",
+            name: t("foundations"),
             quantity: modules,
-            unit: "pcs allowance",
+            unit: t("pcs"),
             unitPrice: materialRates.foundation * factor,
             total: modules * materialRates.foundation * factor
         },
 
         {
-            name: "Drainage System",
+            name: t("drainage"),
             quantity: capacity * 250,
-            unit: "m allowance",
+            unit: t("meters"),
             unitPrice: materialRates.drainage * factor,
             total: capacity * 250 * materialRates.drainage * factor
         }
-
     ];
 
     return materials;
-
 }
 
 
-// =====================================
-// 9. OTHER PROJECT MATERIALS
-// =====================================
+// =============================================
+// BESS MATERIAL REFERENCE
+// =============================================
 
-function getOtherMaterials(type, capacity, duration, factor) {
+function getBessMaterials(capacity, duration, factor) {
 
-    if (type === "bess") {
+    const energy = capacity * duration;
+    const containers = energy / 5;
 
-        const energy = capacity * duration;
-        const containers = energy / 5;
-
-        return [
-
-            {
-                name: "Battery Energy Capacity",
-                quantity: energy,
-                unit: "MWh",
-                unitPrice: 180000 * factor,
-                total: energy * 180000 * factor
-            },
-
-            {
-                name: "Battery Containers",
-                quantity: containers,
-                unit: "units",
-                unitPrice: 450000 * factor,
-                total: containers * 450000 * factor
-            },
-
-            {
-                name: "Power Conversion System",
-                quantity: capacity,
-                unit: "MW",
-                unitPrice: 95000 * factor,
-                total: capacity * 95000 * factor
-            },
-
-            {
-                name: "MV Transformers",
-                quantity: capacity / 5,
-                unit: "units allowance",
-                unitPrice: 65000 * factor,
-                total: capacity / 5 * 65000 * factor
-            },
-
-            {
-                name: "MV Switchgear",
-                quantity: capacity / 5,
-                unit: "units allowance",
-                unitPrice: 28000 * factor,
-                total: capacity / 5 * 28000 * factor
-            },
-
-            {
-                name: "MV Cables",
-                quantity: capacity * 250,
-                unit: "m allowance",
-                unitPrice: 35 * factor,
-                total: capacity * 250 * 35 * factor
-            },
-
-            {
-                name: "EMS / BMS",
-                quantity: 1,
-                unit: "system",
-                unitPrice: 53000 * factor,
-                total: 53000 * factor
-            },
-
-            {
-                name: "Fire Suppression",
-                quantity: containers,
-                unit: "systems",
-                unitPrice: 18000 * factor,
-                total: containers * 18000 * factor
-            },
-
-            {
-                name: "HVAC Systems",
-                quantity: containers,
-                unit: "systems",
-                unitPrice: 14000 * factor,
-                total: containers * 14000 * factor
-            }
-
-        ];
-
-    }
-
-    if (type === "datacenter") {
-
-        return [
-
-            {
-                name: "Server Racks",
-                quantity: capacity * 80,
-                unit: "units",
-                unitPrice: 4500 * factor,
-                total: capacity * 80 * 4500 * factor
-            },
-
-            {
-                name: "UPS Systems",
-                quantity: capacity,
-                unit: "systems",
-                unitPrice: 180000 * factor,
-                total: capacity * 180000 * factor
-            },
-
-            {
-                name: "Generators",
-                quantity: capacity / 2,
-                unit: "units allowance",
-                unitPrice: 350000 * factor,
-                total: capacity / 2 * 350000 * factor
-            },
-
-            {
-                name: "MV Transformers",
-                quantity: capacity / 5,
-                unit: "units allowance",
-                unitPrice: 85000 * factor,
-                total: capacity / 5 * 85000 * factor
-            },
-
-            {
-                name: "MV Switchgear",
-                quantity: capacity / 2,
-                unit: "units allowance",
-                unitPrice: 45000 * factor,
-                total: capacity / 2 * 45000 * factor
-            },
-
-            {
-                name: "Cooling Systems",
-                quantity: capacity * 1.2,
-                unit: "MW thermal",
-                unitPrice: 95000 * factor,
-                total: capacity * 1.2 * 95000 * factor
-            },
-
-            {
-                name: "Power Cables",
-                quantity: capacity * 1800,
-                unit: "m",
-                unitPrice: 12 * factor,
-                total: capacity * 1800 * 12 * factor
-            },
-
-            {
-                name: "Fiber Optic Cables",
-                quantity: capacity * 2500,
-                unit: "m",
-                unitPrice: 2.5 * factor,
-                total: capacity * 2500 * 2.5 * factor
-            }
-
-        ];
-
-    }
-
-    return [];
-
+    return [
+        {
+            name: "Battery Energy Capacity",
+            quantity: energy,
+            unit: t("mWh"),
+            unitPrice: 180000 * factor,
+            total: energy * 180000 * factor
+        },
+        {
+            name: "Battery Containers",
+            quantity: containers,
+            unit: t("units"),
+            unitPrice: 450000 * factor,
+            total: containers * 450000 * factor
+        },
+        {
+            name: "Power Conversion System",
+            quantity: capacity,
+            unit: t("mW"),
+            unitPrice: 95000 * factor,
+            total: capacity * 95000 * factor
+        },
+        {
+            name: "MV Transformers",
+            quantity: capacity / 5,
+            unit: t("units"),
+            unitPrice: 65000 * factor,
+            total: capacity / 5 * 65000 * factor
+        },
+        {
+            name: "MV Switchgear",
+            quantity: capacity / 5,
+            unit: t("units"),
+            unitPrice: 28000 * factor,
+            total: capacity / 5 * 28000 * factor
+        },
+        {
+            name: t("mvCables"),
+            quantity: capacity * 250,
+            unit: t("meters"),
+            unitPrice: 35 * factor,
+            total: capacity * 250 * 35 * factor
+        },
+        {
+            name: "EMS / BMS",
+            quantity: 1,
+            unit: t("systems"),
+            unitPrice: 53000 * factor,
+            total: 53000 * factor
+        },
+        {
+            name: "Fire Suppression",
+            quantity: containers,
+            unit: t("systems"),
+            unitPrice: 18000 * factor,
+            total: containers * 18000 * factor
+        },
+        {
+            name: "HVAC Systems",
+            quantity: containers,
+            unit: t("systems"),
+            unitPrice: 14000 * factor,
+            total: containers * 14000 * factor
+        }
+    ];
 }
 
 
-// =====================================
-// 10. MAIN CALCULATION
-// =====================================
+// =============================================
+// DATA CENTER MATERIAL REFERENCE
+// =============================================
+
+function getDataCenterMaterials(capacity, factor) {
+
+    return [
+        {
+            name: "Server Racks",
+            quantity: capacity * 80,
+            unit: t("units"),
+            unitPrice: 4500 * factor,
+            total: capacity * 80 * 4500 * factor
+        },
+        {
+            name: "UPS Systems",
+            quantity: capacity,
+            unit: t("systems"),
+            unitPrice: 180000 * factor,
+            total: capacity * 180000 * factor
+        },
+        {
+            name: "Generators",
+            quantity: capacity / 2,
+            unit: t("units"),
+            unitPrice: 350000 * factor,
+            total: capacity / 2 * 350000 * factor
+        },
+        {
+            name: "MV Transformers",
+            quantity: capacity / 5,
+            unit: t("units"),
+            unitPrice: 85000 * factor,
+            total: capacity / 5 * 85000 * factor
+        },
+        {
+            name: "MV Switchgear",
+            quantity: capacity / 2,
+            unit: t("units"),
+            unitPrice: 45000 * factor,
+            total: capacity / 2 * 45000 * factor
+        },
+        {
+            name: "Cooling Systems",
+            quantity: capacity * 1.2,
+            unit: t("mW"),
+            unitPrice: 95000 * factor,
+            total: capacity * 1.2 * 95000 * factor
+        },
+        {
+            name: "Power Cables",
+            quantity: capacity * 1800,
+            unit: t("meters"),
+            unitPrice: 12 * factor,
+            total: capacity * 1800 * 12 * factor
+        },
+        {
+            name: "Fiber Optic Cables",
+            quantity: capacity * 2500,
+            unit: t("meters"),
+            unitPrice: 2.5 * factor,
+            total: capacity * 2500 * 2.5 * factor
+        }
+    ];
+}
+
+
+// =============================================
+// MAIN CALCULATION
+// =============================================
 
 let lastCalculation = null;
 
@@ -1167,22 +1880,18 @@ function calculateBudget() {
     clearError();
 
     const country = document.getElementById("country").value;
-
     const type = document.getElementById("projectType").value;
+    const capacityInput = Number(document.getElementById("capacity").value);
 
-    const capacity = Number(
-        document.getElementById("capacity").value
-    );
-
-    if (!country || !type || !Number.isFinite(capacity) || capacity <= 0) {
-        showError("Please select a country, project type and enter a valid capacity.");
+    if (!country || !type || !Number.isFinite(capacityInput) || capacityInput <= 0) {
+        showError(t("selectCountryError"));
         return;
     }
 
     const factor = countryRates[country] ?? defaultMarketFactor;
 
+    let actualCapacity = capacityInput;
     let duration = 0;
-
     let modules = 0;
     let strings = 0;
     let modulesPerString = 0;
@@ -1191,59 +1900,39 @@ function calculateBudget() {
     let substationCount = 0;
     let mountingType = "";
     let moduleTechnology = "";
-
     let materials = [];
-    let actualCapacity = capacity;
+    let directCosts = {};
 
 
-    // SOLAR VALIDATION
+    // SOLAR
 
     if (type === "solar") {
 
-        moduleTechnology =
-            document.getElementById("solarTechnology").value;
-
-        moduleWp = Number(
-            document.getElementById("modulePower").value
-        );
-
-        mountingType =
-            document.getElementById("mountingType").value;
-
-        inverterCount = Number(
-            document.getElementById("inverterCount").value
-        );
-
-        substationCount = Number(
-            document.getElementById("substationCount").value
-        );
-
-        modulesPerString = Number(
-            document.getElementById("modulesPerString").value
-        );
+        moduleTechnology = document.getElementById("solarTechnology").value;
+        moduleWp = Number(document.getElementById("modulePower").value);
+        mountingType = document.getElementById("mountingType").value;
+        inverterCount = Number(document.getElementById("inverterCount").value);
+        substationCount = Number(document.getElementById("substationCount").value);
+        modulesPerString = Number(document.getElementById("modulesPerString").value);
 
         if (
             !moduleTechnology ||
-            !moduleWp ||
+            !Number.isFinite(moduleWp) || moduleWp <= 0 ||
             !mountingType ||
-            !Number.isInteger(inverterCount) ||
-            inverterCount <= 0 ||
-            !Number.isInteger(substationCount) ||
-            substationCount <= 0 ||
-            !Number.isInteger(modulesPerString) ||
-            modulesPerString <= 0
+            !Number.isInteger(inverterCount) || inverterCount <= 0 ||
+            !Number.isInteger(substationCount) || substationCount <= 0 ||
+            !Number.isInteger(modulesPerString) || modulesPerString <= 0
         ) {
-            showError("Please complete all Solar PV configuration fields.");
+            showError(t("solarError"));
             return;
         }
 
-        // Calculate module quantity automatically.
-        modules = Math.ceil(capacity * 1000000 / moduleWp);
+        // Module quantity is calculated automatically from MWp and Wp.
 
-        // Actual installed DC capacity based on whole modules.
+        modules = Math.ceil(capacityInput * 1000000 / moduleWp);
+
         actualCapacity = modules * moduleWp / 1000000;
 
-        // Calculate strings automatically.
         strings = Math.ceil(modules / modulesPerString);
 
         materials = getSolarMaterials({
@@ -1259,284 +1948,116 @@ function calculateBudget() {
             moduleTechnology
         });
 
+        // Total EPC based on the capacity and country market factor.
+        // The material list is for reference only and is not added again.
+
+        let baseTotal = actualCapacity * solarBaseRate * factor;
+
+        // Tracker system allowance.
+        if (mountingType === "tracker") {
+            baseTotal *= 1.06;
+        }
+
+        directCosts = {
+            [t("civil")]: baseTotal * solarShares.civil,
+            [t("mechanical")]: baseTotal * solarShares.mechanical,
+            [t("electrical")]: baseTotal * solarShares.electrical,
+            [t("pvModulesCost")]: baseTotal * solarShares.modules,
+            [t("inverterEquipment")]: baseTotal * solarShares.inverters,
+            [t("mvSubstations")]: baseTotal * solarShares.substations,
+            [t("engineering")]: baseTotal * solarShares.engineering,
+            [t("scadaCommissioning")]: baseTotal * solarShares.commissioning
+        };
+
     }
 
 
-    // BESS VALIDATION
+    // BESS
 
     if (type === "bess") {
 
-        duration = Number(
-            document.getElementById("duration").value
-        );
+        duration = Number(document.getElementById("duration").value);
 
-        const chemistry =
-            document.getElementById("batteryChemistry").value;
+        const chemistry = document.getElementById("batteryChemistry").value;
 
-        if (!duration || duration <= 0 || !chemistry) {
-            showError("Please enter BESS duration and select battery chemistry.");
+        if (!Number.isFinite(duration) || duration <= 0 || !chemistry) {
+            showError(t("bessError"));
             return;
         }
 
-        materials = getOtherMaterials(
-            type, capacity, duration, factor
-        );
+        materials = getBessMaterials(capacityInput, duration, factor);
 
+        const baseTotal = (
+            capacityInput * bessPowerRate +
+            capacityInput * duration * bessEnergyRate
+        ) * factor;
+
+        directCosts = {
+            [t("civil")]: baseTotal * 0.12,
+            [t("mechanical")]: baseTotal * 0.15,
+            [t("electrical")]: baseTotal * 0.22,
+            [t("installation")]: baseTotal * 0.12,
+            [t("engineering")]: baseTotal * 0.08,
+            [t("scadaCommissioning")]: baseTotal * 0.08,
+            ["Battery and PCS Procurement"]: baseTotal * 0.18,
+            [t("other")]: baseTotal * 0.05
+        };
     }
 
 
-    // DATA CENTER VALIDATION
+    // DATA CENTER
 
     if (type === "datacenter") {
 
-        const tier =
-            document.getElementById("dataCenterTier").value;
-
-        const cooling =
-            document.getElementById("coolingType").value;
+        const tier = document.getElementById("dataCenterTier").value;
+        const cooling = document.getElementById("coolingType").value;
 
         if (!tier || !cooling) {
-            showError("Please select Data Center Tier and Cooling System.");
+            showError(t("dcError"));
             return;
         }
 
-        materials = getOtherMaterials(
-            type, capacity, 0, factor
-        );
+        materials = getDataCenterMaterials(capacityInput, factor);
 
+        let tierFactor = 1;
+
+        if (tier === "Tier III") tierFactor = 1.15;
+        if (tier === "Tier IV") tierFactor = 1.35;
+
+        let coolingFactor = cooling === "liquid" ? 1.12 : 1;
+
+        const baseTotal =
+            capacityInput * dataCenterBaseRate * factor *
+            tierFactor * coolingFactor;
+
+        directCosts = {
+            [t("civil")]: baseTotal * 0.15,
+            [t("mechanical")]: baseTotal * 0.25,
+            [t("electrical")]: baseTotal * 0.30,
+            [t("installation")]: baseTotal * 0.10,
+            [t("engineering")]: baseTotal * 0.08,
+            [t("scadaCommissioning")]: baseTotal * 0.07,
+            [t("other")]: baseTotal * 0.05
+        };
     }
 
 
-    // BASE EPC COSTS
+    // EPC TOTAL
 
-    let rates;
-
-    if (type === "solar") rates = solarRates;
-    if (type === "bess") rates = bessRates;
-    if (type === "datacenter") rates = dataCenterRates;
-
-    const baseCosts = {
-
-        "Civil Works": actualCapacity * rates.civil,
-
-        "Mechanical Works": actualCapacity * rates.mechanical,
-
-        "Electrical Works": actualCapacity * rates.electrical,
-
-        "Installation Labour": actualCapacity * rates.installation,
-
-        "Engineering and Project Management": actualCapacity * rates.engineering,
-
-        "SCADA / Monitoring / Commissioning": actualCapacity * rates.scada,
-
-        "Other EPC Costs": actualCapacity * rates.other
-
-    };
-
-
-    // Additional procurement cost for solar equipment.
-    // Material reference breakdown is an allocation of these EPC costs.
-    // It is NOT added again to the total.
-
-    if (type === "solar") {
-
-        const moduleCost = materials.find(
-            x => x.name.startsWith("PV Modules")
-        ).total;
-
-        const inverterCost = materials.find(
-            x => x.name === "String Inverters"
-        ).total;
-
-        const substationCost = materials.find(
-            x => x.name === "MV Substations"
-        ).total;
-
-        baseCosts["PV Modules"] = moduleCost;
-
-        baseCosts["String Inverters"] = inverterCost;
-
-        baseCosts["MV Substations"] = substationCost;
-
-    }
-
-
-    // Direct EPC cost
-
-    const adjustedCosts = {};
-
-    Object.entries(baseCosts).forEach(([name, cost]) => {
-        adjustedCosts[name] = cost * factor;
-    });
-
-    // Solar module and equipment values are already market-adjusted
-    // in the materials table. Avoid applying the factor twice.
-
-    if (type === "solar") {
-
-        adjustedCosts["PV Modules"] =
-            baseCosts["PV Modules"];
-
-        adjustedCosts["String Inverters"] =
-            baseCosts["String Inverters"];
-
-        adjustedCosts["MV Substations"] =
-            baseCosts["MV Substations"];
-
-    }
-
-    const directTotal = Object.values(adjustedCosts).reduce(
-        (sum, value) => sum + value,
-        0
+    const directTotal = Object.values(directCosts).reduce(
+        (sum, value) => sum + value, 0
     );
 
-    const contingency = directTotal * 0.05;
+    const contingency = directTotal * contingencyRate;
 
     const totalEPC = directTotal + contingency;
 
     const costPerMW = totalEPC / actualCapacity;
 
-
-    // EPC BREAKDOWN TABLE
-
-    const costTable = document.getElementById("costTable");
-
-    costTable.innerHTML = "";
-
-    Object.entries(adjustedCosts).forEach(([name, cost]) => {
-
-        costTable.innerHTML += `
-            <tr>
-                <td>${name}</td>
-                <td>${formatMoney(cost)}</td>
-                <td>${formatNumber(cost / totalEPC * 100, 1)}%</td>
-            </tr>
-        `;
-
-    });
-
-    costTable.innerHTML += `
-        <tr>
-            <td>Contingency (5%)</td>
-            <td>${formatMoney(contingency)}</td>
-            <td>${formatNumber(contingency / totalEPC * 100, 1)}%</td>
-        </tr>
-    `;
-
-
-    // MATERIAL TABLE
-
-    const materialTable = document.getElementById("materialTable");
-
-    materialTable.innerHTML = "";
-
-    const materialTotal = materials.reduce(
-        (sum, item) => sum + item.total,
-        0
-    );
-
-    materials.forEach(item => {
-
-        materialTable.innerHTML += `
-            <tr>
-                <td>${item.name}</td>
-                <td>${formatNumber(item.quantity, 2)}</td>
-                <td>${item.unit}</td>
-                <td>${formatMoney(item.unitPrice)}</td>
-                <td>${formatMoney(item.total)}</td>
-            </tr>
-        `;
-
-    });
-
-
-    // SUMMARY
-
-    document.getElementById("totalBudget").textContent =
-        formatMoney(totalEPC);
-
-    document.getElementById("costTotal").textContent =
-        formatMoney(totalEPC);
-
-    document.getElementById("materialTotal").textContent =
-        formatMoney(materialTotal);
-
-    document.getElementById("projectSummary").textContent =
-        type.toUpperCase() + " | " + formatNumber(actualCapacity, 3) +
-        (type === "solar" ? " MWp" : " MW");
-
-    document.getElementById("marketSummary").textContent =
-        "Country: " + country + " | Market Factor: " + factor;
-
-    document.getElementById("costPerMW").textContent =
-        formatMoney(costPerMW) + " / MW";
-
-
-    // ASSUMPTIONS
-
-    let assumptions = `
-        <p><strong>Country:</strong> ${country}</p>
-        <p><strong>Market factor:</strong> ${factor}</p>
-        <p><strong>Direct EPC cost:</strong> ${formatMoney(directTotal)}</p>
-        <p><strong>Contingency:</strong> 5%</p>
-        <p><strong>Total EPC cost:</strong> ${formatMoney(totalEPC)}</p>
-    `;
-
-    if (type === "solar") {
-
-        assumptions += `
-            <p><strong>PV Technology:</strong> ${moduleOptions[moduleTechnology].name}</p>
-            <p><strong>Module Power:</strong> ${moduleWp} Wp</p>
-            <p><strong>Calculated Module Quantity:</strong> ${formatNumber(modules, 0)}</p>
-            <p><strong>Actual DC Capacity:</strong> ${formatNumber(actualCapacity, 3)} MWp</p>
-            <p><strong>Modules per String:</strong> ${modulesPerString}</p>
-            <p><strong>Calculated Strings:</strong> ${strings}</p>
-            <p><strong>Number of Inverters:</strong> ${inverterCount}</p>
-            <p><strong>Number of MV Substations:</strong> ${substationCount}</p>
-            <p><strong>Mounting:</strong> ${mountingType === "fixed" ? "Fixed Tilt" : "Single Axis Tracker"}</p>
-            <p><strong>EPC Cost per Wp:</strong> €${(totalEPC / (actualCapacity * 1000000)).toFixed(3)}</p>
-            <p><strong>String configuration:</strong> ${modules} modules distributed across ${strings} strings. Check final string allocation in detailed engineering.</p>
-        `;
-
-    }
-
-    if (type === "bess") {
-
-        assumptions += `
-            <p><strong>BESS Duration:</strong> ${duration} hours</p>
-            <p><strong>Energy Capacity:</strong> ${formatNumber(capacity * duration)} MWh</p>
-            <p><strong>Battery Chemistry:</strong> ${document.getElementById("batteryChemistry").value}</p>
-        `;
-
-    }
-
-    if (type === "datacenter") {
-
-        assumptions += `
-            <p><strong>Data Center Tier:</strong> ${document.getElementById("dataCenterTier").value}</p>
-            <p><strong>Cooling System:</strong> ${document.getElementById("coolingType").value}</p>
-        `;
-
-    }
-
-    assumptions += `
-        <p class="note">
-            Material reference values are a separate presentation of selected
-            equipment and procurement allowances. They are not added again to
-            the EPC cost. Cable lengths and other quantities are preliminary
-            allowances and require confirmation through detailed design.
-        </p>
-    `;
-
-    document.getElementById("assumptions").innerHTML = assumptions;
-
-
-    // SAVE FOR EXCEL
-
-    lastCalculation = {
+    const calculation = {
         country,
         type,
-        capacity,
+        capacity: capacityInput,
         actualCapacity,
         factor,
         modules,
@@ -1546,7 +2067,9 @@ function calculateBudget() {
         inverterCount,
         substationCount,
         mountingType,
-        adjustedCosts,
+        moduleTechnology,
+        duration,
+        directCosts,
         directTotal,
         contingency,
         totalEPC,
@@ -1554,19 +2077,221 @@ function calculateBudget() {
         materials
     };
 
+    lastCalculation = calculation;
 
-    document.getElementById("results").style.display = "block";
-
-    document.getElementById("results").scrollIntoView({
-        behavior: "smooth"
-    });
-
+    renderResults(calculation);
 }
 
 
-// =====================================
-// 11. EXCEL EXPORT
-// =====================================
+// =============================================
+// RENDER RESULTS
+// =============================================
+
+function renderResults(d) {
+
+    const costTable = document.getElementById("costTable");
+    costTable.innerHTML = "";
+
+    Object.entries(d.directCosts).forEach(([name, cost]) => {
+        costTable.innerHTML += `
+            <tr>
+                <td>${name}</td>
+                <td>${formatMoney(cost)}</td>
+                <td>${formatNumber(cost / d.totalEPC * 100, 1)}%</td>
+            </tr>
+        `;
+    });
+
+    costTable.innerHTML += `
+        <tr>
+            <td>${t("contingencyRow")}</td>
+            <td>${formatMoney(d.contingency)}</td>
+            <td>${formatNumber(d.contingency / d.totalEPC * 100, 1)}%</td>
+        </tr>
+    `;
+
+    const materialTable = document.getElementById("materialTable");
+    materialTable.innerHTML = "";
+
+    const materialTotal = d.materials.reduce(
+        (sum, item) => sum + item.total, 0
+    );
+
+    d.materials.forEach(item => {
+        materialTable.innerHTML += `
+            <tr>
+                <td>${item.name}</td>
+                <td>${formatNumber(item.quantity, 2)}</td>
+                <td>${item.unit}</td>
+                <td>${formatMoney(item.unitPrice)}</td>
+                <td>${formatMoney(item.total)}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("totalBudget").textContent =
+        formatMoney(d.totalEPC);
+
+    document.getElementById("costTotal").textContent =
+        formatMoney(d.totalEPC);
+
+    document.getElementById("materialTotal").textContent =
+        formatMoney(materialTotal);
+
+    const capacityUnit = d.type === "solar" ? "MWp" : "MW";
+
+    document.getElementById("projectSummary").textContent =
+        d.type.toUpperCase() + " | " +
+        formatNumber(d.actualCapacity, 3) + " " + capacityUnit;
+
+    document.getElementById("marketSummary").textContent =
+        t("country") + ": " + d.country +
+        " | " + t("marketFactor") + ": " + d.factor;
+
+    document.getElementById("costPerMW").textContent =
+        formatMoney(d.costPerMW) + " / " + capacityUnit;
+
+
+    // ASSUMPTIONS CARDS
+
+    let assumptions = `
+        <div class="assumption-card">
+            <div class="assumption-label">${t("country")}</div>
+            <div class="assumption-value">${d.country}</div>
+            <div class="assumption-description">${t("countrySelected")}</div>
+        </div>
+
+        <div class="assumption-card">
+            <div class="assumption-label">${t("marketFactor")}</div>
+            <div class="assumption-value">${d.factor}</div>
+            <div class="assumption-description">${t("marketNote")}</div>
+        </div>
+
+        <div class="assumption-card">
+            <div class="assumption-label">${t("directCost")}</div>
+            <div class="assumption-value">${formatMoney(d.directTotal)}</div>
+            <div class="assumption-description">${t("beforeContingency")}</div>
+        </div>
+
+        <div class="assumption-card">
+            <div class="assumption-label">${t("contingency")}</div>
+            <div class="assumption-value">${formatMoney(d.contingency)}</div>
+            <div class="assumption-description">${t("contingencyDesc")}</div>
+        </div>
+
+        <div class="assumption-card full-width">
+            <div class="assumption-label">${t("totalBudget")}</div>
+            <div class="assumption-value">${formatMoney(d.totalEPC)}</div>
+            <div class="assumption-description">${t("totalBudgetDesc")}</div>
+        </div>
+    `;
+
+    if (d.type === "solar") {
+
+        const technologyName = moduleOptions[d.moduleTechnology].name;
+
+        assumptions += `
+            <div class="assumption-card">
+                <div class="assumption-label">${t("technologyLabel")}</div>
+                <div class="assumption-value">${technologyName}</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("modulePower")}</div>
+                <div class="assumption-value">${formatNumber(d.moduleWp, 0)} Wp</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("moduleQuantity")}</div>
+                <div class="assumption-value">${formatNumber(d.modules, 0)}</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("actualCapacity")}</div>
+                <div class="assumption-value">${formatNumber(d.actualCapacity, 3)} MWp</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("modulesPerString")}</div>
+                <div class="assumption-value">${d.modulesPerString}</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("numberStrings")}</div>
+                <div class="assumption-value">${formatNumber(d.strings, 0)}</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("numberInverters")}</div>
+                <div class="assumption-value">${d.inverterCount}</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("numberSubstations")}</div>
+                <div class="assumption-value">${d.substationCount}</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("mountingType")}</div>
+                <div class="assumption-value">${d.mountingType === "fixed" ? t("fixed") : t("tracker")}</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("costPerWp")}</div>
+                <div class="assumption-value">€${(d.totalEPC / (d.actualCapacity * 1000000)).toFixed(3)}</div>
+            </div>
+
+            <div class="assumption-card full-width">
+                <div class="assumption-description">${t("stringsNote")}</div>
+                <div class="assumption-description">${t("riskNote")}</div>
+            </div>
+        `;
+    }
+
+    if (d.type === "bess") {
+
+        assumptions += `
+            <div class="assumption-card">
+                <div class="assumption-label">${t("durationLabel")}</div>
+                <div class="assumption-value">${d.duration} h</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("energyCapacity")}</div>
+                <div class="assumption-value">${formatNumber(d.capacity * d.duration)} MWh</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("batteryChemistry")}</div>
+                <div class="assumption-value">${document.getElementById("batteryChemistry").value}</div>
+            </div>
+        `;
+    }
+
+    if (d.type === "datacenter") {
+
+        assumptions += `
+            <div class="assumption-card">
+                <div class="assumption-label">${t("dataTier")}</div>
+                <div class="assumption-value">${document.getElementById("dataCenterTier").value}</div>
+            </div>
+
+            <div class="assumption-card">
+                <div class="assumption-label">${t("coolingSystem")}</div>
+                <div class="assumption-value">${document.getElementById("coolingType").value === "air" ? t("airCooling") : t("liquidCooling")}</div>
+            </div>
+        `;
+    }
+
+    document.getElementById("assumptions").innerHTML = assumptions;
+
+    document.getElementById("results").style.display = "block";
+}
+
+
+// =============================================
+// EXCEL EXPORT
+// =============================================
 
 function exportExcel() {
 
@@ -1581,99 +2306,64 @@ function exportExcel() {
     }
 
     const d = lastCalculation;
-
     const wb = XLSX.utils.book_new();
 
-
-    // SUMMARY
-
     const summary = [
-
         ["BUDGET ESTIMATE CALCULATION"],
-
         [],
-
-        ["Project Information", "Value"],
-
         ["Country", d.country],
-
         ["Project Type", d.type],
-
         ["Input Capacity", d.capacity],
-
         ["Actual Capacity", d.actualCapacity],
-
         ["Market Factor", d.factor],
-
         ["Module Quantity", d.modules],
-
         ["Module Power (Wp)", d.moduleWp],
-
         ["Number of Strings", d.strings],
-
         ["Modules per String", d.modulesPerString],
-
         ["Number of Inverters", d.inverterCount],
-
         ["Number of MV Substations", d.substationCount],
-
         [],
-
-        ["EPC Cost Summary", "EUR"],
-
-        ["Direct EPC Cost", d.directTotal],
-
-        ["Contingency", d.contingency],
-
-        ["TOTAL EPC COST", d.totalEPC],
-
-        ["EPC Cost per MW", d.costPerMW]
-
+        ["Direct EPC Cost (€)", d.directTotal],
+        ["Contingency (€)", d.contingency],
+        ["TOTAL EPC COST (€)", d.totalEPC],
+        ["EPC Cost per MW (€)", d.costPerMW]
     ];
 
     const wsSummary = XLSX.utils.aoa_to_sheet(summary);
+    wsSummary["!cols"] = [{ wch: 38 }, { wch: 25 }];
 
-    wsSummary["!cols"] = [
-        { wch: 38 },
-        { wch: 25 }
-    ];
+    XLSX.utils.book_append_sheet(wb, wsSummary, "Project Summary");
 
-    XLSX.utils.book_append_sheet(
-        wb,
-        wsSummary,
-        "Project Summary"
-    );
-
-
-    // EPC BREAKDOWN
 
     const epcData = [
-        ["Work Category", "Estimated Cost (€)"]
+        ["Work Category", "Estimated Cost (€)", "Share (%)"]
     ];
 
-    Object.entries(d.adjustedCosts).forEach(([name, cost]) => {
-        epcData.push([name, cost]);
+    Object.entries(d.directCosts).forEach(([name, cost]) => {
+        epcData.push([
+            name,
+            cost,
+            cost / d.totalEPC * 100
+        ]);
     });
 
-    epcData.push(["Contingency", d.contingency]);
+    epcData.push([
+        "Contingency",
+        d.contingency,
+        d.contingency / d.totalEPC * 100
+    ]);
 
-    epcData.push(["TOTAL EPC COST", d.totalEPC]);
+    epcData.push(["TOTAL EPC COST", d.totalEPC, 100]);
 
     const wsEpc = XLSX.utils.aoa_to_sheet(epcData);
-
     wsEpc["!cols"] = [
         { wch: 42 },
-        { wch: 25 }
+        { wch: 25 },
+        { wch: 18 }
     ];
 
-    XLSX.utils.book_append_sheet(
-        wb,
-        wsEpc,
-        "EPC Breakdown"
-    );
+    XLSX.utils.book_append_sheet(wb, wsEpc, "EPC Breakdown");
 
-
-    // MATERIALS
 
     const materialData = [
         [
@@ -1686,7 +2376,6 @@ function exportExcel() {
     ];
 
     d.materials.forEach(item => {
-
         materialData.push([
             item.name,
             item.quantity,
@@ -1694,7 +2383,6 @@ function exportExcel() {
             item.unitPrice,
             item.total
         ]);
-
     });
 
     const wsMaterials = XLSX.utils.aoa_to_sheet(materialData);
@@ -1707,24 +2395,15 @@ function exportExcel() {
         { wch: 25 }
     ];
 
-    XLSX.utils.book_append_sheet(
-        wb,
-        wsMaterials,
-        "Material Reference"
-    );
+    XLSX.utils.book_append_sheet(wb, wsMaterials, "Material Reference");
 
-
-    XLSX.writeFile(
-        wb,
-        "Budget_Estimate_Calculation.xlsx"
-    );
-
+    XLSX.writeFile(wb, "Budget_Estimate_Calculation.xlsx");
 }
 
 
-// =====================================
-// 12. RESET
-// =====================================
+// =============================================
+// RESET
+// =============================================
 
 function resetCalculator() {
 
@@ -1755,8 +2434,14 @@ function resetCalculator() {
     clearError();
 
     lastCalculation = null;
-
 }
+
+
+// =============================================
+// INITIALIZATION
+// =============================================
+
+changeLanguage("en");
 
 </script>
 
