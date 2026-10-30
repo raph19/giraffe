@@ -154,7 +154,7 @@ const fullURL = 'https://giraffe-design-tt8d.onrender.com' + req.session.uniqueU
  });
 
  router.get("/", function(req, res){
-    res.render("home/login");
+    res.render("home/BudgetEstimate");
  });
  
  router.get("/login", function(req, res){
