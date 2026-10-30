@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 const archiver = require('archiver');
 const { ObjectId } = require('mongodb');
 
-router.get("/"{
+router.get("/", function(req, res){
     res.render("home/BudgetEstimate");
  });
 function isValidEmail(email) {
