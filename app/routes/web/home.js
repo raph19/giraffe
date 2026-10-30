@@ -20,10 +20,6 @@ function isNOTValidEmail(email) {
 }
 const randomString = () => Math.random().toString(36).substring(2, 15);
 
-routrt.post("/budget", {
-
-  }
-
 router.post("/login", passport.authenticate("login", {
   successRedirect: false,
   failureRedirect: "/login",
