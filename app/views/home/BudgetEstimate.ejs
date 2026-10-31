@@ -79,26 +79,7 @@
 </style>
 
 <style id="professional-print-export">
-@media print {
- @page { size: A4; margin: 14mm 12mm 16mm; }
- body { background:#fff!important; color:#1f2937!important; font-size:10pt!important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
- .welcome { background:#123d58!important; color:#fff!important; padding:18px 20px!important; border-radius:8px!important; }
- .welcome h1 { font-size:21px!important; } .welcome p { font-size:10px!important; }
- .main-container { max-width:none!important; margin:12px 0!important; padding:0!important; }
- .panel-custom { border:1px solid #d9e2ea!important; border-radius:7px!important; padding:14px!important; margin-bottom:12px!important; box-shadow:none!important; }
- .panel-custom h3 { font-size:13px!important; color:#174b68!important; margin-bottom:10px!important; padding-bottom:7px!important; }
- .result-card { background:#eaf3f7!important; color:#17384b!important; border:1px solid #b8d0dc!important; padding:16px!important; margin-bottom:12px!important; }
- .result-card h2 { color:#123d58!important; font-size:25px!important; } .result-card h4,.result-card p { color:#31566a!important; }
- .table { font-size:8.5pt!important; } .table th,.table td { padding:6px!important; }
- .table thead { display:table-header-group; } tr { break-inside:avoid; }
- .assumptions-wrap { background:#f3f7fa!important; color:#213547!important; border:1px solid #d5e0e8!important; padding:14px!important; }
- .assumptions-head h3,.assumption-card h4,.assumption-card p,.assumptions-head span { color:#213547!important; }
- .assumption-card { background:#fff!important; border:1px solid #dce5eb!important; min-height:0!important; padding:10px!important; }
- .assumption-card .eyebrow { color:#477187!important; }
- .btn-calculate, footer, .language { display:none!important; }
- .note { color:#536575!important; font-size:8pt!important; }
- #results { display:block!important; }
-}
+
 </style>
 </head>
 <body>
@@ -158,6 +139,7 @@
 <div class="panel-custom"><h3 data-i18n="materialReference">Material / Equipment Reference</h3><div class="table-responsive"><table class="table table-bordered"><thead><tr><th data-i18n="material">Material / Equipment</th><th data-i18n="quantity">Estimated Quantity</th><th data-i18n="unit">Unit</th><th data-i18n="unitPrice">Indicative Unit Price (€)</th><th data-i18n="referenceTotal">Reference Total (€)</th></tr></thead><tbody id="materialTable"></tbody><tfoot><tr class="total-row"><td colspan="4" data-i18n="referenceSum">TOTAL MATERIAL REFERENCE VALUE</td><td id="materialTotal">€0</td></tr></tfoot></table></div><p class="note" data-i18n="materialNote">Reference values are informational only. They are already represented within the EPC estimate and are NOT added again.</p><p class="note" data-i18n="quantityAdjustmentNote">Entered route lengths are priced within the relevant EPC work category. No separate route adjustment line is added.</p><p class="note" id="materialAssumptionsDynamic"></p><p class="note" data-i18n="routeAssumptionsNote">Default Solar PV quantities per MWp: DC 1,200 m; AC LV 120 m; MV 180 m; HV/export 100 m; fibre 150 m; access roads 70 m. BESS: MV/HV 250 m/MW and roads 70 m/MW. Data Center: power cable 1,800 m/MW and fibre 150 m/MW.</p></div>
 <div class="panel-custom"><div class="assumptions-wrap"><div class="assumptions-head"><h3 data-i18n="assumptions">Project Assumptions & Cost Parameters</h3><span data-i18n="budgetary">Budgetary model</span></div><div class="assumption-grid">
 
+<div class="assumption-card"><div class="eyebrow" data-i18n="marketAdjustment">01 · Market</div><h4 data-i18n="countryFactor">Country adjustment</h4><p data-i18n="countryFactorText">The selected country factor adjusts labour, logistics, installation and local subcontractor costs.</p></div>
 <div class="assumption-card"><div class="eyebrow" data-i18n="epcScope">02 · EPC scope</div><h4 data-i18n="turnkey">Turnkey cost structure</h4><p data-i18n="turnkeyText">The EPC estimate includes procurement, civil and electrical works, installation, engineering and commissioning.</p></div>
 <div class="assumption-card"><div class="eyebrow" data-i18n="contingencyLabel">03 · Risk allowance</div><h4 data-i18n="contingency">Contingency / Unforeseen costs</h4><p data-i18n="contingencyText">A budget reserve for scope development, design changes and unforeseen site conditions. It is included once in the EPC total.</p></div>
 <div class="assumption-card"><div class="eyebrow" data-i18n="pricing">04 · Pricing</div><h4 data-i18n="bulk">Bulk procurement references</h4><p data-i18n="bulkText">Indicative project-scale procurement levels, not retail prices or binding supplier quotations.</p></div>
@@ -195,6 +177,7 @@ function getCountryName(code){return countryDisplayNames.of(code);}
 //   T&T 2026-27 cost-per-W market index used for market relativities where available.
 // Unlisted-country cost indices below are explicitly modeled proxies, not observed quotations.
 const countryCostData={
+ // Solar PV country indices are relative to the calibrated Ireland EPC anchor (€26,233,244 at 65 MWp). IE remains exactly 1.00; all other country estimates inherit the same Irish baseline and apply their relative local construction/equipment indices.
  // code: [local construction factor vs Ireland, machinery/equipment factor vs Ireland, DC market factor vs Dublin]
  AD:[.94,.99,.96], AE:[.95,.99,.730], AL:[.556,1.092,.74], AM:[.66,.90,.67], AO:[.57,.90,.65], AR:[.78,.95,.88], AT:[1.169,.970,1.00],
  AU:[1.10,1.05,.913], AZ:[.66,.90,.68], BA:[.500,.945,.70], BE:[.909,1.001,1.00], BG:[.728,.932,.72], BH:[.90,1.00,.82],
