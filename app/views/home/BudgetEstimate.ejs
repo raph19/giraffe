@@ -158,14 +158,55 @@ function populateCountries(lang='en'){
  $('country').value=selected;
 }
 function getCountryName(code){return countryDisplayNames.of(code);}
-const countryRates={IE:1,GB:1.04,DE:1.02,FR:1,NL:1.03,BE:1.02,ES:.88,PT:.86,IT:.96,GR:.83,US:1.08,CA:1.1,AU:1.08,JP:1.15,KR:1.02,IN:.55,CN:.62,BR:.75,ZA:.7,SA:.9,AE:.93,PL:.78,RO:.7,BG:.68,SE:1.05,NO:1.13,DK:1.07,FI:1.03,TR:.72};
+// ECONOMIC MODEL REVISION — 2026-10-31
+// Scope: preliminary EPC/CAPEX estimate, EUR, VAT excluded. UI is intentionally unchanged.
+// Evidence hierarchy:
+// - PV modules: sun.store / PV Tech Sep-2026 Europe utility-scale transaction index.
+// - PV Ireland anchor: user-provided 65 MWp fixed-tilt TOPCon bifacial EPC calibration (€26.5m).
+//   This is a project calibration point, not a published national average.
+// - Country local-cost relativities: Eurostat-OECD 2024 investment price level indices (PLI),
+//   construction and machinery/equipment. PLI is used only as a relative proxy; it is not a quote.
+// - BESS: Modo Energy 2026 survey global medians (2h $325k/MWh; 4h $201k/MWh),
+//   split into energy and power components; FX uses ECB 30-Oct-2026 reference rate.
+// - Data centres: Irish Government/KPMG 2026 €11–13m/MW hyperscale CAPEX range;
+//   T&T 2026-27 cost-per-W market index used for market relativities where available.
+// Unlisted-country cost indices below are explicitly modeled proxies, not observed quotations.
+const countryCostData={
+ // code: [local construction factor vs Ireland, machinery/equipment factor vs Ireland, DC market factor vs Dublin]
+ AD:[.94,.99,.96], AE:[.95,.99,.730], AL:[.556,1.092,.74], AM:[.66,.90,.67], AO:[.57,.90,.65], AR:[.78,.95,.88], AT:[1.169,.970,1.00],
+ AU:[1.10,1.05,.913], AZ:[.66,.90,.68], BA:[.500,.945,.70], BE:[.909,1.001,1.00], BG:[.728,.932,.72], BH:[.90,1.00,.82],
+ BR:[.83,.985,.999], BY:[.68,.94,.70], CA:[1.10,1.04,1.03], CH:[1.515,1.226,1.26], CL:[.88,.98,.90], CN:[.78,.95,.88],
+ CO:[.78,.95,.82], CR:[.83,.98,.82], CY:[.741,.991,.78], CZ:[.764,.979,.82], DE:[1.504,.963,.991], DK:[1.249,1.120,1.144],
+ EE:[.779,.985,.86], ES:[.813,1.002,.901], FI:[1.175,.996,1.058], FR:[1.227,1.040,1.041], GB:[1.25,1.02,1.028],
+ GE:[.68,.90,.69], GR:[.745,.973,.84], HR:[.598,.879,.78], HU:[.697,.987,.80], ID:[.72,.95,.75], IE:[1,1,1],
+ IL:[1.05,1.08,1.05], IN:[.572,.90,.516], IS:[1.103,1.156,1.08], IT:[.849,.958,.976], JP:[1.35,1.10,1.451], KR:[1.05,1.03,.833],
+ LT:[.757,.933,.82], LU:[1.336,.983,1.04], LV:[.818,.955,.82], MA:[.67,.92,.70], ME:[.535,1.041,.70], MK:[.568,.875,.68],
+ MT:[.872,1.193,.91], MX:[.78,.95,.94], MY:[.72,.95,.82], NL:[1.242,1.026,1.003], NO:[1.172,1.041,1.107], NZ:[1.10,1.03,.92],
+ PH:[.67,.95,.78], PL:[.727,.980,.851], PT:[.663,.945,.85], RO:[.600,.950,.76], RS:[.561,.937,.73], SA:[.92,1.00,.857],
+ SE:[1.330,.993,1.105], SG:[1.15,1.12,1.18], SI:[.712,1.080,.87], SK:[.750,.979,.83], TR:[.599,.662,.80],
+ TW:[1.05,1.00,1.03], UA:[.62,.90,.70], US:[1.12,1.05,1.054], VN:[.67,.95,.76], ZA:[.73,.95,.849]
+};
+const countryCodesInModel=`AD AE AL AM AO AR AT AU AZ BA BE BG BH BR BY CA CH CL CN CO CR CY CZ DE DK EE ES FI FR GB GE GR HR HU ID IE IL IN IS IT JP KR LT LU LV MA ME MK MT MX MY NL NO NZ PH PL PT RO RS SA SE SG SI SK TR TW UA US VN ZA`.split(/\s+/);
 const moduleOptions={topcon_mono:{name:'N-type TOPCon Monofacial',price:.120},topcon_bifacial:{name:'N-type TOPCon Bifacial',price:.114}};
 const mountingPricePerWp={fixed:.05,tracker:.08};
 const inverterPricePer250kW=5500;
-const rates={solar:{civil:110000,mechanical:90000,electrical:160000},bess:{civil:300000,mechanical:0,electrical:0,batteryPerMWh:93000,contingency:.05},datacenter:{civil:1200000,mechanical:2400000,electrical:3800000}};
+// Model base rates; detailed country factors are applied by cost component below.
+const rates={
+ solar:{civil:110000,mechanical:90000,engineering:.07,contingency:.06,anchorEpc:26500000,anchorMWp:65},
+ bess:{batteryPackPerMWh:69000,bosPerMW:444000,nmcBatteryPremium:.08,engineering:.08,contingency:.05,pcsExtraPerMW:85000,containerDeltaPerUnit:18000},
+ datacenter:{irishTotalPerMWIT:12000000,engineering:.08,contingency:.07,liquidCoolingPremium:.10,coolingShareOfMechanical:.45,upsShareOfElectrical:.30,distributionShareOfElectrical:.35}
+};
 const assumptions={solar:{dc:1200,ac:120,mv:180,hv:100,fibre:150,road:70},bess:{cable:250,road:70},datacenter:{powerCable:1800,fibre:150}};
-const technologyFactors={bess:{LFP:1,NMC:1.25},datacenter:{'Air Cooling':1,'Liquid Cooling':1.08}};
+const technologyFactors={bess:{LFP:1,NMC:1.08},datacenter:{'Air Cooling':1,'Liquid Cooling':1.10}};
 const routeRates={dc:1.25,ac:7.5,mv:22,hv:38,fibre:1.8,road:95,bessCable:22,bessRoad:95,dcPower:12,dcFibre:1.8};
+const FX_USD_PER_EUR=1.1172; // ECB reference rate, 30-Oct-2026; budget conversion only.
+const BESS_USD_PER_KWH=77; // Derived from Modo 2026 2h/4h medians, see model note below.
+const BESS_USD_PER_KW=496; // Derived from same energy/power decomposition.
+function marketFactors(country){
+ const d=countryCostData[country]||countryCostData.IE;
+ const isUS=country==='US';
+ return {civil:d[0],labour:d[0],equipment:d[1],dataCenter:d[2],bessTotal:isUS?1.15:1,bessLocal:isUS?1:(.55*d[1]+.45*d[0]),bessEngineering:isUS?1:(.70*d[0]+.30*d[1])};
+}
 let lastCalculation=null,autoTimer=null;
 const labels={
 en:{title:'Budget Estimate Calculator',subtitle:'Preliminary EPC Project Cost Estimation Tool',projectInfo:'Project Information',country:'Country / Market',selectCountry:'Select Country',projectType:'Project Type',selectProject:'Select Project',solarPV:'Solar PV',bess:'BESS',dataCenter:'Data Center',technology:'PV Module Technology',selectTechnology:'Select Technology',modulePower:'PV Module Power (Wp)',selectModulePower:'Select Module Power',mounting:'Mounting System',selectMounting:'Select Mounting System',fixedTilt:'Fixed Tilt',singleAxis:'Single Axis Tracker',inverters:'Number of Inverters',substations:'Number of MV Substations',modulesString:'Modules per String',mvCable:'MV Cable Route Length (m) – optional',dcCable:'DC Cable Length (m) – optional',acCable:'AC LV Cable Length (m) – optional',hvCable:'HV / Export Cable Length (m) – optional',fibreCable:'Fibre Optic / Communication Cable Length (m) – optional',roadLength:'Access Road Length (m) – optional',duration:'BESS Duration (Hours)',chemistry:'Battery Chemistry',selectChemistry:'Select Chemistry',tier:'Data Center Tier',selectTier:'Select Tier',cooling:'Cooling System',selectCooling:'Select Cooling',airCooling:'Air Cooling',liquidCooling:'Liquid Cooling',calculate:'Calculate Budget',reset:'Reset',inputNote:'Budget updates automatically when you change a project input. Press Enter in any field to calculate manually.',totalEpc:'Total Estimated EPC Cost',breakdown:'EPC Cost Breakdown',category:'Work Category',baseCost:'Base Cost (€)',factor:'Market Factor',estimatedCost:'Estimated Cost (€)',total:'TOTAL EPC COST',epcNote:'EPC total includes equipment procurement, construction, installation, engineering, commissioning and contingency.',materialReference:'Material / Equipment Reference',material:'Material / Equipment',quantity:'Estimated Quantity',unit:'Unit',unitPrice:'Indicative Unit Price (€)',referenceTotal:'Reference Total (€)',referenceSum:'TOTAL MATERIAL REFERENCE VALUE',materialNote:'Reference values are informational only. They are already represented within the EPC estimate and are NOT added again.',assumptions:'Project Assumptions & Cost Parameters',budgetary:'Budgetary model',marketAdjustment:'01 · Market',countryFactor:'Country adjustment',countryFactorText:'The selected country factor adjusts labour, logistics, installation and local subcontractor costs.',epcScope:'02 · EPC scope',turnkey:'Turnkey cost structure',turnkeyText:'The EPC estimate includes procurement, civil and electrical works, installation, engineering and commissioning.',contingencyLabel:'03 · Risk allowance',contingency:'Contingency / Unforeseen costs',contingencyText:'A budget reserve for scope development, design changes and unforeseen site conditions. It is included once in the EPC total.',pricing:'04 · Pricing',bulk:'Bulk procurement references',bulkText:'Indicative project-scale procurement levels, not retail prices or binding supplier quotations.',projectConsiderations:'05 · Project definition',siteSpecific:'Site-specific cost factors',siteSpecificText:'Final project costs will be refined against the confirmed grid connection scope, ground and geotechnical conditions, detailed design, cable and access road routes, applicable taxes and duties, transport requirements, selected equipment specifications and the agreed EPC contract boundaries.',excel:'Download Excel',print:'Print / Save as PDF',capacitySolar:'Solar PV Capacity (MWp)',capacityBess:'BESS Power Capacity (MW)',capacityDc:'IT Load Capacity (MW)',capacityGeneric:'Project Capacity (MW)',enterCapacity:'Enter capacity',enterInverters:'Enter inverter quantity',enterSubstations:'Enter MV substations',enterModulesString:'Enter modules per string',enterMv:'Enter route length if known',optionalDc:'Optional total DC cable length',optionalAc:'Optional total AC cable length',optionalHv:'Optional export cable length',optionalFibre:'Optional communication cable length',optionalRoad:'Optional internal road length',enterDuration:'Enter duration',validation:'Please select a country and project type and enter a valid capacity.',solarValidation:'Complete the required Solar PV inputs. All cable and access road lengths are optional.',bessValidation:'Enter BESS duration and select battery chemistry.',dcValidation:'Select Data Center Tier and Cooling System.',market:'Market',marketFactor:'Market factor',estimatedCostPer:'Estimated EPC Cost',perMW:'per MW',perMWh:'per MWh',modules:'modules',strings:'strings',invertersUnit:'inverters',mvSubstations:'MV substations',hours:'hours',calculatedModules:'Calculated modules',estimatedStrings:'Estimated strings',exportAlert:'Calculate a valid budget first.',excelAlert:'Excel export requires an internet connection.','optionalProjectDetails':'Optional Project Details','optional':'OPTIONAL','bessDesignDetails':'BESS Design Details','bessDesignNote':'Refine the preliminary equipment quantities. Default block sizes are used when left unchanged.','batteryBlock':'Battery Container Block (MWh)','pcsBlock':'PCS Block Size (MW)','bessCable':'MV / HV Cable Route (m) – optional','bessRoad':'Access Road Length (m) – optional','dcDesignDetails':'Data Center Design Details','dcDesignNote':'Adjust redundancy and equipment block assumptions. Cable quantities are estimated automatically unless a route length is entered.','pue':'Target PUE','upsRedundancy':'UPS Redundancy','generatorBlock':'Generator Unit Size (MW)','dcCableRoute':'Power Cable Route (m) – optional','dcFibreRoute':'Fibre / Data Cable Route (m) – optional','optionalBessCable':'Optional total cable route','optionalDcPower':'Optional total power cable route','optionalProjectDetails':'تفاصيل المشروع الاختيارية','optional':'اختياري','bessDesignDetails':'تفاصيل تصميم نظام BESS','bessDesignNote':'يمكن تعديل كميات المعدات وأحجام الوحدات؛ وإلا فستُستخدم الافتراضات الافتراضية.','batteryBlock':'سعة وحدة حاوية البطارية (MWh)','pcsBlock':'حجم وحدة PCS (MW)','bessCable':'مسار كابلات الجهد المتوسط / العالي (م) – اختياري','bessRoad':'طول طريق الوصول (م) – اختياري','dcDesignDetails':'تفاصيل تصميم مركز البيانات','dcDesignNote':'اضبط التكرار وأحجام المعدات. تُقدّر أطوال الكابلات تلقائياً ما لم يتم إدخال طول للمسار.','pue':'قيمة PUE المستهدفة','upsRedundancy':'تكرار أنظمة UPS','generatorBlock':'قدرة وحدة المولد (MW)','dcCableRoute':'مسار كابلات الطاقة (م) – اختياري','dcFibreRoute':'مسار الألياف / البيانات (م) – اختياري','optionalBessCable':'إجمالي مسار الكابلات','optionalDcPower':'إجمالي مسار كابلات الطاقة','quantityAdjustmentNote':'Route-length changes adjust the EPC total using existing BOQ unit rates plus a 15% installation and delivery allowance. Preliminary estimate only.','quantityAdjustmentNote':'تؤثر تغييرات أطوال المسارات في إجمالي EPC وفق أسعار BOQ الحالية مع إضافة 15٪ للتركيب والتسليم. تقدير أولي فقط.','routeAssumptionsNote':'Default quantities per MW: Solar PV – DC 1,200 m, AC LV 120 m, MV 180 m, HV/export 100 m, fibre 150 m, roads 70 m; BESS – MV/HV 250 m and roads 70 m; Data Center – power cable 1,800 m and fibre 150 m.','routeAssumptionsNote':'الكميات الافتراضية لكل MW: الطاقة الشمسية – كابلات DC بطول 1,200 م، وAC LV بطول 120 م، وMV بطول 180 م، وHV/التصدير بطول 100 م، وألياف 150 م، وطرق 70 م؛ BESS – كابلات 250 م وطرق 70 م؛ مركز البيانات – كابلات طاقة 1,800 م وألياف 150 م.'},
@@ -282,118 +323,154 @@ ar:{'Civil Works & Infrastructure':'الأعمال المدنية والبنية
 function localName(name){const lang=$('language').value;return (generatedNames[lang]&&generatedNames[lang][name])||name;}
 
 function activeLocale(){return ({en:'en-IE',el:'el-GR',de:'de-DE',fr:'fr-FR',ar:'ar-EG'})[$('language').value]||'en-IE'}function fmt(n){return new Intl.NumberFormat(activeLocale(),{maximumFractionDigits:2}).format(n)}function money(n){return new Intl.NumberFormat(activeLocale(),{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n)}
-function getMaterials(type,cap,duration,o,factor){
+function getMaterials(type,cap,duration,o,market){
  let m=[];
+ const equipment=market.equipment,local=market.civil,blend=.65*equipment+.35*market.labour;
  if(type==='solar'){
   const count=Math.ceil(cap*1e6/o.modulePower),strings=Math.ceil(count/o.modulesPerString);
   const modRate=moduleOptions[o.tech].price*o.modulePower;
   const mountingRate=o.modulePower*mountingPricePerWp[o.mounting];
-  m=[['PV Modules',count,'pcs',modRate],['PV Strings',strings,'strings',0],['String Inverters',o.inverters,'units',inverterPricePer250kW],['Mounting Structure',count,'sets',mountingRate],['DC Cables',o.dcLength,'m',1.25],['AC LV Cables',o.acLength,'m',7.5],['MV Cable',o.mvLength,'m',22],['HV / Export Cable',o.hvLength,'m',38],['Fibre Optic / Communication Cable',o.fibreLength,'m',1.8],['Access Roads',o.roadLength,'m',95],['MV Substations',o.substations,'units',95000],['MV Switchgear',o.substations,'sets',28000],['DC Connectors',count*2,'pcs',2.1],['SCADA / Monitoring',cap,'MWp',2400]];
+  m=[['PV Modules',count,'pcs',modRate*equipment],['PV Strings',strings,'strings',0],['String Inverters',o.inverters,'units',inverterPricePer250kW*equipment],['Mounting Structure',count,'sets',mountingRate*(.55*equipment+.45*market.labour)],['DC Cables',o.dcLength,'m',1.25*blend],['AC LV Cables',o.acLength,'m',7.5*blend],['MV Cable',o.mvLength,'m',22*blend],['HV / Export Cable',o.hvLength,'m',38*blend],['Fibre Optic / Communication Cable',o.fibreLength,'m',1.8*equipment],['Access Roads',o.roadLength,'m',95*local],['MV Substations',o.substations,'units',95000*equipment],['MV Switchgear',o.substations,'sets',28000*equipment],['DC Connectors',count*2,'pcs',2.1*equipment],['SCADA / Monitoring',cap,'MWp',2400*equipment]];
  }else if(type==='bess'){
   const energy=cap*duration,containers=Math.ceil(energy/o.batteryBlockSize),pcs=Math.ceil(cap/o.pcsBlockSize),transformers=Math.ceil(cap/5);
-  m=[['Battery System / Containers',energy,'MWh',rates.bess.batteryPerMWh*technologyFactors.bess[o.chemistry]],['Power Conversion System (PCS)',pcs,'units',85000*o.pcsBlockSize],['MV Transformer & Switchgear',transformers,'sets',95000],['EMS / BMS',1,'system',45000],['Fire Suppression & HVAC',containers,'sets',26000],['Civil Foundations',energy,'MWh',6500],['MV / HV Cabling',o.bessCableLength,'m',22],['Access Roads',o.bessRoadLength,'m',95]];
+  m=[['Battery System / Containers',energy,'MWh',rates.bess.batteryPackPerMWh*market.bessTotal*technologyFactors.bess[o.chemistry]],['Power Conversion System (PCS)',pcs,'units',rates.bess.pcsExtraPerMW*o.pcsBlockSize*equipment],['MV Transformer & Switchgear',transformers,'sets',95000*equipment],['EMS / BMS',1,'system',45000*equipment],['Fire Suppression & HVAC',containers,'sets',26000*blend],['Civil Foundations',energy,'MWh',6500*local],['MV / HV Cabling',o.bessCableLength,'m',22*blend],['Access Roads',o.bessRoadLength,'m',95*local]];
  }else{
   const upsFactor=o.upsRedundancy,genCount=Math.ceil(cap/o.generatorBlockSize),transformers=Math.ceil(cap/5),coolingLoad=cap*1.2*(o.pue/1.4);
-  m=[['Server Racks',cap*80,'units',4500],['UPS Systems',cap*upsFactor,'MW',180000],['Generators',genCount,'units',o.generatorBlockSize*350000/2],['MV Transformers',transformers,'units',85000],['Cooling Systems',coolingLoad,'MWth',95000],['Power Cables',o.dcPowerLength,'m',12],['Fibre Optic / Data Cables',o.dcFibreLength,'m',1.8],['Fire Suppression',cap,'systems',18000]];
+  m=[['Server Racks',cap*80,'units',4500*equipment],['UPS Systems',cap*upsFactor,'MW',180000*equipment],['Generators',genCount,'units',o.generatorBlockSize*350000/2*equipment],['MV Transformers',transformers,'units',85000*equipment],['Cooling Systems',coolingLoad,'MWth',95000*blend],['Power Cables',o.dcPowerLength,'m',12*blend],['Fibre Optic / Data Cables',o.dcFibreLength,'m',1.8*equipment],['Fire Suppression',cap,'systems',18000*blend]];
  }
- return m.map(x=>[x[0],x[1],x[2],x[3]*factor]).filter(x=>x[1]>0&&x[3]>0);
+ return m.filter(x=>x[1]>0&&x[3]>0);
 }
+
+const readLength=(id,assumption)=>{const raw=$(id).value;return raw.trim()===''?assumption:Math.max(0,Number(raw)||0)};
 
 function calculateBudget(scroll=false){
  const country=$('country').value,type=$('projectType').value,cap=Number($('capacity').value);
  let err='';
  if(!country||!type||!Number.isFinite(cap)||cap<=0)err=tr('validation');
- let o={};
- const readLength=(id,assumption)=>{const raw=$(id).value;return raw.trim()===''?assumption:Math.max(0,Number(raw)||0)};
  if(type==='solar'){
-  o.tech=$('solarTechnology').value;o.modulePower=Number($('modulePower').value);o.mounting=$('mountingType').value;
-  o.inverters=Number($('inverters').value);o.substations=Number($('substations').value);o.modulesPerString=Number($('modulesPerString').value);
-  o.dcLength=readLength('dcCableLength',cap*assumptions.solar.dc);o.acLength=readLength('acCableLength',cap*assumptions.solar.ac);o.mvLength=readLength('mvCableLength',cap*assumptions.solar.mv);o.hvLength=readLength('hvCableLength',cap*assumptions.solar.hv);o.fibreLength=readLength('fibreCableLength',cap*assumptions.solar.fibre);o.roadLength=readLength('roadLength',cap*assumptions.solar.road);
-  if(!o.tech||!o.modulePower||!o.mounting||!Number.isInteger(o.inverters)||o.inverters<1||!Number.isInteger(o.substations)||o.substations<1||!Number.isInteger(o.modulesPerString)||o.modulesPerString<1)err=tr('solarValidation');
+  const required=['solarTechnology','modulePower','mountingType','inverters','substations','modulesPerString'];
+  if(required.some(id=>!$(id)||!$(id).value))err=tr('solarValidation');
  }
- if(type==='bess'){
-  o.duration=Number($('duration').value);o.chemistry=$('batteryChemistry').value;o.batteryBlockSize=Number($('batteryBlockSize').value)||5;o.pcsBlockSize=Number($('pcsBlockSize').value)||2.5;
-  o.bessCableLength=readLength('bessCableLength',cap*assumptions.bess.cable);o.bessRoadLength=readLength('bessRoadLength',cap*assumptions.bess.road);
-  if(!o.duration||o.duration<=0||!o.chemistry)err=tr('bessValidation');
- }
- if(type==='datacenter'){
-  o.tier=$('dataCenterTier').value;o.cooling=$('coolingType').value;o.pue=Number($('pue').value)||1.4;o.upsRedundancy=Number($('upsRedundancy').value)||1.1;o.generatorBlockSize=Number($('generatorBlock').value)||2;
-  o.dcPowerLength=readLength('dcCableRoute',cap*assumptions.datacenter.powerCable);o.dcFibreLength=readLength('dcFibreRoute',cap*assumptions.datacenter.fibre);
-  if(!o.tier||!o.cooling)err=tr('dcValidation');
- }
+ if(type==='bess'&&(!$('duration').value||!$('batteryChemistry').value))err=tr('bessValidation');
+ if(type==='datacenter'&&(!$('dataCenterTier').value||!$('coolingType').value))err=tr('dcValidation');
  if(err){$('validationMessage').textContent=err;$('results').style.display='none';lastCalculation=null;return false;}
  $('validationMessage').textContent='';
- const factor=countryRates[country]??1;
- let costs=[],total=0;
+ const market=marketFactors(country),costs=[];
  const routeCost=(actual,baseline,unitRate)=>(actual-baseline)*unitRate*1.15;
+ const addCost=(name,base,factor)=>costs.push([name,Math.max(0,base),factor]);
  if(type==='solar'){
+  const o={tech:$('solarTechnology').value,modulePower:Number($('modulePower').value),mounting:$('mountingType').value,inverters:Number($('inverters').value),substations:Number($('substations').value),modulesPerString:Number($('modulesPerString').value)};
+  o.dcLength=readLength('dcCableLength',cap*assumptions.solar.dc);o.acLength=readLength('acCableLength',cap*assumptions.solar.ac);o.mvLength=readLength('mvCableLength',cap*assumptions.solar.mv);o.hvLength=readLength('hvCableLength',cap*assumptions.solar.hv);o.fibreLength=readLength('fibreCableLength',cap*assumptions.solar.fibre);o.roadLength=readLength('roadLength',cap*assumptions.solar.road);
+  const anchorPre=cap*(rates.solar.anchorEpc/rates.solar.anchorMWp/(1+rates.solar.engineering+rates.solar.contingency));
+  const civilBase=cap*rates.solar.civil;
+  const mechanicalBase=cap*rates.solar.mechanical+(o.mounting==='tracker'?cap*1e6*(mountingPricePerWp.tracker-mountingPricePerWp.fixed):0);
+  const electricalBase=anchorPre-cap*(rates.solar.civil+rates.solar.mechanical);
   const baseInverters=Math.ceil(cap*4),baseSubstations=Math.ceil(cap/5);
-  const moduleProcurementDelta=(moduleOptions[o.tech].price-moduleOptions.topcon_mono.price)*cap*1e6;
-  const inverterQuantityDelta=(o.inverters-baseInverters)*inverterPricePer250kW;
-  const substationQuantityDelta=(o.substations-baseSubstations)*(95000+28000);
-  const cableRoutesDelta=routeCost(o.dcLength,cap*assumptions.solar.dc,routeRates.dc)+routeCost(o.acLength,cap*assumptions.solar.ac,routeRates.ac)+routeCost(o.mvLength,cap*assumptions.solar.mv,routeRates.mv)+routeCost(o.hvLength,cap*assumptions.solar.hv,routeRates.hv)+routeCost(o.fibreLength,cap*assumptions.solar.fibre,routeRates.fibre);
-  const roadRouteDelta=routeCost(o.roadLength,cap*assumptions.solar.road,routeRates.road);
-  const civil=Math.max(0,cap*rates.solar.civil+roadRouteDelta);
-  const mechanical=cap*rates.solar.mechanical+(o.mounting==='tracker'?cap*1e6*(mountingPricePerWp.tracker-mountingPricePerWp.fixed):0);
-  let electrical=Math.max(0,cap*rates.solar.electrical+moduleProcurementDelta+inverterQuantityDelta+substationQuantityDelta+cableRoutesDelta);
-  // Ireland TOPCon bifacial planning calibration: approximately €530k/MWp EPC for a standard fixed-tilt project.
-  // This equates to about €26.5m for 50 MWp; site-specific route and quantity changes remain additive.
-  if(country==='IE'&&o.tech==='topcon_bifacial'&&o.mounting==='fixed'){
-   const targetPreContingency=cap*(530000/1.13);
-   electrical+=Math.max(0,targetPreContingency-(civil+mechanical+electrical));
-  }
-  const pre= civil+mechanical+electrical;
-  costs=[['Civil Works & Infrastructure',civil],['Mechanical Works & Mounting',mechanical],['Electrical Works & Grid Equipment',electrical],['Engineering, PM & Commissioning',pre*.07],['Contingency / Unforeseen Costs',pre*.06]];
+  const moduleDelta=(moduleOptions[o.tech].price-moduleOptions.topcon_bifacial.price)*cap*1e6;
+  const inverterDelta=(o.inverters-baseInverters)*inverterPricePer250kW;
+  const substationDelta=(o.substations-baseSubstations)*(95000+28000);
+  const cableDelta=routeCost(o.dcLength,cap*assumptions.solar.dc,routeRates.dc)+routeCost(o.acLength,cap*assumptions.solar.ac,routeRates.ac)+routeCost(o.mvLength,cap*assumptions.solar.mv,routeRates.mv)+routeCost(o.hvLength,cap*assumptions.solar.hv,routeRates.hv)+routeCost(o.fibreLength,cap*assumptions.solar.fibre,routeRates.fibre);
+  const roadDelta=routeCost(o.roadLength,cap*assumptions.solar.road,routeRates.road);
+  const mechanicalFactor=.55*market.labour+.45*market.equipment;
+  const electricalFactor=.25*market.labour+.75*market.equipment;
+  const civil=civilBase+roadDelta;
+  const mechanical=mechanicalBase;
+  const electrical=Math.max(0,electricalBase+moduleDelta+inverterDelta+substationDelta+cableDelta);
+  const pre=civil+mechanical+electrical;
+  addCost('Civil Works & Infrastructure',civil,market.civil);
+  addCost('Mechanical Works & Mounting',mechanical,mechanicalFactor);
+  addCost('Electrical Works & Grid Equipment',electrical,electricalFactor);
+  addCost('Engineering, PM & Commissioning',pre*rates.solar.engineering,.70*market.labour+.30*market.equipment);
+  addCost('Contingency / Unforeseen Costs',pre*rates.solar.contingency,1);
+  o.inverters=o.inverters;o.substations=o.substations;
  }else if(type==='bess'){
-  const energy=cap*o.duration,battery=energy*rates.bess.batteryPerMWh*technologyFactors.bess[o.chemistry];
+  const o={duration:Number($('duration').value),chemistry:$('batteryChemistry').value,batteryBlockSize:Number($('batteryBlockSize').value),pcsBlockSize:Number($('pcsBlockSize').value)};
+  o.bessCableLength=readLength('bessCableLength',cap*assumptions.bess.cable);o.bessRoadLength=readLength('bessRoadLength',cap*assumptions.bess.road);
+  const energy=cap*o.duration;
+  // Modo 2026: 2h = $325k/MWh; 4h = $201k/MWh.
+  // Solving C($/kWh)=pack + BOS($/kW)/duration gives $77/kWh + $496/kW.
+  // Convert with ECB EUR1=USD1.1172 (30-Oct-2026). Engineering and contingency are carved
+  // out of the benchmark total once; they are not stacked on top of the benchmark.
+  const packBase=energy*(BESS_USD_PER_KWH*1000/FX_USD_PER_EUR)*technologyFactors.bess[o.chemistry];
+  const bosPowerBase=cap*(BESS_USD_PER_KW*1000/FX_USD_PER_EUR);
   const installedPcsCapacity=Math.ceil(cap/o.pcsBlockSize)*o.pcsBlockSize;
-  const pcsBlockDelta=(installedPcsCapacity-cap)*85000;
+  const pcsRounding=(installedPcsCapacity-cap)*rates.bess.pcsExtraPerMW;
   const actualContainers=Math.ceil(energy/o.batteryBlockSize),baselineContainers=Math.ceil(energy/5);
-  const containerConfigurationDelta=(actualContainers-baselineContainers)*26000;
+  const containerDelta=(actualContainers-baselineContainers)*rates.bess.containerDeltaPerUnit;
   const cableDelta=routeCost(o.bessCableLength,cap*assumptions.bess.cable,routeRates.bessCable);
   const roadDelta=routeCost(o.bessRoadLength,cap*assumptions.bess.road,routeRates.bessRoad);
-  const bop=Math.max(0,cap*rates.bess.civil+pcsBlockDelta+containerConfigurationDelta+cableDelta+roadDelta);
-  const pre=battery+bop;
-  costs=[['Battery System Procurement',battery],['PCS, MV & Electrical Balance of Plant',bop],['Engineering, Integration & Commissioning',pre*.08],['Contingency / Unforeseen Costs',pre*.05]];
+  const bosRaw=Math.max(0,bosPowerBase+pcsRounding+containerDelta+cableDelta+roadDelta);
+  const eng=rates.bess.engineering,cont=rates.bess.contingency,preScale=1/(1+eng+cont);
+  addCost('Battery System Procurement',packBase*preScale,market.bessTotal);
+  addCost('PCS, MV & Electrical Balance of Plant',bosRaw*preScale,market.bessLocal*market.bessTotal);
+  addCost('Engineering, Integration & Commissioning',(packBase+bosRaw)*preScale*eng,market.bessEngineering*market.bessTotal);
+  addCost('Contingency / Unforeseen Costs',(packBase+bosRaw)*preScale*cont,market.bessTotal);
  }else{
-  const coolingFactor=technologyFactors.datacenter[o.cooling];
-  const coolingLoad=cap*1.2*(o.pue/1.4);
-  const baseMechanical=cap*rates.datacenter.mechanical*(o.pue/1.4);
-  const baseProjectCost=cap*(rates.datacenter.civil+rates.datacenter.mechanical+rates.datacenter.electrical);
-  const coolingTechnologyPremium=(coolingFactor-1)*baseProjectCost;
-  const mechanical=baseMechanical+coolingTechnologyPremium;
+  const o={tier:$('dataCenterTier').value,cooling:$('coolingType').value,pue:Number($('pue').value),upsRedundancy:Number($('upsRedundancy').value),generatorBlockSize:Number($('generatorBlock').value)};
+  o.dcPowerLength=readLength('dcCableRoute',cap*assumptions.datacenter.powerCable);o.dcFibreLength=readLength('dcFibreRoute',cap*assumptions.datacenter.fibre);
+  // Irish Government/KPMG 2026 hyperscale CAPEX: €11–13m per MW; use midpoint €12m/MW IT.
+  // T&T 2026-27 $/W market ratios adjust the national baseline. IT servers and land excluded.
+  const totalBenchmark=cap*rates.datacenter.irishTotalPerMWIT;
+  const preBenchmark=totalBenchmark/(1+rates.datacenter.engineering+rates.datacenter.contingency);
+  const baseCivil=preBenchmark*(1.2/7.4),baseMechanical=preBenchmark*(2.4/7.4),baseElectrical=preBenchmark*(3.8/7.4);
+  const coolingRatio=Math.max(.60,Math.min(1.75,(o.pue-1)/(.4)));
+  const coolingShare=rates.datacenter.coolingShareOfMechanical;
+  let mechanical=baseMechanical*((1-coolingShare)+coolingShare*coolingRatio);
+  if(o.cooling==='Liquid Cooling')mechanical+=totalBenchmark*rates.datacenter.liquidCoolingPremium/(1+rates.datacenter.engineering+rates.datacenter.contingency);
+  const upsRatio=o.upsRedundancy/1.1;
+  let electrical=baseElectrical*(1+rates.datacenter.upsShareOfElectrical*(upsRatio-1));
+  const tierPathPremium=o.tier==='Tier IV'?.15:o.tier==='Tier III'?.06:0;
+  electrical+=baseElectrical*rates.datacenter.distributionShareOfElectrical*tierPathPremium;
   const baselineGeneratorCapacity=Math.ceil(cap/2)*2;
   const actualGeneratorCapacity=Math.ceil(cap/o.generatorBlockSize)*o.generatorBlockSize;
-  const generatorConfigurationDelta=(actualGeneratorCapacity-baselineGeneratorCapacity)*175000;
-  const upsAdjustedElectrical=cap*rates.datacenter.electrical*(o.upsRedundancy/1.1);
+  const generatorDelta=(actualGeneratorCapacity-baselineGeneratorCapacity)*175000;
   const cableDelta=routeCost(o.dcPowerLength,cap*assumptions.datacenter.powerCable,routeRates.dcPower)+routeCost(o.dcFibreLength,cap*assumptions.datacenter.fibre,routeRates.dcFibre);
-  const civil=cap*rates.datacenter.civil;
-  const electrical=Math.max(0,upsAdjustedElectrical+generatorConfigurationDelta+cableDelta);
+  electrical=Math.max(0,electrical+generatorDelta+cableDelta);
+  const civil=baseCivil;
   const pre=civil+mechanical+electrical;
-  costs=[['Civil Works',civil],['Mechanical & Cooling',mechanical],['Electrical & Power Systems',electrical],['Engineering, Integration & Commissioning',pre*.08],['Contingency / Unforeseen Costs',pre*.07]];
+  const adjustedPre=civil+mechanical+electrical;
+  addCost('Civil Works',civil,market.dataCenter);
+  addCost('Mechanical & Cooling',mechanical,market.dataCenter);
+  addCost('Electrical & Power Systems',electrical,market.dataCenter);
+  addCost('Engineering, Integration & Commissioning',adjustedPre*rates.datacenter.engineering,market.dataCenter);
+  addCost('Contingency / Unforeseen Costs',adjustedPre*rates.datacenter.contingency,market.dataCenter);
  }
- costs=costs.map(x=>[x[0],x[1],x[1]*factor]);
- total=costs.reduce((sum,x)=>sum+x[2],0);
- const denominator=type==='bess'?cap*o.duration:cap;
+ const baseTotal=costs.reduce((sum,x)=>sum+x[1],0);
+ const adjustedCosts=costs.map(x=>[x[0],x[1],x[2],x[1]*x[2]]);
+ const total=adjustedCosts.reduce((sum,x)=>sum+x[3],0);
+ const factor=baseTotal>0?total/baseTotal:1;
+ const denominator=type==='bess'?cap*Number($('duration').value):cap;
  const unitLabel=type==='bess'?tr('perMWh'):tr('perMW');
- $('costTable').innerHTML=costs.map(x=>`<tr><td>${localName(x[0])}</td><td>${money(x[1])}</td><td>${factor.toFixed(2)}</td><td>${money(x[2])}</td></tr>`).join('');
+ $('costTable').innerHTML=adjustedCosts.map(x=>`<tr><td>${localName(x[0])}</td><td>${money(x[1])}</td><td>${x[2].toFixed(2)}</td><td>${money(x[3])}</td></tr>`).join('');
  $('costTotal').textContent=money(total);$('totalBudget').textContent=money(total);$('costPerMW').textContent=`${tr('estimatedCostPer')} ${unitLabel}: ${money(total/denominator)}`;
- let detail=type==='solar'?`${moduleOptions[o.tech].name} · €${moduleOptions[o.tech].price.toFixed(3)}/Wp · ${o.modulePower} Wp · ${o.mounting==='tracker'?tr('singleAxis'):tr('fixedTilt')} (€${mountingPricePerWp[o.mounting].toFixed(3)}/Wp) · ${fmt(Math.ceil(cap*1e6/o.modulePower))} ${tr('modules')} · ${fmt(Math.ceil(Math.ceil(cap*1e6/o.modulePower)/o.modulesPerString))} ${tr('strings')} · ${o.inverters} ${tr('invertersUnit')} · ${o.substations} ${tr('mvSubstations')}`:type==='bess'?`${o.chemistry} · ${fmt(cap*o.duration)} MWh · ${o.duration} ${tr('hours')} · ${Math.ceil(cap/o.pcsBlockSize)} PCS blocks · ${tr('batteryPriceFactor')}: ${Math.round(technologyFactors.bess[o.chemistry]*100)}%`:`${o.tier} · ${o.cooling==='Liquid Cooling'?tr('liquidCooling'):tr('airCooling')} · PUE ${o.pue} · UPS ${o.upsRedundancy===2?'2N':o.upsRedundancy===1.1?'N+1':'N'} · ${tr('coolingPriceFactor')}: ${Math.round(technologyFactors.datacenter[o.cooling]*100)}%`;
+ let detail='';
+ if(type==='solar'){
+  const tech=$('solarTechnology').value,wp=Number($('modulePower').value),mount=$('mountingType').value,mods=Math.ceil(cap*1e6/wp),strings=Math.ceil(mods/Number($('modulesPerString').value));
+  detail=`${moduleOptions[tech].name} · €${moduleOptions[tech].price.toFixed(3)}/Wp · ${wp} Wp · ${mount==='tracker'?tr('singleAxis'):tr('fixedTilt')} (€${mountingPricePerWp[mount].toFixed(3)}/Wp) · ${fmt(mods)} ${tr('modules')} · ${fmt(strings)} ${tr('strings')} · ${$('inverters').value} ${tr('invertersUnit')} · ${$('substations').value} ${tr('mvSubstations')}`;
+ }else if(type==='bess'){
+  const chem=$('batteryChemistry').value,dur=Number($('duration').value),blocks=Number($('pcsBlockSize').value);
+  detail=`${chem} · ${fmt(cap*dur)} MWh · ${dur} ${tr('hours')} · ${Math.ceil(cap/blocks)} PCS blocks · ${tr('batteryPriceFactor')}: ${Math.round(technologyFactors.bess[chem]*100)}%`;
+ }else{
+  const tier=$('dataCenterTier').value,cooling=$('coolingType').value,pue=Number($('pue').value),ups=Number($('upsRedundancy').value);
+  detail=`${tier} · ${cooling==='Liquid Cooling'?tr('liquidCooling'):tr('airCooling')} · PUE ${pue} · UPS ${ups===2?'2N':ups===1.1?'N+1':'N'} · ${tr('coolingPriceFactor')}: ${Math.round(technologyFactors.datacenter[cooling]*100)}%`;
+ }
  $('projectSummary').textContent=`${type==='solar'?tr('solarPV'):type==='bess'?tr('bess'):tr('dataCenter')} | ${fmt(cap)} ${type==='solar'?'MWp':'MW'} | ${detail}`;
  $('marketSummary').textContent=`${tr('market')}: ${getCountryName(country)} | ${tr('marketFactor')}: ${factor.toFixed(2)}`;
- const materials=getMaterials(type,cap,o.duration||0,o,factor);
+ const materials=getMaterials(type,cap,Number($('duration').value)||0,{tech:$('solarTechnology').value,modulePower:Number($('modulePower').value),mounting:$('mountingType').value,inverters:Number($('inverters').value),substations:Number($('substations').value),modulesPerString:Number($('modulesPerString').value),chemistry:$('batteryChemistry').value,batteryBlockSize:Number($('batteryBlockSize').value),pcsBlockSize:Number($('pcsBlockSize').value),bessCableLength:readLength('bessCableLength',cap*assumptions.bess.cable),bessRoadLength:readLength('bessRoadLength',cap*assumptions.bess.road),upsRedundancy:Number($('upsRedundancy').value),generatorBlockSize:Number($('generatorBlock').value),pue:Number($('pue').value),dcPowerLength:readLength('dcCableRoute',cap*assumptions.datacenter.powerCable),dcFibreLength:readLength('dcFibreRoute',cap*assumptions.datacenter.fibre)},market);
  $('materialTable').innerHTML=materials.map(x=>{const q=x[1],line=q*x[3];return `<tr><td>${localName(x[0])}</td><td>${fmt(q)}</td><td>${x[2]}</td><td>${money(x[3])}</td><td>${money(line)}</td></tr>`}).join('');
  const materialTotal=materials.reduce((sum,x)=>sum+x[1]*x[3],0);$('materialTotal').textContent=money(materialTotal);
- lastCalculation={country,countryName:getCountryName(country),type,capacity:cap,options:o,factor,costs,total,unitCost:total/denominator,materials,materialTotal,baselineAssumptions:assumptions[type]};
+ lastCalculation={country,countryName:getCountryName(country),type,capacity:cap,options:{},factor,costs:adjustedCosts.map(x=>[x[0],x[1],x[3]]),total,unitCost:total/denominator,materials,materialTotal,baselineAssumptions:assumptions[type]||{},market};
  $('results').style.display='block';if(scroll)$('results').scrollIntoView({behavior:'smooth',block:'start'});return true;
 }
 
 function scheduleCalculation(){clearTimeout(autoTimer);autoTimer=setTimeout(()=>{if($('country').value&&$('projectType').value&&$('capacity').value)calculateBudget(false);},220)}
-$('budgetForm').addEventListener('submit',e=>{e.preventDefault();calculateBudget(true);});$('budgetForm').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.target.matches('input,select'))){e.preventDefault();calculateBudget(true);}});$('projectType').addEventListener('change',()=>{updateCapacityLabel();scheduleCalculation()});$('dataCenterTier').addEventListener('change',()=>{const tier=$('dataCenterTier').value;if(tier==='Tier II')$('upsRedundancy').value='1';else if(tier==='Tier III')$('upsRedundancy').value='1.1';else if(tier==='Tier IV')$('upsRedundancy').value='2';scheduleCalculation()});$('language').addEventListener('change',()=>{setLanguage();if(lastCalculation)calculateBudget(false);});$('budgetForm').querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',scheduleCalculation);el.addEventListener('change',scheduleCalculation);});
+$('budgetForm').addEventListener('submit',e=>{e.preventDefault();calculateBudget(true);});$('budgetForm').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.target.matches('input,select'))){e.preventDefault();calculateBudget(true);}});$('projectType').addEventListener('change',()=>{updateCapacityLabel();scheduleCalculation()});$('dataCenterTier').addEventListener('change',()=>{const tier=$('dataCenterTier').value;if(tier==='Tier II')$('upsRedundancy').value='1.1';else if(tier==='Tier III')$('upsRedundancy').value='1.1';else if(tier==='Tier IV')$('upsRedundancy').value='2';scheduleCalculation()});$('language').addEventListener('change',()=>{setLanguage();if(lastCalculation)calculateBudget(false);});$('budgetForm').querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',scheduleCalculation);el.addEventListener('change',scheduleCalculation);});
 $('resetBtn').addEventListener('click',()=>{$('budgetForm').reset();$('results').style.display='none';$('validationMessage').textContent='';$('solarDerived').style.display='none';lastCalculation=null;updateCapacityLabel();});
 $('exportBtn').addEventListener('click',()=>{if(!lastCalculation){alert(tr('exportAlert'));return;}if(typeof XLSX==='undefined'){alert(tr('excelAlert'));return;}const d=lastCalculation;const wb=XLSX.utils.book_new();let rows=[['EPC BUDGET ESTIMATE'],['Country',d.countryName],['Project Type',d.type],['Capacity (MW / MWp)',d.capacity],['Market Factor',d.factor],[],['EPC Breakdown'],['Category','Base Cost (€)','Estimated Cost (€)'],...d.costs.map(x=>[x[0],x[1],x[2]]),['TOTAL EPC COST','','',d.total],[],['Material Reference'],['Material','Quantity','Unit','Unit Price (€)','Reference Total (€)'],...d.materials.map(x=>[x[0],x[1],x[2],x[3],x[1]*x[3]]),['Material reference total','','','',d.materialTotal],[],['Material reference is informational only and is not added again to EPC total.']];XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'Budget Estimate');XLSX.writeFile(wb,`EPC_Budget_${d.country}_${d.type}_${d.capacity}.xlsx`);});
 function updateSolarDerived(){if($('projectType').value==='solar'){const cap=Number($('capacity').value),wp=Number($('modulePower').value),mps=Number($('modulesPerString').value);if(cap>0&&wp>0&&mps>0){const modules=Math.ceil(cap*1e6/wp);$('solarDerived').style.display='block';$('solarDerived').textContent=`${tr('calculatedModules')}: ${fmt(modules)} | ${tr('estimatedStrings')}: ${fmt(Math.ceil(modules/mps))}`;}else $('solarDerived').style.display='none';}}['capacity','modulePower','modulesPerString'].forEach(id=>$(id).addEventListener('input',updateSolarDerived));
 setLanguage();updateCapacityLabel();
+// Coverage check: the 70 existing country selector codes are all explicitly represented above.
+if(countryCodesInModel.length!==70)console.warn('Country model coverage count:',countryCodesInModel.length);
 </script>
 </body>
 </html>
